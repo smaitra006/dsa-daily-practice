@@ -66,7 +66,7 @@ bool searchBST(Node* root, int key) {
         return searchBST(root->right, key);
 }
 
-// Inorder traversal (Left -> Root -> Right)
+// Inorder traversal (Left -> Root -> Right)  NOTE -> THIS ALWAYS GIVES NODES IN ASCENDING ORDER
 void inorder(Node* root) {
     if (root == nullptr) return;
     inorder(root->left);          // Visit left subtree
@@ -84,15 +84,15 @@ Node* findMin(Node* root) {
 }
 
 // Delete a node from BST
-Node* deleteBST(Node* root, int key) {
+Node* deleteNode(Node* root, int key) {
     if (root == nullptr) return nullptr;
 
     if (key < root->data) {
         // Recur to the left subtree
-        root->left = deleteBST(root->left, key);
+        root->left = deleteNode(root->left, key);
     } else if (key > root->data) {
         // Recur to the right subtree
-        root->right = deleteBST(root->right, key);
+        root->right = deleteNode(root->right, key);
     } else {
         // Node with the key found
 
@@ -119,7 +119,7 @@ Node* deleteBST(Node* root, int key) {
             Node* successor = findMin(root->right);
             root->data = successor->data; // Replace data
             // Delete successor node recursively
-            root->right = deleteBST(root->right, successor->data);
+            root->right = deleteNode(root->right, successor->data);
         }
     }
     return root;
