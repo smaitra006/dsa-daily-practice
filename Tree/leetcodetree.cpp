@@ -1384,3 +1384,75 @@ class Solution {
           }
       }
   };
+
+/* ======================================================================================
+ * PROBLEM 17: VERTICAL ORDER TRAVERSAL OF A BINARY TREE (LeetCode 987)
+ * ====================================================================================== */
+
+/**
+ * @brief Return the vertical order traversal of a binary tree
+ *
+ * PROBLEM STATEMENT:
+ * Given the root of a binary tree, return the vertical order traversal of its nodes' values.
+ * Nodes are sorted by:
+ *   1. Column index (from left to right)
+ *   2. Row index (from top to bottom)
+ *   3. Value (if multiple nodes share same position)
+ *
+ * EXAMPLE:
+ * Input: root = [3,9,20,null,null,15,7]
+ * Output: [[9],[3,15],[20],[7]]
+ *
+ * APPROACH:
+ * - Use DFS to record each node’s (x, y, val):
+ *     → x = vertical (column), y = depth (row)
+ * - Store nodes in a map: map<x, multiset<(y, val)>>
+ *     → Automatically groups by column and sorts by row and value
+ * - Finally, collect values column by column into the result vector.
+ *
+ * @complexity
+ * Time: O(n log n) - Due to multiset insertions and map ordering
+ * Space: O(n) - To store node coordinates and result
+ */
+
+ class Solution {
+    public:
+        /**
+         * @brief DFS traversal to populate column map with (row, val)
+         * @param node Current node
+         * @param x Column index
+         * @param y Row index
+         * @param mp Reference to map storing column to set of (row, val)
+         */
+        void traverse(TreeNode* node, int x, int y, map<int, multiset<pair<int, int>>>& mp) {
+            if (!node) return;
+
+            mp[x].insert({y, node->val});  // Insert current node into column map
+
+            // Left child goes to column -1, row +1
+            traverse(node->left, x - 1, y + 1, mp);
+
+            // Right child goes to column +1, row +1
+            traverse(node->right, x + 1, y + 1, mp);
+        }
+
+        vector<vector<int>> verticalTraversal(TreeNode* root) {
+            // Map to store column → set of (row, value) pairs
+            map<int, multiset<pair<int, int>>> mp;
+
+            // Traverse the tree and populate the map
+            traverse(root, 0, 0, mp);
+
+            // Prepare the result from the map
+            vector<vector<int>> res;
+            // for (auto& [x, st] : mp) {
+            //     res.push_back({});
+            //     for (auto& [y, val] : st) {
+            //         res.back().push_back(val);
+            //     }
+            // }
+            return res;
+        }
+
+
+    };
