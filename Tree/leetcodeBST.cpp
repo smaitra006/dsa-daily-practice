@@ -544,3 +544,137 @@ using namespace std;
       }
   };
 
+/* ============================================================================================
+ * PROBLEM 9: BINARY SEARCH TREE ITERATOR (LeetCode 173)
+ * ============================================================================================ */
+
+/**
+ * @brief Implement an iterator over a BST with `next()` and `hasNext()` operations
+ *
+ * PROBLEM STATEMENT:
+ * Implement the BSTIterator class that represents an iterator over the in-order traversal of a BST.
+ * The iterator should be initialized with the root node of a BST.
+ * - `next()` → returns the next smallest number
+ * - `hasNext()` → returns true if there is a next smallest number
+ *
+ * EXAMPLE:
+ * Input: root = [7,3,15,null,null,9,20]
+ * Output:
+ *   BSTIterator iterator = new BSTIterator(root);
+ *   iterator.next();    // returns 3
+ *   iterator.next();    // returns 7
+ *   iterator.hasNext(); // returns true
+ *   iterator.next();    // returns 9
+ *
+ * APPROACH:
+ * - Simulate inorder traversal using a controlled stack
+ * - Push all left nodes during initialization and while traversing right subtree
+ * - `next()` pops the current smallest node and processes its right child
+ * - `hasNext()` checks if the stack is non-empty
+ *
+ * @methods
+ * BSTIterator(TreeNode* root)   → Constructor initializes stack with leftmost nodes
+ * int next()                    → Returns next smallest value
+ * bool hasNext()                → Checks if any elements are left in stack
+ *
+ * @complexity
+ * Time:
+ *   - next(): Amortized O(1)
+ *   - hasNext(): O(1)
+ * Space: O(h) - height of the tree (for the stack)
+ */
+
+ class BSTIterator {
+    public:
+        stack<TreeNode*> s;
+
+        // Constructor: Push all left nodes starting from root
+        BSTIterator(TreeNode* root) {
+            leftStoring(root);
+        }
+
+        // Helper function to push all left nodes into the stack
+        void leftStoring(TreeNode* root) {
+            while (root != nullptr) {
+                s.push(root);
+                root = root->left;
+            }
+        }
+
+        // Returns the next smallest number in BST
+        int next() {
+            TreeNode* top = s.top();
+            s.pop();
+            // If the node has a right child, push all its left descendants
+            leftStoring(top->right);
+            return top->val;
+        }
+
+        // Returns true if there is a next node available
+        bool hasNext() {
+            return !s.empty();
+        }
+    };
+
+/* ============================================================================================
+ * PROBLEM 10: RECOVER BINARY SEARCH TREE (LeetCode 99)
+ * ============================================================================================ */
+
+/**
+ * @brief Recover a Binary Search Tree in which two nodes are swapped by mistake
+ *
+ * PROBLEM STATEMENT:
+ * You are given the root of a binary search tree (BST), where two nodes have been swapped by mistake.
+ * Recover the tree without changing its structure. You must do this in-place.
+ *
+ * EXAMPLE:
+ * Input: root = [1,3,null,null,2]
+ * Output: [3,1,null,null,2]
+ *
+ * APPROACH:
+ * - Perform an inorder traversal to detect the two misplaced nodes.
+ * - In a correct BST, inorder traversal gives sorted values.
+ * - If a node appears where the order is violated (current < previous), it's part of the swap.
+ *   → First violation: mark `first` = previous, `second` = current
+ *   → Second violation: update only `second` = current
+ * - After identifying, simply swap their values to fix the tree.
+ *
+ * @methods
+ * - recoverTree(TreeNode* root): Entry function to fix the tree
+ * - inorder(TreeNode* node): Helper for traversal and violation detection
+ *
+ * @complexity
+ * Time: O(n) - Full traversal
+ * Space: O(h) - Call stack for recursion (h = height of the tree)
+ */
+
+ class Solution {
+    public:
+        TreeNode* first = nullptr;   // First node to swap
+        TreeNode* second = nullptr;  // Second node to swap
+        TreeNode* prev = nullptr;    // To track previous node in inorder traversal
+
+        // Inorder traversal to identify the two swapped nodes
+        void inorder(TreeNode*& node) {
+            if (!node) return;
+
+            inorder(node->left);
+
+            // Detect incorrect order: previous value > current value
+            if (prev && node->val < prev->val) {
+                // First violation
+                if (!first) first = prev;
+                // Second violation or update second pointer
+                second = node;
+            }
+
+            prev = node;  // Update previous node
+            inorder(node->right);
+        }
+
+        // Main function to recover the BST
+        void recoverTree(TreeNode* root) {
+            inorder(root);  // Perform inorder traversal to find wrong nodes
+            if (first && second) swap(first->val, second->val);  // Fix the swap
+        }
+    };
