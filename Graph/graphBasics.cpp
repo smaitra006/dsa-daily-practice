@@ -68,6 +68,7 @@ void createAdjList(int n, int m, vector<vector<int>>& adj) {
 void dfs(int node, vector<vector<int>>& adj, vector<bool>& visited) {
     cout << node << " ";
     visited[node] = true;
+    // Traverse all the neighbours of the node
     for (int neighbor : adj[node]) {
         if (!visited[neighbor])
             dfs(neighbor, adj, visited);
@@ -87,6 +88,7 @@ void bfs(int start, vector<vector<int>>& adj, vector<bool>& visited) {
         int node = q.front();
         q.pop();
         cout << node << " ";
+        // Traverse all neighbours of node
         for (int neighbor : adj[node]) {
             if (!visited[neighbor]) {
                 visited[neighbor] = true;
@@ -99,6 +101,7 @@ void bfs(int start, vector<vector<int>>& adj, vector<bool>& visited) {
 /* ============================================================
  *               CONNECTED COMPONENTS COUNT
  * ============================================================ */
+// Time: O(N + (V + 2*E)) -> O(N), Space: O(N)
 int countConnectedComponents(int n, vector<vector<int>>& adj) {
     vector<bool> visited(n + 1, false);
     int components = 0;
