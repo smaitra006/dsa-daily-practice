@@ -65,13 +65,24 @@ void createAdjList(int n, int m, vector<vector<int>>& adj) {
  *                   DFS TRAVERSAL
  * ============================================================ */
 // Time: O(N + M), Space: O(N)
-void dfs(int node, vector<vector<int>>& adj, vector<bool>& visited) {
-    cout << node << " ";
-    visited[node] = true; // We got the node so mark it visited
-    // Traverse all the neighbours of the node
-    for (int neighbor : adj[node]) {
-        if (!visited[neighbor]) // If this neighbour is not visited
-            dfs(neighbor, adj, visited); // We go the depth of this neighbour
+void dfs(int start, vector<vector<int>>& adj, vector<bool>& visited) {
+    visited[start] = true;
+    cout << start << " ";
+    for(auto neighbour : adj[start]) {
+        if(!visited[neighbour]) {
+            dfs(neighbour, adj, visited);
+        }
+    }
+}
+
+// Callinf function for bfs -> We do it so that we handle the case of components
+void callDFS(int start, vector<vector<int>>adj) {
+    int n = adj.size();
+    vector<bool> visited(n + 1, false); // Made (n + 1) so that 1-basec indexing is also supported
+    for(int i = 1; i < n + 1; i++) { // This is for 1-based indexing case
+        if(!visited[i]) {
+            dfs(i, adj, visited);
+        }
     }
 }
 
@@ -81,19 +92,29 @@ void dfs(int node, vector<vector<int>>& adj, vector<bool>& visited) {
 // Time: O(N + M), Space: O(N)
 void bfs(int start, vector<vector<int>>& adj, vector<bool>& visited) {
     queue<int> q;
-    q.push(start); // Push the first node
-    visited[start] = true; // Mark first node as visited
+    q.push(start);
+    visited[start] = true;
 
-    while (!q.empty()) {
-        int node = q.front(); // Take out a node
+    while(!q.empty()) {
+        int node = q.front();
         q.pop();
-        cout << node << " "; // Print it
-        // Traverse all neighbours of node
-        for (int neighbor : adj[node]) {
-            if (!visited[neighbor]) { // If the neighbour is not visited
-                visited[neighbor] = true; // Mark it as visited
-                q.push(neighbor); // Push that into the queue to be popped later
+        cout << node << " ";
+        for(auto neighbour : adj[node]) {
+            if(!visited[neighbour]) {
+                q.push(neighbour);
+                visited[neighbour] = true;
             }
+        }
+    }
+}
+
+// Callinf function for bfs -> We do it so that we handle the case of components
+void callBFS(int start, vector<vector<int>>adj) {
+    int n = adj.size();
+    vector<bool> visited(n + 1, false); // Made (n + 1) so that 1-basec indexing is also supported
+    for(int i = 0; i < n; i++) { // This is for 0-based indexing case
+        if(!visited[i]) {
+            bfs(i, adj, visited);
         }
     }
 }
@@ -150,16 +171,13 @@ int countConnectedComponents(int n, vector<vector<int>>& adj) {
  * Time: O(N + M) - N = number of nodes, M = number of edges
  * Space: O(N) - visited array + recursion stack
  */
-
- class Solution {
-    public:
         // DFS helper function to detect cycle
-        bool dfs(int node, int parent, vector<vector<int>>& adj, vector<bool>& visited) {
+        bool dfsHelper(int node, int parent, vector<vector<int>>& adj, vector<bool>& visited) {
             visited[node] = true;
 
             for (int neighbor : adj[node]) {
                 if (!visited[neighbor]) {
-                    if (dfs(neighbor, node, adj, visited)) {
+                    if (dfsHelper(neighbor, node, adj, visited)) {
                         return true;
                     }
                 } else if (neighbor != parent) {
@@ -172,12 +190,12 @@ int countConnectedComponents(int n, vector<vector<int>>& adj) {
         }
 
         // Check all components for cycles
-        bool hasCycle(int n, vector<vector<int>>& adj) {
+        bool hasCycleDFS(int n, vector<vector<int>>& adj) {
             vector<bool> visited(n, false);
 
             for (int node = 0; node < n; node++) {
                 if (!visited[node]) {
-                    if (dfs(node, -1, adj, visited)) {
+                    if (dfsHelper(node, -1, adj, visited)) {
                         return true;
                     }
                 }
@@ -185,7 +203,6 @@ int countConnectedComponents(int n, vector<vector<int>>& adj) {
 
             return false;
         }
-    };
 
 /* ============================================================================
  * PROBLEM XX: DETECT CYCLE IN AN UNDIRECTED GRAPH USING BFS
@@ -217,11 +234,8 @@ int countConnectedComponents(int n, vector<vector<int>>& adj) {
  * Time: O(N + M) - N = nodes, M = edges
  * Space: O(N) - visited array + queue
  */
-
- class Solution {
-    public:
         // BFS helper to detect cycle from a starting node
-        bool bfs(int start, vector<vector<int>>& adj, vector<bool>& visited) {
+        bool bfsHelper(int start, vector<vector<int>>& adj, vector<bool>& visited) {
             queue<pair<int, int>> q; // {node, parent}
             visited[start] = true;
             q.push({start, -1});
@@ -245,12 +259,12 @@ int countConnectedComponents(int n, vector<vector<int>>& adj) {
         }
 
         // Check all components for cycles
-        bool hasCycle(int n, vector<vector<int>>& adj) {
+        bool hasCycleBFS(int n, vector<vector<int>>& adj) {
             vector<bool> visited(n, false);
 
             for (int node = 0; node < n; node++) {
                 if (!visited[node]) {
-                    if (bfs(node, adj, visited)) {
+                    if (bfsHelper(node, adj, visited)) {
                         return true;
                     }
                 }
@@ -258,7 +272,6 @@ int countConnectedComponents(int n, vector<vector<int>>& adj) {
 
             return false;
         }
-    };
 
 
 
