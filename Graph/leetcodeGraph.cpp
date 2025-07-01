@@ -370,3 +370,462 @@ using namespace std;
             return result;
         }
     };
+
+/* ===================================================================
+ * PROBLEM 130: SURROUNDED REGIONS (LeetCode)
+ * =================================================================== */
+
+/**
+ * @brief Capture all regions surrounded by 'X'
+ *
+ * PROBLEM STATEMENT:
+ * Given an `m x n` board containing 'X' and 'O', capture all regions that are
+ * 4-directionally surrounded by 'X'. Flip all surrounded 'O' into 'X'.
+ *
+ * Any 'O' connected to a boundary 'O' should **not** be flipped.
+ *
+ * EXAMPLE:
+ * Input:
+ *   board = [["X","X","X","X"],
+ *            ["X","O","O","X"],
+ *            ["X","X","O","X"],
+ *            ["X","O","X","X"]]
+ * Output:
+ *   [["X","X","X","X"],
+ *    ["X","X","X","X"],
+ *    ["X","X","X","X"],
+ *    ["X","O","X","X"]]
+ *
+ * APPROACH:
+ * - Start DFS from all boundary 'O's to mark them as safe.
+ * - Then flip all unvisited 'O's (surrounded) to 'X'.
+ *
+ * @complexity
+ * Time: O(m * n)
+ * Space: O(m * n) for visited array + recursion stack
+ */
+
+ class Solution {
+    public:
+        void dfs(vector<vector<char>>& board, int sr, int sc, vector<vector<bool>>& visited) {
+            int m = board.size();
+            int n = board[0].size();
+
+            // Out of bounds or already visited or not an 'O'
+            if(sr < 0 || sr >= m || sc < 0 || sc >= n || visited[sr][sc] || board[sr][sc] == 'X')
+                return;
+
+            visited[sr][sc] = true;
+
+            // Directions: up, down, left, right
+            vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+            for(auto dir : directions) {
+                int new_sr = sr + dir.first;
+                int new_sc = sc + dir.second;
+                dfs(board, new_sr, new_sc, visited);
+            }
+        }
+
+        void solve(vector<vector<char>>& board) {
+            int m = board.size();
+            if(m == 0) return;
+            int n = board[0].size();
+            vector<vector<bool>> visited(m, vector<bool>(n, false));
+
+            // 1. Start DFS from all boundary 'O's to mark safe regions
+
+            // Top & Bottom row
+            for(int j = 0; j < n; j++) {
+                if(board[0][j] == 'O' && !visited[0][j]) {
+                    dfs(board, 0, j, visited);
+                }
+                if(board[m - 1][j] == 'O' && !visited[m - 1][j]) {
+                    dfs(board, m - 1, j, visited);
+                }
+            }
+
+            // Left & Right column
+            for(int i = 0; i < m; i++) {
+                if(board[i][0] == 'O' && !visited[i][0]) {
+                    dfs(board, i, 0, visited);
+                }
+                if(board[i][n - 1] == 'O' && !visited[i][n - 1]) {
+                    dfs(board, i, n - 1, visited);
+                }
+            }
+
+            // 2. Flip all unvisited 'O's to 'X'
+            for(int i = 1; i < m - 1; i++) {
+                for(int j = 1; j < n - 1; j++) {
+                    if(board[i][j] == 'O' && !visited[i][j]) {
+                        board[i][j] = 'X';
+                    }
+                }
+            }
+        }
+    };
+
+/* ===================================================================
+ * PROBLEM 1020: NUMBER OF ENCLAVES (LeetCode) MULTI-SOURCE DFS
+ * =================================================================== */
+
+/**
+ * @brief Count land cells (1s) that cannot reach the boundary
+ *
+ * PROBLEM STATEMENT:
+ * You are given an `m x n` binary matrix `grid`, where `0` represents sea and `1` represents land.
+ * A land cell is considered **enclave** if it cannot reach any boundary of the matrix.
+ * Return the number of enclave cells.
+ *
+ * EXAMPLE:
+ * Input:
+ *   grid = [[0,0,0,0],
+ *           [1,0,1,0],
+ *           [0,1,1,0],
+ *           [0,0,0,0]]
+ * Output: 3
+ *
+ * APPROACH:
+ * - Perform DFS from boundary land cells (1s) to mark them as visited.
+ * - Remaining unvisited 1s inside are enclave cells.
+ *
+ * @complexity
+ * Time: O(m * n)
+ * Space: O(m * n) for visited + recursion stack
+ */
+
+ class Solution {
+    public:
+        void dfs(vector<vector<int>>& grid, int sr, int sc, vector<vector<bool>>& visited) {
+            int m = grid.size();
+            int n = grid[0].size();
+
+            if (sr < 0 || sr >= m || sc < 0 || sc >= n || visited[sr][sc] || grid[sr][sc] == 0)
+                return;
+
+            visited[sr][sc] = true;
+
+            vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+            for (auto dir : directions) {
+                int new_sr = sr + dir.first;
+                int new_sc = sc + dir.second;
+                dfs(grid, new_sr, new_sc, visited);
+            }
+        }
+
+        int numEnclaves(vector<vector<int>>& grid) {
+            int m = grid.size();
+            int n = grid[0].size();
+            vector<vector<bool>> visited(m, vector<bool>(n, false));
+
+            // Step 1: Run DFS for all boundary cells having 1
+            // Top and Bottom row
+            for (int j = 0; j < n; j++) {
+                if (grid[0][j] == 1 && !visited[0][j]) {
+                    dfs(grid, 0, j, visited);
+                }
+                if (grid[m - 1][j] == 1 && !visited[m - 1][j]) {
+                    dfs(grid, m - 1, j, visited);
+                }
+            }
+
+            // Left and Right column
+            for (int i = 0; i < m; i++) {
+                if (grid[i][0] == 1 && !visited[i][0]) {
+                    dfs(grid, i, 0, visited);
+                }
+                if (grid[i][n - 1] == 1 && !visited[i][n - 1]) {
+                    dfs(grid, i, n - 1, visited);
+                }
+            }
+
+            // Step 2: Count the unvisited land cells (enclaves)
+            int result = 0;
+            for (int i = 1; i < m - 1; i++) {
+                for (int j = 1; j < n - 1; j++) {
+                    if (grid[i][j] == 1 && !visited[i][j]) {
+                        result++;
+                    }
+                }
+            }
+
+            return result;
+        }
+    };
+
+/* ===================================================================
+ * PROBLEM 1020: NUMBER OF ENCLAVES (LeetCode) MULTI-SOURCE BFS
+ * =================================================================== */
+
+/**
+ * @brief Count number of land cells that cannot reach the boundary using BFS
+ *
+ * PROBLEM STATEMENT:
+ * You are given an `m x n` binary matrix `grid`, where:
+ * - `0` represents sea, and
+ * - `1` represents land.
+ *
+ * A land cell is an **enclave** if it cannot reach any boundary cell
+ * (any cell on the edge of the grid) by moving 4-directionally through land.
+ * Return the total count of enclave land cells.
+ *
+ * APPROACH:
+ * - Use **Multi-source BFS** starting from all boundary land cells (1s).
+ * - Mark all reachable land cells as visited.
+ * - Count the remaining unvisited land cells as enclaves.
+ *
+ * @complexity
+ * Time: O(m * n)
+ * Space: O(m * n) for visited and queue
+ */
+
+ class Solution {
+    public:
+        int numEnclaves(vector<vector<int>>& grid) {
+            int m = grid.size();
+            int n = grid[0].size();
+
+            vector<vector<bool>> visited(m, vector<bool>(n, false));
+            queue<pair<int, int>> q;
+
+            // Step 1: Add all boundary land cells to the queue
+            for (int j = 0; j < n; j++) {
+                if (grid[0][j] == 1 && !visited[0][j]) {
+                    q.push({0, j});
+                    visited[0][j] = true;
+                }
+                if (grid[m - 1][j] == 1 && !visited[m - 1][j]) {
+                    q.push({m - 1, j});
+                    visited[m - 1][j] = true;
+                }
+            }
+
+            for (int i = 0; i < m; i++) {
+                if (grid[i][0] == 1 && !visited[i][0]) {
+                    q.push({i, 0});
+                    visited[i][0] = true;
+                }
+                if (grid[i][n - 1] == 1 && !visited[i][n - 1]) {
+                    q.push({i, n - 1});
+                    visited[i][n - 1] = true;
+                }
+            }
+
+            // Step 2: BFS traversal to mark reachable land cells
+            vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+            while (!q.empty()) {
+                pair<int, int> curr = q.front(); q.pop();
+                int r = curr.first;
+                int c = curr.second;
+
+                for (auto dir : directions) {
+                    int nr = r + dir.first;
+                    int nc = c + dir.second;
+
+                    if (nr >= 0 && nr < m && nc >= 0 && nc < n &&
+                        grid[nr][nc] == 1 && !visited[nr][nc]) {
+                        visited[nr][nc] = true;
+                        q.push({nr, nc});
+                    }
+                }
+            }
+
+            // Step 3: Count unvisited land cells as enclaves
+            int count = 0;
+            for (int i = 0; i < m; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (grid[i][j] == 1 && !visited[i][j]) {
+                        count++;
+                    }
+                }
+            }
+
+            return count;
+        }
+    };
+
+/* ========================================================================
+ * PROBLEM 785: IS GRAPH BIPARTITE? (LeetCode)
+ * ======================================================================== */
+
+/**
+ * @brief Check if the given graph is bipartite using DFS
+ *
+ * PROBLEM STATEMENT:
+ * Given an undirected graph represented as an adjacency list,
+ * determine whether it is bipartite. A graph is bipartite if the nodes
+ * can be divided into two sets such that no two nodes within the same
+ * set are adjacent.
+ *
+ * EXAMPLE:
+ * Input: graph = [[1,2,3],[0,2],[0,1,3],[0,2]]
+ * Output: false
+ *
+ * @param graph Adjacency list of the graph
+ * @return true if the graph is bipartite, false otherwise
+ *
+ * @complexity
+ * Time: O(V + E)
+ * Space: O(V) - for color/visited array and recursion stack
+ */
+
+// ====================== DFS APPROACH ======================
+
+class Solution {
+    public:
+        bool dfs(vector<vector<int>>& graph, int node, vector<int>& color, int currColor) {
+            color[node] = currColor;
+
+            for(auto neighbour : graph[node]) {
+                if(color[node] == color[neighbour]) {
+                    return false;
+                }
+                if(color[neighbour] == -1) {
+                    if(dfs(graph, neighbour, color, 1 - currColor) == false) { // If its 1 it becomes 0 and if its 0 then it becomes 1
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        bool isBipartite(vector<vector<int>>& graph) {
+            // make the color
+            int n = graph.size();
+            vector<int> color(n, -1); // This will also work as visited array
+
+            // color0 = 0, color1 = 1;
+
+            for(int i = 0; i < n; i++) {
+                if(color[i] == -1) {
+                    if(dfs(graph, i, color, 0) == false) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    };
+
+// ====================== BFS APPROACH ======================
+
+/**
+ * @brief Check if the given graph is bipartite using BFS
+ *
+ * @param graph Adjacency list of the graph
+ * @return true if the graph is bipartite, false otherwise
+ *
+ * @complexity
+ * Time: O(V + E)
+ * Space: O(V) - for color array and queue
+ */
+
+class Solution {
+    public:
+    bool isBipartite(vector<vector<int>>& graph) {
+        int n = graph.size();
+        vector<int> color(n, -1); // -1 = unvisited
+
+        for (int i = 0; i < n; i++) {
+            if (color[i] == -1) {
+                queue<int> q;
+                q.push(i);
+                color[i] = 0;
+
+                while (!q.empty()) {
+                    int node = q.front(); q.pop();
+
+                    for (int neighbor : graph[node]) {
+                        if (color[neighbor] == -1) {
+                            color[neighbor] = 1 - color[node];
+                            q.push(neighbor);
+                        } else if (color[neighbor] == color[node]) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+};
+
+/* ===================================================================
+ * PROBLEM 802: FIND EVENTUAL SAFE STATES (LeetCode)
+ * =================================================================== */
+
+/**
+ * @brief Return all eventual safe nodes in a directed graph using DFS
+ *
+ * PROBLEM STATEMENT:
+ * A node is called **eventually safe** if every possible path starting from
+ * that node leads to a terminal node (i.e., a node with no outgoing edges).
+ *
+ * Given a directed graph represented as an adjacency list, return a sorted list
+ * of all the **eventual safe nodes**.
+ *
+ * APPROACH:
+ * - Use DFS to detect cycles using `visited` and `pathVisited`.
+ * - Nodes involved in cycles or leading to cycles are not safe.
+ * - A node is safe if it does not lie on any cycle path.
+ *
+ * STRATEGY:
+ * - If a node is part of a cycle, or leads to one → mark unsafe.
+ * - After all DFS calls, nodes not in the current recursion path (pathVisited)
+ *   are safe nodes.
+ *
+ * @param graph Adjacency list of the directed graph
+ * @return vector<int> of all safe node indices in sorted order
+ *
+ * @complexity
+ * Time: O(V + E)
+ * Space: O(V) for visited, pathVisited arrays and recursion stack
+ */
+
+ class Solution {
+    public:
+        // Helper DFS to detect cycles
+        bool hasCycleDFS(vector<vector<int>>& graph, int node,
+                         vector<bool>& visited, vector<bool>& pathVisited) {
+            visited[node] = true;
+            pathVisited[node] = true;
+
+            for (int neighbour : graph[node]) {
+                if (!visited[neighbour]) {
+                    if (hasCycleDFS(graph, neighbour, visited, pathVisited)) {
+                        return true;
+                    }
+                } else if (pathVisited[neighbour]) {
+                    // A back edge found → cycle
+                    return true;
+                }
+            }
+
+            pathVisited[node] = false; // Backtrack
+            return false;
+        }
+
+        vector<int> eventualSafeNodes(vector<vector<int>>& graph) {
+            int n = graph.size();
+            vector<bool> visited(n, false);
+            vector<bool> pathVisited(n, false);
+            vector<int> safeNodes;
+
+            // Step 1: DFS on all nodes to find unsafe/cyclic ones
+            for (int i = 0; i < n; i++) {
+                if (!visited[i]) {
+                    hasCycleDFS(graph, i, visited, pathVisited);
+                }
+            }
+
+            // Step 2: Nodes not part of any cycle are safe
+            for (int i = 0; i < n; i++) {
+                if (pathVisited[i] == false) {
+                    safeNodes.push_back(i);
+                }
+            }
+
+            return safeNodes;
+        }
+    };
+
