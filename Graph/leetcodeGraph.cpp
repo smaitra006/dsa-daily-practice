@@ -829,3 +829,281 @@ class Solution {
         }
     };
 
+/* ===================================================================
+ * PROBLEM 207: COURSE SCHEDULE (LeetCode)
+ * =================================================================== */
+
+/**
+ * @brief Determine if all courses can be finished (i.e., graph is a DAG)
+ *
+ * PROBLEM STATEMENT:
+ * There are `numCourses` labeled from 0 to numCourses - 1. Some courses have
+ * prerequisites in the form [a, b], meaning to take course a, you must first
+ * take course b.
+ *
+ * Return true if it is possible to finish all courses. Otherwise, return false.
+ *
+ * In graph terms, check if the directed graph formed by prerequisites is a DAG.
+ *
+ * APPROACH:
+ * - Use **Kahn's Algorithm** (Topological Sort using indegree).
+ * - Count how many nodes can be processed with zero indegree.
+ * - If all nodes are processed → valid DAG → all courses can be finished.
+ *
+ * STRATEGY:
+ * - Build an adjacency list for the graph.
+ * - Track indegree of each node.
+ * - Use a queue to process nodes with indegree 0.
+ * - If the count of processed nodes equals total nodes, return true.
+ *
+ * @param numCourses Total number of courses (nodes)
+ * @param prerequisites List of [a, b] pairs meaning b → a
+ * @return true if all courses can be finished, else false
+ *
+ * @complexity
+ * Time: O(V + E) — where V = numCourses, E = prerequisites
+ * Space: O(V + E) — for adjacency list and indegree array
+ */
+
+ class Solution {
+    public:
+        // Helper function to check if graph is DAG using Kahn's Algorithm
+        bool isDAG(vector<vector<int>>& adj, vector<int>& indegree) {
+            int n = indegree.size();
+            int count = 0;
+            queue<int> q;
+
+            // Add all nodes with 0 indegree
+            for (int i = 0; i < n; i++) {
+                if (indegree[i] == 0) {
+                    q.push(i);
+                }
+            }
+
+            // Kahn's Algorithm main loop
+            while (!q.empty()) {
+                int node = q.front();
+                q.pop();
+                count++;
+
+                for (int neighbour : adj[node]) {
+                    indegree[neighbour]--;
+                    if (indegree[neighbour] == 0) {
+                        q.push(neighbour);
+                    }
+                }
+            }
+
+            // If all nodes are processed → graph is a DAG
+            return count == n;
+        }
+
+        bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
+            vector<vector<int>> adj(numCourses);
+            vector<int> indegree(numCourses, 0);
+
+            // Build graph and indegree array
+            for (const auto& pre : prerequisites) {
+                int a = pre[0];
+                int b = pre[1];
+                // b → a (b must be done before a)
+                adj[b].push_back(a);
+                indegree[a]++;
+            }
+
+            return isDAG(adj, indegree);
+        }
+    };
+
+/* ===================================================================
+ * PROBLEM 210: COURSE SCHEDULE II (LeetCode)
+ * =================================================================== */
+
+/**
+ * @brief Return a valid order in which all courses can be completed
+ *
+ * PROBLEM STATEMENT:
+ * You are given the total number of courses `numCourses` and a list of prerequisite pairs.
+ * Each pair [a, b] indicates that to take course `a`, you must first take course `b`.
+ *
+ * Return a possible ordering of courses to finish all courses.
+ * If it is not possible to complete all courses (i.e., there’s a cycle), return an empty list.
+ *
+ * APPROACH:
+ * - Use **Kahn’s Algorithm** (Topological Sort using BFS and indegree tracking).
+ * - If the topological ordering contains all nodes → return the result.
+ * - If not → a cycle exists → return empty list.
+ *
+ * STRATEGY:
+ * 1. Build the adjacency list for the directed graph.
+ * 2. Track indegrees for each node.
+ * 3. Start from nodes with zero indegree, and process using a queue.
+ * 4. Append processed nodes to the topological ordering list.
+ *
+ * @param numCourses Total number of nodes (courses)
+ * @param prerequisites Prerequisite edges [a, b] meaning b → a
+ * @return vector<int> A valid ordering of courses or empty vector if cycle exists
+ *
+ * @complexity
+ * Time: O(V + E), where V = numCourses and E = number of prerequisites
+ * Space: O(V + E), for adjacency list, indegree array, and queue
+ */
+
+ class Solution {
+    public:
+        // Helper function to perform Kahn's Topological Sort
+        void topologicalSort(int numCourses, vector<vector<int>>& adj, vector<int>& indegree, vector<int>& topo) {
+            queue<int> q;
+
+            // Push all nodes with zero indegree into the queue
+            for (int i = 0; i < numCourses; i++) {
+                if (indegree[i] == 0) {
+                    q.push(i);
+                }
+            }
+
+            // BFS traversal
+            while (!q.empty()) {
+                int node = q.front();
+                q.pop();
+                topo.push_back(node);
+
+                // Decrease indegree of all adjacent nodes
+                for (int neighbour : adj[node]) {
+                    indegree[neighbour]--;
+                    if (indegree[neighbour] == 0) {
+                        q.push(neighbour);
+                    }
+                }
+            }
+        }
+
+        vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
+            vector<vector<int>> adj(numCourses);       // Adjacency list
+            vector<int> indegree(numCourses, 0);       // Indegree array
+
+            // Step 1: Build the graph and populate indegree
+            for (const auto& p : prerequisites) {
+                int a = p[0];
+                int b = p[1];
+                // Edge: b → a (b must be completed before a)
+                adj[b].push_back(a);
+                indegree[a]++;
+            }
+
+            // Step 2: Perform topological sort
+            vector<int> topo;
+            topologicalSort(numCourses, adj, indegree, topo);
+
+            // Step 3: If topological sort includes all nodes, return it
+            if (topo.size() == numCourses) {
+                return topo;
+            }
+
+            // Cycle detected: return empty vector
+            return {};
+        }
+    };
+
+/* ===================================================================
+ * PROBLEM 269: ALIEN DICTIONARY (LeetCode)
+ * =================================================================== */
+
+/**
+ * @brief Determine the order of characters in an alien language
+ *
+ * PROBLEM STATEMENT:
+ * You are given a list of words sorted lexicographically according to the rules
+ * of an unknown alien language. You must derive the order of characters in the alien alphabet.
+ *
+ * If the ordering is invalid (e.g., a prefix appears after its full word), return "".
+ * If multiple valid orderings exist, return any one of them.
+ *
+ * EXAMPLE:
+ * Input:  words = ["wrt","wrf","er","ett","rftt"]
+ * Output: "wertf"
+ *
+ * APPROACH:
+ * - Build a graph of characters using pairwise comparisons of adjacent words.
+ * - If char1 comes before char2 → add edge: char1 → char2.
+ * - Use Kahn’s Algorithm (BFS Topological Sort) to determine character order.
+ *
+ * STRATEGY:
+ * 1. Initialize graph (adjacency list) and indegree map.
+ * 2. For each pair of adjacent words, compare characters and build edges.
+ * 3. Apply topological sort using queue to find valid order.
+ * 4. If result length != total unique characters → cycle exists → return "".
+ *
+ * @param words Vector of words sorted by alien dictionary
+ * @return string A valid character order or "" if not possible
+ *
+ * @complexity
+ * Time:  O(N * L), where N = number of words, L = average word length
+ * Space: O(1), since alphabet is limited to 26 characters
+ */
+
+ class Solution {
+    public:
+        string alienOrder(vector<string>& words) {
+            unordered_map<char, unordered_set<char>> adj; // adjacency list
+            unordered_map<char, int> indegree;            // indegree of each node
+
+            // Step 1: Initialize graph nodes
+            for (const string& word : words) {
+                for (char c : word) {
+                    indegree[c] = 0;  // Ensure every character is in the indegree map
+                }
+            }
+
+            // Step 2: Build the graph from adjacent word pairs
+            for (int i = 0; i < words.size() - 1; ++i) {
+                string& w1 = words[i];
+                string& w2 = words[i + 1];
+
+                // Invalid case: longer word appears before its prefix
+                if (w1.size() > w2.size() && w1.substr(0, w2.size()) == w2) {
+                    return "";
+                }
+
+                // Compare characters to find the first difference
+                for (int j = 0; j < min(w1.size(), w2.size()); ++j) {
+                    char c1 = w1[j];
+                    char c2 = w2[j];
+
+                    if (c1 != c2) {
+                        // Add edge only if not already present
+                        if (!adj[c1].count(c2)) {
+                            adj[c1].insert(c2);
+                            indegree[c2]++;
+                        }
+                        break; // Only first differing character matters
+                    }
+                }
+            }
+
+            // Step 3: Kahn’s Algorithm (Topological Sort using BFS)
+            queue<char> q;
+            for (auto& [c, deg] : indegree) {
+                if (deg == 0) {
+                    q.push(c);
+                }
+            }
+
+            string result;
+            while (!q.empty()) {
+                char c = q.front();
+                q.pop();
+                result += c;
+
+                for (char neighbor : adj[c]) {
+                    indegree[neighbor]--;
+                    if (indegree[neighbor] == 0) {
+                        q.push(neighbor);
+                    }
+                }
+            }
+
+            // Step 4: Check if all characters are included in result
+            return result.size() == indegree.size() ? result : "";
+        }
+    };
