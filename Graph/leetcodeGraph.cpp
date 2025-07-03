@@ -1107,3 +1107,276 @@ class Solution {
             return result.size() == indegree.size() ? result : "";
         }
     };
+
+/* =============================================================================
+ * PROBLEM 990: SATISFIABILITY OF EQUALITY EQUATIONS (LeetCode)
+ * ============================================================================= */
+
+/**
+ * @brief Determine if all given equality and inequality equations are satisfiable
+ *
+ * PROBLEM STATEMENT:
+ * You are given an array of strings `equations` of length n representing relationships between variables.
+ * Each equation is of the form "a==b" or "a!=b", where a and b are lowercase English letters.
+ * Return true if it is possible to assign integers to variable names such that all equations are satisfied.
+ *
+ * EXAMPLE:
+ * Input: ["a==b","b!=a"]
+ * Output: false
+ *
+ * APPROACH:
+ * - Use Disjoint Set Union (DSU) to group variables connected by equality (==).
+ * - Then, for every inequality (!=), check if both variables belong to the same group.
+ * - If they do, it's a contradiction → return false.
+ *
+ * ALGORITHM:
+ * 1. Initialize DSU for 26 lowercase letters.
+ * 2. Process all equations with `==` and perform union.
+ * 3. Process all equations with `!=` and check for contradiction.
+ *
+ * COMPLEXITY:
+ * Time: O(N * α(26)) ≈ O(N), where N = number of equations
+ * Space: O(26)
+ */
+
+ class Solution {
+    public:
+        vector<int> parent;
+        vector<int> rank;
+
+        // FIND operation with path compression
+        int findParent(int x) {
+            if (parent[x] == x) return x;
+            return parent[x] = findParent(parent[x]);
+        }
+
+        // UNION operation by rank
+        void Union(int x, int y) {
+            int px = findParent(x);
+            int py = findParent(y);
+
+            if (px == py) return;
+
+            if (rank[px] < rank[py]) {
+                parent[px] = py;
+            } else if (rank[px] > rank[py]) {
+                parent[py] = px;
+            } else {
+                parent[py] = px;
+                rank[px]++;
+            }
+        }
+
+        bool equationsPossible(vector<string>& equations) {
+            parent.resize(26);
+            rank.resize(26, 0);
+
+            // Step 1: Initialize parent of each variable to itself
+            for (int i = 0; i < 26; i++) {
+                parent[i] = i;
+            }
+
+            // Step 2: Union all equal variables
+            for (const string& eq : equations) {
+                if (eq[1] == '=') {
+                    int u = eq[0] - 'a';
+                    int v = eq[3] - 'a';
+                    Union(u, v);
+                }
+            }
+
+            // Step 3: Check all not-equal constraints
+            for (const string& eq : equations) {
+                if (eq[1] == '!') {
+                    int u = eq[0] - 'a';
+                    int v = eq[3] - 'a';
+
+                    if (findParent(u) == findParent(v)) {
+                        return false; // Contradiction found
+                    }
+                }
+            }
+
+            return true; // No contradiction
+        }
+    };
+
+/* =============================================================================
+ * PROBLEM 1319: NUMBER OF OPERATIONS TO MAKE NETWORK CONNECTED (LeetCode)
+ * ============================================================================= */
+
+/**
+ * @brief Connect all computers in a network using the minimum number of operations
+ *
+ * PROBLEM STATEMENT:
+ * - There are `n` computers labeled from `0` to `n - 1`.
+ * - Given a list of connections where `connections[i] = [a, b]` represents a direct connection.
+ * - You can remove and reconnect cables.
+ * - Return the minimum number of operations needed to connect all computers.
+ * - If it is not possible, return -1.
+ *
+ * EXAMPLE:
+ * Input: n = 4, connections = [[0,1],[0,2],[1,2]]
+ * Output: 1
+ *
+ * APPROACH:
+ * - Use Disjoint Set Union (DSU) to find connected components.
+ * - If total connections < n - 1 → impossible to connect → return -1.
+ * - Otherwise, count how many components exist.
+ * - To connect `k` components into one, you need `k - 1` cables.
+ *
+ * TIME COMPLEXITY: O(E * α(N)) where E = connections.size(), α = inverse Ackermann
+ * SPACE COMPLEXITY: O(N)
+ */
+
+ class Solution {
+    public:
+        vector<int> parent;
+        vector<int> rank;
+
+        // FIND with path compression
+        int findParent(int x) {
+            if (parent[x] == x) return x;
+            return parent[x] = findParent(parent[x]);
+        }
+
+        // UNION by rank
+        void Union(int x, int y) {
+            int px = findParent(x);
+            int py = findParent(y);
+
+            if (rank[px] > rank[py]) {
+                parent[py] = px;
+            } else if (rank[py] > rank[px]) {
+                parent[px] = py;
+            } else {
+                parent[py] = px;
+                rank[px]++;
+            }
+        }
+
+        int makeConnected(int n, vector<vector<int>>& connections) {
+            // Not enough cables to connect all computers
+            if (connections.size() < n - 1) return -1;
+
+            parent.resize(n);
+            rank.resize(n, 0);
+
+            // Step 1: Initialize each computer to be its own parent
+            for (int i = 0; i < n; i++) {
+                parent[i] = i;
+            }
+
+            int components = n;
+
+            // Step 2: Union operation for each connection
+            for (auto& edge : connections) {
+                int u = edge[0];
+                int v = edge[1];
+
+                int pu = findParent(u);
+                int pv = findParent(v);
+
+                if (pu != pv) {
+                    Union(u, v);
+                    components--; // Successfully connected two components
+                }
+            }
+
+            // Step 3: We need (components - 1) operations to connect them
+            return components - 1;
+        }
+    };
+
+/* =============================================================================
+ * PROBLEM 2316: COUNT UNREACHABLE PAIRS OF NODES IN AN UNDIRECTED GRAPH (LeetCode)
+ * ============================================================================= */
+
+/**
+ * @brief Count the number of unordered pairs of nodes that are unreachable from each other.
+ *
+ * PROBLEM STATEMENT:
+ * You are given an integer `n` (total number of nodes labeled 0 to n - 1) and
+ * a 2D array `edges` where `edges[i] = [a, b]` represents an undirected edge.
+ *
+ * Return the number of **unreachable node pairs** in the graph.
+ *
+ * EXAMPLE:
+ * Input: n = 5, edges = [[0,1],[2,3],[0,4]]
+ * Output: 6
+ *
+ * EXPLANATION:
+ * - Components: {0,1,4} and {2,3}
+ * - Unreachable pairs = 3 * 2 = 6 (from each pair of distinct components)
+ *
+ * APPROACH:
+ * - Use DSU to find connected components.
+ * - Count the size of each component.
+ * - For each component of size `s`, it contributes `s * (remaining - s)` unreachable pairs.
+ *
+ * @complexity
+ * Time: O(n + e * α(n)) where e = edges.size(), α is inverse Ackermann
+ * Space: O(n)
+ */
+
+ class Solution {
+    public:
+        vector<int> parent;
+        vector<int> rank;
+
+        // DSU: Find with path compression
+        int findParent(int x) {
+            if (parent[x] == x) return x;
+            return parent[x] = findParent(parent[x]);
+        }
+
+        // DSU: Union by rank
+        void Union(int x, int y) {
+            int px = findParent(x);
+            int py = findParent(y);
+
+            if (px == py) return;
+
+            if (rank[px] < rank[py]) {
+                parent[px] = py;
+            } else if (rank[px] > rank[py]) {
+                parent[py] = px;
+            } else {
+                parent[py] = px;
+                rank[px]++;
+            }
+        }
+
+        long long countPairs(int n, vector<vector<int>>& edges) {
+            parent.resize(n);
+            rank.resize(n, 0);
+
+            // Step 1: Initialize each node as its own parent
+            for (int i = 0; i < n; i++) {
+                parent[i] = i;
+            }
+
+            // Step 2: Union all connected nodes
+            for (auto& edge : edges) {
+                Union(edge[0], edge[1]);
+            }
+
+            // Step 3: Count size of each component using parent map
+            unordered_map<int, int> componentSize;
+            for (int i = 0; i < n; i++) {
+                int p = findParent(i);
+                componentSize[p]++;
+            }
+
+            // Step 4: Count unreachable pairs
+            long long totalPairs = 0;
+            long long remaining = n;
+
+            for (auto& [leader, size] : componentSize) {
+                totalPairs += size * (remaining - size);
+                remaining -= size;
+            }
+
+            return totalPairs;
+        }
+    };

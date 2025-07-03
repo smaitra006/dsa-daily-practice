@@ -514,6 +514,99 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
     return topo;
 }
 
+/* ================================================================
+ * DISJOINT SET UNION (DSU) - UNION BY RANK + PATH COMPRESSION
+ * ================================================================ */
+
+/*
+ * CONCEPT:
+ * - DSU (or Union-Find) is a data structure to efficiently manage
+ *   disjoint sets and perform operations like:
+ *     → Check if two elements are in the same set
+ *     → Merge two sets
+ *
+ * OPTIMIZED WITH:
+ * - Path Compression → Flattens the tree during `find`
+ * - Union by Rank → Attach lower-rank tree under higher-rank one
+ *
+ * COMMON USES:
+ * - Kruskal’s MST
+ * - Cycle detection in undirected graphs
+ * - Dynamic connectivity
+ *
+ * TIME COMPLEXITY: O(α(n)) per operation (inverse Ackermann function, almost constant)
+ * SPACE COMPLEXITY: O(n)
+ */
+
+ #include <bits/stdc++.h>
+ using namespace std;
+
+ class DSU {
+ private:
+     vector<int> parent;
+     vector<int> rank;
+
+ public:
+     // Constructor to initialize DSU with n nodes (0 to n-1)
+     DSU(int n) {
+         parent.resize(n);
+         rank.resize(n, 0); // Rank starts as 0
+         for(int i = 0; i < n; i++) {
+             parent[i] = i; // Initially, each node is its own parent
+         }
+     }
+
+     // Find with Path Compression
+     int findParent(int node) {
+         if (parent[node] == node)
+             return node;
+         return parent[node] = findParent(parent[node]);
+     }
+
+     // Union by Rank
+     bool unionByRank(int u, int v) {
+         int pu = findParent(u);
+         int pv = findParent(v);
+
+         if (pu == pv) return false; // Same set, no need to union
+
+         // Attach lower-rank tree under higher-rank tree
+         if (rank[pu] < rank[pv]) {
+             parent[pu] = pv;
+         } else if (rank[pv] < rank[pu]) {
+             parent[pv] = pu;
+         } else {
+             parent[pv] = pu;
+             rank[pu]++; // Increase rank only if both are equal
+         }
+         return true; // sucessful union
+     }
+
+     // Optional: Check if two nodes are connected
+     bool isConnected(int u, int v) {
+         return findParent(u) == findParent(v);
+     }
+
+     /*
+    * FUNCTION: detectCycle
+    * ----------------------
+    * @param n    → Number of vertices (0-indexed)
+    * @param edges → Vector of edges (undirected)
+    * @return true if a cycle exists, false otherwise
+    */
+   bool detectCycle(int n, vector<pair<int, int>>& edges) {
+        DSU dsu(n);
+
+        for(auto [u, v] : edges) {
+            if(!unionByRank(u, v)) {
+                return true; // Cycle detected
+            }
+        }
+
+        return false; // No cycles found
+    }
+ };
+
 
 
 int main() {
