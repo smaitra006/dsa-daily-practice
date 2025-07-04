@@ -228,3 +228,73 @@ public:
         return word[k - 1];  // Convert to 0-based index
     }
 };
+
+/* =====================================================================================
+ * PROBLEM 3307: FIND THE K-TH CHARACTER IN STRING GAME II (LeetCode Hard)
+ * ===================================================================================== */
+
+/**
+ * @brief Simulate string operations without building the full string, and return the k-th character.
+ *
+ * PROBLEM STATEMENT:
+ * Initially, Alice has a string `word = "a"`.
+ * You're given an array `operations` and a number `k`.
+ *
+ * For each operation in `operations[i]`:
+ * - If `operations[i] == 0`: word = word + word
+ * - If `operations[i] == 1`: word = word + shift(word) → where each character moves to the next (z→a)
+ *
+ * Return the character at the `k-th` position (1-indexed) after all operations.
+ * Note: String grows exponentially, so building it directly is not feasible.
+ *
+ * EXAMPLE:
+ * Input: k = 4, operations = [0, 1]
+ * Output: 'c'
+ *
+ * STRATEGY:
+ * - Instead of constructing the full string, calculate the number of characters added by each operation.
+ * - Work backwards from the last operation using recursion.
+ * - At each step:
+ *   → If `pows[i] < k`, then the character at `k` lies in the appended portion → reduce k and update answer.
+ *   → If not, continue to earlier operations.
+ * - Use modulo 26 to determine character value from index.
+ *
+ * @complexity
+ * Time: O(n) where n = operations.size() (up to 55 due to 2^55 > 10^16)
+ * Space: O(n) recursion stack + O(n) for power array
+ */
+
+ class Solution {
+    public:
+        #define ll long long
+        vector<ll> pows;
+
+        // Helper function to recursively find how many +1 shifts were applied to get to the kth character
+        int f(int index, ll k, vector<int>& operations) {
+            if (index < 0) return 0; // base case: we're at the original 'a'
+
+            if (index >= 55) return f(index - 1, k, operations); // beyond limit (2^55 > 10^16)
+
+            // If kth character is in the added portion of this operation
+            if (pows[index] < k) {
+                return operations[index] + f(index - 1, k - pows[index], operations);
+            }
+
+            // Otherwise, it's from the original segment
+            return f(index - 1, k, operations);
+        }
+
+        char kthCharacter(long long k, vector<int>& operations) {
+            pows.resize(55, 1);
+            pows[0] = 1;
+
+            // Precompute powers: pows[i] = total size of string after i operations
+            for (int i = 1; i < 55; i++) {
+                pows[i] = 2 * pows[i - 1];
+            }
+
+            int n = operations.size();
+            int shifts = f(n - 1, k, operations); // how many +1 shifts happened along the path
+            return 'a' + (shifts % 26);           // final character after that many shifts from 'a'
+        }
+    };
