@@ -607,6 +607,235 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
     }
  };
 
+/* =============================================================================
+ * ALGORITHM: DIJKSTRA’S SHORTEST PATH ALGORITHM (Single Source)
+ * ============================================================================= */
+
+/**
+ * @brief Find the shortest distance from the source node to all other nodes in a weighted graph.
+ *
+ * PROBLEM STATEMENT:
+ * Given a weighted graph with `n` vertices and non-negative edge weights,
+ * Dijkstra’s algorithm finds the shortest distance from a given source node
+ * to all other nodes.
+ *
+ * APPLICABLE FOR:
+ * - Graphs with non-negative weights
+ * - Single source shortest path problem
+ *
+ * NOT FOR:
+ * - Graphs with negative weight edges (Use Bellman-Ford instead)
+ *
+ * EXAMPLE:
+ * Input:
+ * n = 5, source = 0
+ * adj = {
+ *   { {1, 2}, {2, 4} },   // node 0 has edges to 1 (weight 2) and 2 (weight 4)
+ *   { {2, 1}, {3, 7} },
+ *   { {4, 3} },
+ *   { {4, 1} },
+ *   {}
+ * }
+ * Output: [0, 2, 3, 9, 6]
+ *
+ * APPROACH:
+ * - Initialize all distances to INF except source node as 0.
+ * - Use a min-heap (priority queue) to always expand the node with the smallest distance.
+ * - For each neighbor of current node, update its distance if a shorter path is found.
+ *
+ * @complexity
+ * Time: O((V + E) * log V) using min-heap
+ * Space: O(V) for distance array + O(V) for priority queue
+ */
+
+ class Solution {
+    public:
+        vector<int> dijkstra(int V, vector<vector<pair<int, int>>>& adj, int source) {
+            // Step 1: Distance array initialized to infinity
+            vector<int> dist(V, INT_MAX);
+            dist[source] = 0;
+
+            // Step 2: Min-heap to store {distance, node}
+            priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
+            pq.push({0, source}); // {distance, node}
+
+            // Step 3: BFS-like traversal using priority queue
+            while (!pq.empty()) { // TC -> V
+                int currDist = pq.top().first;
+                int node = pq.top().second;
+                pq.pop(); // TC -> log(V)
+
+                for (auto neighbor : adj[node]) { // TC -> E
+                    int adjNode = neighbor.first;
+                    int weight = neighbor.second;
+
+                    // Relaxation step
+                    if (currDist + weight < dist[adjNode]) {
+                        dist[adjNode] = currDist + weight;
+                        pq.push({dist[adjNode], adjNode}); // TC -> log(V)
+                    }
+                }
+            }
+
+            return dist;
+        }
+    };
+
+/* =============================================================================
+ * ALGORITHM: DIJKSTRA’S SHORTEST PATH ALGORITHM using SET
+ * ============================================================================= */
+
+/**
+ * @brief Find the shortest distance from the source node to all other nodes in a weighted graph.
+ *
+ * PROBLEM STATEMENT:
+ * Given a weighted graph with `n` vertices and non-negative edge weights,
+ * Dijkstra’s algorithm finds the shortest distance from a given source node
+ * to all other nodes.
+ *
+ * This version uses a `set` to maintain a sorted order of {distance, node} pairs.
+ * Unlike a priority_queue, a set allows easy updates (erase+insert) of distances.
+ *
+ * APPLICABLE FOR:
+ * - Graphs with non-negative weights
+ * - Single source shortest path problem
+ *
+ * NOT FOR:
+ * - Graphs with negative weight edges (Use Bellman-Ford instead)
+ *
+ * EXAMPLE:
+ * Input:
+ * n = 5, source = 0
+ * adj = {
+ *   { {1, 2}, {2, 4} },
+ *   { {2, 1}, {3, 7} },
+ *   { {4, 3} },
+ *   { {4, 1} },
+ *   {}
+ * }
+ * Output: [0, 2, 3, 9, 6]
+ *
+ * APPROACH:
+ * - Initialize all distances to INF except source node as 0.
+ * - Use a `set` to always pick the node with the smallest distance.
+ * - For each neighbor, if a better path is found, update distance and set.
+ *
+ * @complexity
+ * Time: O(E * log V) using set
+ * Space: O(V + E)
+ */
+
+ class Solution {
+    public:
+        vector<int> dijkstra(int V, vector<vector<pair<int, int>>>& adj, int source) {
+            // Step 1: Distance array initialized to infinity
+            vector<int> dist(V, INT_MAX);
+            dist[source] = 0;
+
+            // Step 2: Set stores pairs of {distance, node}
+            set<pair<int, int>> st;
+            st.insert({0, source});
+
+            // Step 3: Traverse
+            while (!st.empty()) {
+                auto top = *st.begin();
+                st.erase(st.begin());
+
+                int currDist = top.first;
+                int node = top.second;
+
+                for (auto neighbor : adj[node]) {
+                    int adjNode = neighbor.first;
+                    int weight = neighbor.second;
+
+                    // Relaxation: If better distance is found
+                    if (currDist + weight < dist[adjNode]) {
+                        // If node already exists with older distance, erase it
+                        if (dist[adjNode] != INT_MAX) {
+                            st.erase({dist[adjNode], adjNode});
+                        }
+
+                        // Update new distance and insert
+                        dist[adjNode] = currDist + weight;
+                        st.insert({dist[adjNode], adjNode});
+                    }
+                }
+            }
+
+            return dist;
+        }
+    };
+
+/* ===================================================================
+ * PROBLEM: SHORTEST PATH IN WEIGHTED UNDIRECTED GRAPH
+ * =================================================================== */
+
+/**
+ * @brief Find shortest distances and actual shortest paths from source
+ *
+ * PROBLEM STATEMENT:
+ * Given an undirected, weighted graph with `n` nodes (0 to n-1) and edges,
+ * find the shortest distance and actual path from source node `src` to every node.
+ *
+ * INPUT:
+ * - `n`: number of nodes
+ * - `adj`: adjacency list of pairs {neighbor, weight}
+ * - `src`: source node
+ *
+ * OUTPUT:
+ * - Pair of:
+ *   → `dist`: vector<int> of shortest distances from src
+ *   → `paths`: vector<vector<int>> of actual shortest paths from src
+ *
+ * APPROACH:
+ * - Use Dijkstra's algorithm with a min-heap (priority queue).
+ * - Track parent nodes to reconstruct paths.
+ *
+ * COMPLEXITY:
+ * - Time: O((V + E) * log V)
+ * - Space: O(V + E)
+ */
+
+ pair<vector<int>, vector<vector<int>>> dijkstraWithPaths(int n, vector<vector<pair<int, int>>>& adj, int src) {
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    vector<int> dist(n, INT_MAX);
+    vector<int> parent(n);  // To track shortest path
+    vector<vector<int>> paths(n); // To store the actual paths
+
+    // Initialization
+    for (int i = 0; i < n; i++) parent[i] = i;
+    dist[src] = 0;
+    pq.push({0, src});
+
+    while (!pq.empty()) {
+        auto [d, node] = pq.top();
+        pq.pop();
+
+        for (auto [neighbor, wt] : adj[node]) {
+            if (dist[neighbor] > d + wt) {
+                dist[neighbor] = d + wt;
+                pq.push({dist[neighbor], neighbor});
+                parent[neighbor] = node;
+            }
+        }
+    }
+
+    // Path Reconstruction
+    for (int i = 0; i < n; i++) {
+        vector<int> path;
+        int curr = i;
+        while (parent[curr] != curr) {
+            path.push_back(curr);
+            curr = parent[curr];
+        }
+        path.push_back(src);
+        reverse(path.begin(), path.end());
+        paths[i] = path;
+    }
+
+    return {dist, paths};
+}
+
 
 
 int main() {

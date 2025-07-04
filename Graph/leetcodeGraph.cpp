@@ -1380,3 +1380,266 @@ class Solution {
             return totalPairs;
         }
     };
+
+/* ===================================================================
+ * PROBLEM 743: NETWORK DELAY TIME (LeetCode)
+ * =================================================================== */
+
+/**
+ * @brief Find the time it takes for all nodes to receive a signal from a source node.
+ *
+ * PROBLEM STATEMENT:
+ * You are given a directed weighted graph with `n` nodes labeled from 1 to `n`,
+ * and a list of travel times as directed edges `times[i] = [u, v, w]`,
+ * where `u` sends a signal to `v` with a time delay of `w`.
+ *
+ * Return the minimum time it takes for all the `n` nodes to receive the signal from the source `k`.
+ * If it is impossible for all nodes to receive the signal, return `-1`.
+ *
+ * APPROACH:
+ * - Build an adjacency list to represent the graph.
+ * - Use Dijkstra's Algorithm (min-heap) to find the shortest time from node `k` to all others.
+ * - Track the time to reach each node using a `time[]` array.
+ * - The result is the maximum value in the `time[]` array (i.e., the longest minimum delay).
+ *
+ * @complexity
+ * Time: O((V + E) * log V)
+ * Space: O(V + E)
+ */
+
+ class Solution {
+    public:
+        int networkDelayTime(vector<vector<int>>& times, int n, int k) {
+            // Step 1: Build the adjacency list
+            vector<vector<pair<int, int>>> adj(n + 1);
+            for (auto vec : times) {
+                int u = vec[0];
+                int v = vec[1];
+                int w = vec[2];
+                adj[u].push_back({v, w});
+            }
+
+            // Step 2: Initialize min-heap and distance array
+            vector<int> time(n + 1, INT_MAX);
+            priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+
+            time[k] = 0;
+            pq.push({0, k}); // {delayTime, node}
+
+            // Step 3: Dijkstra’s Algorithm
+            while (!pq.empty()) {
+                auto [d, node] = pq.top();
+                pq.pop();
+
+                for (auto [neighbor, weight] : adj[node]) {
+                    if (d + weight < time[neighbor]) {
+                        time[neighbor] = d + weight;
+                        pq.push({time[neighbor], neighbor});
+                    }
+                }
+            }
+
+            // Step 4: Compute max delay time among all nodes
+            int maxTime = 0;
+            for (int i = 1; i <= n; i++) {
+                if (time[i] == INT_MAX) return -1; // unreachable node
+                maxTime = max(maxTime, time[i]);
+            }
+
+            return maxTime;
+        }
+    };
+
+/* ===================================================================
+ * PROBLEM 1091: SHORTEST PATH IN BINARY MATRIX (LeetCode)
+ * =================================================================== */
+
+/**
+ * @brief Find the shortest path from top-left to bottom-right in a binary matrix.
+ *
+ * PROBLEM:
+ * - You are given an n x n binary matrix `grid` where 0 represents an empty cell
+ *   and 1 represents an obstacle.
+ * - Return the length of the shortest clear path from (0, 0) to (n-1, n-1) using 8 directions.
+ * - Return -1 if no such path exists.
+ *
+ * APPROACH:
+ * - Perform BFS starting from (0, 0).
+ * - Track distance as you visit new cells.
+ * - Use 8-directional movement.
+ *
+ * @complexity
+ * Time: O(n^2)
+ * Space: O(n^2)
+ */
+
+ class Solution {
+    public:
+        int shortestPathBinaryMatrix(vector<vector<int>>& grid) {
+            int n = grid.size();
+
+            // Check if start or end is blocked
+            if (grid[0][0] == 1 || grid[n - 1][n - 1] == 1) return -1;
+
+            vector<pair<int, int>> directions = {
+                {1, 0}, {0, 1}, {-1, 0}, {0, -1},
+                {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
+            };
+
+            queue<pair<int, int>> q;
+            q.push({0, 0});
+            grid[0][0] = 1;  // Distance from start is 1
+
+            while (!q.empty()) {
+                auto [x, y] = q.front(); q.pop();
+                int dist = grid[x][y];
+
+                if (x == n - 1 && y == n - 1) return dist; // Reached destination
+
+                for (auto [dx, dy] : directions) {
+                    int nx = x + dx;
+                    int ny = y + dy;
+
+                    if (nx >= 0 && ny >= 0 && nx < n && ny < n && grid[nx][ny] == 0) {
+                        grid[nx][ny] = dist + 1;
+                        q.push({nx, ny});
+                    }
+                }
+            }
+
+            return -1; // No path exists
+        }
+    };
+
+/**
+ * @brief Solve the same problem using Dijkstra's Algorithm with a min-heap.
+ *
+ * NOTE: Although Dijkstra is generally used for weighted graphs, here we can
+ * simulate it for uniform weights to demonstrate priority queue usage.
+ *
+ * @complexity
+ * Time: O(n^2 * log n)
+ * Space: O(n^2)
+ */
+
+ class Solution {
+    public:
+        int shortestPathBinaryMatrix(vector<vector<int>>& grid) {
+            int n = grid.size();
+            if (grid[0][0] == 1 || grid[n - 1][n - 1] == 1) return -1;
+
+            vector<vector<int>> dist(n, vector<int>(n, INT_MAX));
+            dist[0][0] = 1;
+
+            vector<pair<int, int>> directions = {
+                {1, 0}, {0, 1}, {-1, 0}, {0, -1},
+                {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
+            };
+
+            // Min-heap: {distance, {x, y}}
+            priority_queue<pair<int, pair<int, int>>, vector<pair<int, pair<int, int>>>, greater<pair<int, pair<int, int>>>> pq;
+
+            pq.push({1, {0, 0}});
+
+            while (!pq.empty()) {
+                auto [d, cell] = pq.top(); pq.pop();
+                int x = cell.first;
+                int y = cell.second;
+
+                if (x == n - 1 && y == n - 1) return d;
+
+                for (auto [dx, dy] : directions) {
+                    int nx = x + dx;
+                    int ny = y + dy;
+
+                    if (nx >= 0 && ny >= 0 && nx < n && ny < n && grid[nx][ny] == 0) {
+                        if (d + 1 < dist[nx][ny]) {
+                            dist[nx][ny] = d + 1;
+                            pq.push({dist[nx][ny], {nx, ny}});
+                        }
+                    }
+                }
+            }
+
+            return -1;
+        }
+    };
+
+/* ===================================================================
+ * PROBLEM 1631: PATH WITH MINIMUM EFFORT (LeetCode)
+ * =================================================================== */
+
+/**
+ * @brief Find a path from (0, 0) to (m-1, n-1) minimizing the maximum height difference.
+ *
+ * PROBLEM:
+ * - You are given an `m x n` grid of integers `heights`.
+ * - A path is valid if at each step you move to an adjacent cell (up/down/left/right).
+ * - The *effort* of a path is the **maximum absolute difference** in heights between adjacent cells.
+ * - Return the minimum possible *effort* needed to reach the bottom-right from the top-left.
+ *
+ * APPROACH (Dijkstra’s Algorithm):
+ * - Treat each cell as a node, and each move to a neighbor as an edge with a weight = abs(height difference).
+ * - The goal is to minimize the **maximum edge weight** on the path from source to destination.
+ * - Use a min-heap (priority queue) to always pick the path with the least *effort so far*.
+ * - For each neighbor, compute the maximum effort along that path and update it if it's better.
+ *
+ * COMPLEXITY:
+ * - Time: O(m * n * log(m * n)) because each cell is pushed to the heap at most once
+ * - Space: O(m * n) for the result matrix and priority queue
+ */
+
+ class Solution {
+    public:
+        int minimumEffortPath(vector<vector<int>>& heights) {
+            int m = heights.size();
+            int n = heights[0].size();
+
+            // result[i][j] stores the minimum effort needed to reach cell (i, j)
+            vector<vector<int>> result(m, vector<int>(n, INT_MAX));
+            result[0][0] = 0;
+
+            // Min-heap: stores {effort to reach, {x, y}}
+            priority_queue<
+                pair<int, pair<int, int>>,
+                vector<pair<int, pair<int, int>>>,
+                greater<>
+            > pq;
+
+            pq.push({0, {0, 0}}); // Start from the top-left cell
+
+            // 4-directional movement (up, down, left, right)
+            vector<pair<int, int>> directions = {
+                {1, 0}, {0, 1}, {-1, 0}, {0, -1}
+            };
+
+            while (!pq.empty()) {
+                auto [currEffort, coords] = pq.top(); pq.pop();
+                auto [x, y] = coords;
+
+                // If we've reached the destination cell, return the current effort
+                if (x == m - 1 && y == n - 1) return currEffort;
+
+                // Visit all 4 neighbors
+                for (auto [dx, dy] : directions) {
+                    int nx = x + dx;
+                    int ny = y + dy;
+
+                    // Make sure neighbor is within grid bounds
+                    if (nx >= 0 && ny >= 0 && nx < m && ny < n) {
+                        // Calculate the effort to move to neighbor
+                        int diff = abs(heights[nx][ny] - heights[x][y]);
+                        int newEffort = max(currEffort, diff); // max of path so far and current edge
+
+                        // If this path offers a smaller max effort to reach (nx, ny), update it
+                        if (newEffort < result[nx][ny]) {
+                            result[nx][ny] = newEffort;
+                            pq.push({newEffort, {nx, ny}});
+                        }
+                    }
+                }
+            }
+
+            return 0; // Fallback, although the problem guarantees reachability
+        }
+    };
