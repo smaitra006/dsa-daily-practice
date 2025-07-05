@@ -298,3 +298,61 @@ public:
             return 'a' + (shifts % 26);           // final character after that many shifts from 'a'
         }
     };
+
+/* ===================================================================
+ * LEETCODE 1394: FIND LUCKY INTEGER IN AN ARRAY
+ * =================================================================== */
+
+/**
+ * @brief Return the largest lucky integer in the array
+ *
+ * PROBLEM STATEMENT:
+ * Given an array of integers `arr`, a **lucky integer** is an integer
+ * whose value is equal to its frequency in the array.
+ *
+ * You are to return the **largest lucky integer**. If no lucky integer exists, return -1.
+ *
+ * Input:
+ * - vector<int> arr: Array of integers (1 <= arr.length <= 500)
+ *
+ * Output:
+ * - Integer representing the largest lucky number, or -1 if none exists
+ *
+ * EXAMPLE:
+ * Input: arr = [2,2,3,4]
+ * Output: 2
+ * (Explanation: The number 2 appears exactly 2 times)
+ *
+ * ALGORITHM:
+ * - Use a hash map to count frequency of each element
+ * - Traverse the map and check if any key has key == frequency
+ * - Track the maximum such key (lucky number)
+ *
+ * COMPLEXITY:
+ * - Time: O(N) where N is the size of the array
+ * - Space: O(N) for the hash map
+ */
+
+ class Solution {
+    public:
+        int findLucky(vector<int>& arr) {
+            int n = arr.size();
+            unordered_map<int, int> freq;
+
+            // Count frequency of each number
+            for (int i = 0; i < n; i++) {
+                freq[arr[i]]++;
+            }
+
+            int luckyInt = -1;
+
+            // Check for lucky numbers
+            for (auto it : freq) {
+                if (it.first == it.second) {
+                    luckyInt = max(luckyInt, it.first);
+                }
+            }
+
+            return luckyInt;
+        }
+    };

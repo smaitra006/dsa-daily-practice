@@ -1643,3 +1643,500 @@ class Solution {
             return 0; // Fallback, although the problem guarantees reachability
         }
     };
+
+/* ===================================================================
+ * PROBLEM 1584: MINIMUM COST TO CONNECT ALL POINTS (USING PRIM'S MST)
+ * =================================================================== */
+
+/**
+ * @brief Find the minimum cost to connect all points in 2D space
+ *
+ * PROBLEM STATEMENT:
+ * Given `n` points in a 2D plane, you are to connect all points such that the total cost is minimized.
+ * The cost to connect two points (x1, y1) and (x2, y2) is the **Manhattan Distance**:
+ *   cost = |x1 - x2| + |y1 - y2|
+ *
+ * You can connect any two points directly; the goal is to **connect all points with minimum total cost**
+ * such that all nodes are reachable (Minimum Spanning Tree).
+ *
+ * Input:
+ * - vector<vector<int>> points: where points[i] = {xi, yi}
+ *
+ * Output:
+ * - Integer value representing minimum total cost to connect all points
+ *
+ * APPROACH (Prim's Algorithm for MST):
+ * - Construct a complete graph using Manhattan distances
+ * - Apply Prim’s algorithm with Min-Heap to find MST cost
+ *
+ * COMPLEXITY:
+ * - Time: O(N^2 * log N) due to dense graph and priority queue
+ * - Space: O(N^2) for adjacency list
+ */
+
+ class Solution {
+    public:
+        /**
+         * @brief Prim's algorithm to compute MST cost from adjacency list
+         * @param adj: Adjacency list of the graph {neighbour, cost}
+         * @param n: Number of nodes
+         * @return Total cost of the Minimum Spanning Tree
+         */
+        int primsAlgo(vector<vector<pair<int, int>>>& adj, int n) {
+            // Min-heap: {cost, node}
+            priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+
+            vector<bool> inMST(n, false); // Mark nodes already included in MST
+            int minCost = 0;
+
+            pq.push({0, 0}); // Start from node 0 with 0 cost
+
+            while (!pq.empty()) {
+                auto [cost, node] = pq.top();
+                pq.pop();
+
+                if (inMST[node]) continue;
+
+                inMST[node] = true;
+                minCost += cost;
+
+                // Add all neighbors of current node to the heap
+                for (auto [neighbour, neighbourCost] : adj[node]) {
+                    if (!inMST[neighbour]) {
+                        pq.push({neighbourCost, neighbour});
+                    }
+                }
+            }
+
+            return minCost;
+        }
+
+        /**
+         * @brief Main function to compute the minimum cost to connect all given points
+         */
+        int minCostConnectPoints(vector<vector<int>>& points) {
+            int n = points.size();
+
+            // Step 1: Build complete graph with Manhattan distances
+            vector<vector<pair<int, int>>> adj(n); // adj[u] = {v, cost}
+            for (int i = 0; i < n; i++) {
+                for (int j = i + 1; j < n; j++) {
+                    int cost = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]);
+                    adj[i].push_back({j, cost});
+                    adj[j].push_back({i, cost});
+                }
+            }
+
+            // Step 2: Apply Prim's algorithm to get MST cost
+            return primsAlgo(adj, n);
+        }
+    };
+
+/* ===================================================================
+ * LEETCODE 433: MINIMUM GENETIC MUTATION
+ * =================================================================== */
+
+/**
+ * @brief Find the minimum number of mutations to transform startGene to endGene
+ *
+ * PROBLEM STATEMENT:
+ * A gene string is a string of length 8, consisting of characters 'A', 'C', 'G', and 'T'.
+ * A **mutation** involves changing a single character to any of the other three choices.
+ *
+ * You are given:
+ * - A start gene string `startGene`
+ * - A target gene string `endGene`
+ * - A bank of valid intermediate gene strings `bank`
+ *
+ * Return the **minimum number of mutations** needed to transform startGene to endGene.
+ * Each intermediate mutation must be present in the `bank`.
+ * If no such mutation path exists, return -1.
+ *
+ * Input:
+ * - string startGene: starting gene (length = 8)
+ * - string endGene: target gene (length = 8)
+ * - vector<string> bank: valid intermediate genes
+ *
+ * Output:
+ * - Integer: Minimum number of mutations, or -1 if not possible
+ *
+ * ALGORITHM (BFS - Shortest Path in Unweighted Graph):
+ * - Treat each gene string as a node
+ * - Two gene strings are connected if they differ by exactly one character
+ * - Use BFS to find the shortest path from startGene to endGene
+ *
+ * COMPLEXITY:
+ * - Time: O(N * 8 * 4), where N = bank size, 8 is gene length, 4 is number of possible bases
+ * - Space: O(N) for visited and bank set
+ */
+
+ class Solution {
+    public:
+        int minMutation(string startGene, string endGene, vector<string>& bank) {
+            // Initialize queue for BFS
+            queue<string> q;
+
+            // Convert bank to set for O(1) lookup
+            unordered_set<string> bankset(begin(bank), end(bank));
+            unordered_set<string> visited;
+
+            q.push(startGene);
+            visited.insert(startGene);
+
+            int level = 0; // Level indicates number of mutations
+
+            while (!q.empty()) {
+                int size = q.size();
+
+                while (size--) {
+                    string curr = q.front();
+                    q.pop();
+
+                    // If we reach the target gene
+                    if (curr == endGene) return level;
+
+                    // Try mutating each position with A, T, G, C
+                    for (char ch : "ATGC") {
+                        for (int i = 0; i < curr.length(); i++) {
+                            string neighbour = curr;
+                            neighbour[i] = ch;
+
+                            // Only consider valid mutations
+                            if (visited.find(neighbour) == visited.end() && bankset.find(neighbour) != bankset.end()) {
+                                q.push(neighbour);
+                                visited.insert(neighbour);
+                            }
+                        }
+                    }
+                }
+
+                level++; // Move to next level (next mutation)
+            }
+
+            return -1; // Mutation not possible
+        }
+    };
+
+/* ===================================================================
+ * LEETCODE 947: MOST STONES REMOVED WITH SAME ROW OR COLUMN
+ * =================================================================== */
+
+/**
+ * @brief Remove the maximum number of stones from a 2D grid
+ *
+ * PROBLEM STATEMENT:
+ * You are given a list of stones where each stone is at position (x, y) on a 2D grid.
+ * A stone can be removed **if there is another stone in the same row or column**.
+ *
+ * Return the **maximum number of stones that can be removed**.
+ *
+ * Note: You can only remove a stone if it shares a row or column with at least one other remaining stone.
+ *
+ * Input:
+ * - vector<vector<int>> stones: list of stone coordinates
+ *
+ * Output:
+ * - Integer: Maximum number of stones that can be removed
+ *
+ * EXAMPLE:
+ * Input: stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]
+ * Output: 5
+ * Explanation: We can remove 5 stones, one per move, leaving one isolated stone.
+ *
+ * ALGORITHM (DFS + Connected Components):
+ * - Treat each stone as a node in a graph
+ * - Connect two stones if they share a row or column
+ * - Count number of connected components using DFS
+ * - Answer = total stones - number of connected components
+ *
+ * COMPLEXITY:
+ * - Time: O(N^2), where N is the number of stones (due to pairwise comparisons)
+ * - Space: O(N) for visited array
+ */
+
+ class Solution {
+    public:
+        /**
+         * @brief DFS to mark all connected stones (same row or column)
+         */
+        void dfs(vector<vector<int>>& stones, int index, vector<bool>& visited) {
+            int n = stones.size();
+            visited[index] = true;
+
+            int r = stones[index][0];
+            int c = stones[index][1];
+
+            // Traverse all other stones and visit connected ones
+            for (int i = 0; i < n; i++) {
+                if (!visited[i] && (stones[i][0] == r || stones[i][1] == c)) {
+                    dfs(stones, i, visited);
+                }
+            }
+        }
+
+        /**
+         * @brief Main function to compute max removable stones
+         */
+        int removeStones(vector<vector<int>>& stones) {
+            int n = stones.size();
+            vector<bool> visited(n, false);
+
+            int group = 0; // Count connected components (islands)
+
+            // Use DFS to find all connected components
+            for (int i = 0; i < n; i++) {
+                if (!visited[i]) {
+                    dfs(stones, i, visited);
+                    group++;
+                }
+            }
+
+            return n - group; // Max stones removed = total - groups
+        }
+    };
+
+/* ===================================================================
+ * LEETCODE 1926: NEAREST EXIT FROM ENTRANCE IN MAZE
+ * =================================================================== */
+
+/**
+ * @brief Find the minimum number of steps to reach the nearest exit from the entrance
+ *
+ * PROBLEM STATEMENT:
+ * You are given a `m x n` maze represented by a 2D grid of characters:
+ * - '.' = open cell
+ * - '+' = wall
+ *
+ * Also given is the `entrance` coordinate in the maze.
+ * An **exit** is any cell on the boundary of the maze that is an open cell ('.') and **not** the entrance.
+ *
+ * Return the **minimum number of steps** required to reach the nearest exit.
+ * If there is no possible exit, return -1.
+ *
+ * Input:
+ * - vector<vector<char>> maze: 2D maze grid
+ * - vector<int> entrance: starting position {row, col}
+ *
+ * Output:
+ * - Integer: Minimum steps to nearest exit, or -1 if unreachable
+ *
+ * EXAMPLE:
+ * Input: maze = [["+","+",".","+"],[".",".",".","+"],["+","+","+","."]], entrance = [1,2]
+ * Output: 1
+ *
+ * ALGORITHM (BFS - Shortest Path in Unweighted Grid):
+ * - Use BFS to explore all possible paths
+ * - Track visited cells to avoid cycles
+ * - First time we reach an exit cell, return the number of steps
+ *
+ * COMPLEXITY:
+ * - Time: O(M * N) where M = rows, N = cols
+ * - Space: O(M * N) for visited tracking
+ */
+
+ class Solution {
+    public:
+        int nearestExit(vector<vector<char>>& maze, vector<int>& entrance) {
+            int m = maze.size();
+            int n = maze[0].size();
+
+            // Queue for BFS: {row, col}
+            queue<pair<int, int>> q;
+            vector<vector<bool>> visited(m, vector<bool>(n, false));
+
+            // 4 directions: down, right, up, left
+            vector<pair<int, int>> directions = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+
+            int er = entrance[0];
+            int ec = entrance[1];
+
+            visited[er][ec] = true;
+            q.push({er, ec});
+
+            int step = 0; // Number of steps from entrance
+
+            while (!q.empty()) {
+                int size = q.size();
+
+                while (size--) {
+                    auto [r, c] = q.front();
+                    q.pop();
+
+                    // If current cell is on boundary and not the entrance, return step
+                    if ((r == 0 || r == m - 1 || c == 0 || c == n - 1) && (r != er || c != ec)) {
+                        return step;
+                    }
+
+                    // Explore 4 directions
+                    for (auto [dr, dc] : directions) {
+                        int nr = r + dr;
+                        int nc = c + dc;
+
+                        // If next cell is valid and not visited and is open
+                        if (nr >= 0 && nr < m && nc >= 0 && nc < n &&
+                            maze[nr][nc] == '.' && !visited[nr][nc]) {
+                            visited[nr][nc] = true;
+                            q.push({nr, nc});
+                        }
+                    }
+                }
+
+                step++; // Move to next level
+            }
+
+            return -1; // No exit found
+        }
+    };
+
+/* ===================================================================
+ * LEETCODE 1971: FIND IF PATH EXISTS IN GRAPH
+ * =================================================================== */
+
+/**
+ * @brief Determine if there is a valid path between source and destination
+ *
+ * PROBLEM STATEMENT:
+ * You are given an **undirected graph** with `n` nodes numbered from 0 to n - 1.
+ * You are also given a list of `edges` where each edge connects two nodes.
+ *
+ * Given a `source` node and a `destination` node, return `true` if there is a valid path
+ * between the two, or `false` otherwise.
+ *
+ * Input:
+ * - Integer `n`: number of nodes
+ * - vector<vector<int>> edges: list of undirected edges
+ * - Integer `source`: start node
+ * - Integer `destination`: target node
+ *
+ * Output:
+ * - Boolean: true if path exists, false otherwise
+ *
+ * EXAMPLE:
+ * Input: n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5
+ * Output: false
+ *
+ * ALGORITHM (DFS Traversal):
+ * - Build the adjacency list from edge list
+ * - Perform DFS from the source
+ * - If destination is found during DFS, return true
+ *
+ * COMPLEXITY:
+ * - Time: O(V + E)
+ * - Space: O(V + E) for adjacency list and visited array
+ */
+
+ class Solution {
+    public:
+        /**
+         * @brief DFS to find if destination is reachable from source
+         */
+        bool dfs(vector<vector<int>>& adj, int source, int destination, vector<bool>& visited) {
+            if (source == destination) return true;
+
+            visited[source] = true;
+
+            for (auto neighbour : adj[source]) {
+                if (!visited[neighbour] && dfs(adj, neighbour, destination, visited)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /**
+         * @brief Main function to check if path exists between source and destination
+         */
+        bool validPath(int n, vector<vector<int>>& edges, int source, int destination) {
+            vector<vector<int>> adj(n);
+            vector<bool> visited(n, false);
+
+            // Build adjacency list
+            for (auto& edge : edges) {
+                int u = edge[0];
+                int v = edge[1];
+                adj[u].push_back(v);
+                adj[v].push_back(u);
+            }
+
+            return dfs(adj, source, destination, visited);
+        }
+    };
+
+/* ===================================================================
+ * LEETCODE 841: KEYS AND ROOMS
+ * =================================================================== */
+
+/**
+ * @brief Determine if all rooms can be visited starting from room 0
+ *
+ * PROBLEM STATEMENT:
+ * There are `n` rooms labeled from 0 to n - 1. Each room contains a list of keys to other rooms.
+ * Initially, you are in room 0 and can enter it freely. You can use any key found in a room to enter other rooms.
+ *
+ * Return `true` if you can visit **all rooms**, otherwise return `false`.
+ *
+ * Input:
+ * - vector<vector<int>> rooms: rooms[i] contains a list of keys to other rooms
+ *
+ * Output:
+ * - Boolean: true if all rooms can be visited, false otherwise
+ *
+ * EXAMPLE:
+ * Input: rooms = [[1], [2], [3], []]
+ * Output: true
+ * Explanation: Room 0 -> 1 -> 2 -> 3
+ *
+ * ALGORITHM (DFS Traversal):
+ * - Treat rooms as nodes and keys as edges
+ * - Perform DFS starting from room 0
+ * - Track visited rooms
+ * - If all rooms are visited after DFS, return true
+ *
+ * COMPLEXITY:
+ * - Time: O(N + E) where N = number of rooms, E = total number of keys
+ * - Space: O(N) for visited array and call stack
+ */
+
+ class Solution {
+    public:
+        /**
+         * @brief DFS to explore all rooms accessible from current room
+         */
+        void dfs(vector<vector<int>>& adj, int node, vector<bool>& visited) {
+            visited[node] = true;
+
+            for (auto neighbour : adj[node]) {
+                if (!visited[neighbour]) {
+                    dfs(adj, neighbour, visited);
+                }
+            }
+        }
+
+        /**
+         * @brief Main function to check if all rooms can be visited
+         */
+        bool canVisitAllRooms(vector<vector<int>>& rooms) {
+            int n = rooms.size();
+
+            // Construct adjacency list (rooms -> graph)
+            vector<vector<int>> adj(n);
+            vector<bool> visited(n, false);
+
+            for (int i = 0; i < n; i++) {
+                for (auto key : rooms[i]) {
+                    adj[i].push_back(key);
+                }
+            }
+
+            // Perform DFS from room 0
+            dfs(adj, 0, visited);
+
+            // Check if all rooms were visited
+            for (int i = 0; i < n; i++) {
+                if (!visited[i]) return false;
+            }
+
+            return true;
+        }
+    };

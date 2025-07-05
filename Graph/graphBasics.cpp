@@ -836,6 +836,188 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
     return {dist, paths};
 }
 
+/* ===================================================================
+ * PROBLEM: SHORTEST PATH IN WEIGHTED DIRECTED GRAPH (WITH NEGATIVE WEIGHTS)
+ * =================================================================== */
+
+// BELLMAN FORD ALGORITHM
+
+/**
+ * @brief Find shortest distances from source node to all other nodes
+ *
+ * PROBLEM STATEMENT:
+ * Given a directed graph with `n` nodes (0 to n-1) and `m` weighted edges,
+ * some of which may have **negative weights**, compute the shortest path
+ * from a source node `src` to all other nodes.
+ *
+ * Bellman-Ford can detect **negative weight cycles** as well.
+ *
+ * Input:
+ * - Number of nodes `n`
+ * - Edges represented as (u, v, wt)
+ * - Source node `src`
+ *
+ * Output:
+ * - Vector `dist[]` of size `n`, where dist[i] = shortest distance from `src` to node `i`
+ *   If a negative weight cycle is detected, return {-1}
+ *
+ * ALGORITHM (Bellman-Ford):
+ * - Initialize distances from `src` to all nodes as ∞, except dist[src] = 0
+ * - Relax all edges (u, v, wt) for (n - 1) times
+ * - Check for negative weight cycle in one extra iteration
+ *
+ * COMPLEXITY:
+ * - Time: O(V * E)
+ * - Space: O(V)
+ */
+
+ vector<int> bellmanFord(int n, vector<vector<int>>& edges, int src) {
+    vector<int> dist(n, INT_MAX);
+    dist[src] = 0;
+
+    // Relax all edges n-1 times
+    for (int i = 0; i < n - 1; i++) {
+        for (auto& edge : edges) {
+            int u = edge[0], v = edge[1], wt = edge[2];
+            if (dist[u] != INT_MAX && dist[u] + wt < dist[v]) {
+                dist[v] = dist[u] + wt;
+            }
+        }
+    }
+
+    // Check for negative weight cycle
+    for (auto& edge : edges) {
+        int u = edge[0], v = edge[1], wt = edge[2];
+        if (dist[u] != INT_MAX && dist[u] + wt < dist[v]) {
+            return { -1 }; // Negative weight cycle detected
+        }
+    }
+
+    return dist;
+}
+
+/* ===================================================================
+ * PROBLEM: ALL PAIRS SHORTEST PATH IN WEIGHTED GRAPH
+ * =================================================================== */
+
+// FLOYD WARSHALL ALGORITHM
+
+/**
+ * @brief Compute shortest distances between all pairs of nodes
+ *
+ * PROBLEM STATEMENT:
+ * Given a directed graph with `n` nodes (0 to n-1) and weighted edges,
+ * compute the shortest distances between every pair of nodes.
+ *
+ * The graph may contain negative weight edges, but must **not** have any
+ * negative weight cycles.
+ *
+ * Input:
+ * - Number of nodes `n`
+ * - Adjacency matrix `dist[n][n]` where:
+ *   - dist[i][j] = weight of edge i → j
+ *   - If no edge exists, use `1e9` (or any large constant representing ∞)
+ *
+ * Output:
+ * - Updated matrix `dist[n][n]` where dist[i][j] = shortest distance from i to j
+ *
+ * ALGORITHM (Floyd-Warshall):
+ * - Try every node `k` as an intermediate node
+ * - For all pairs (i, j), update:
+ *     dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+ *
+ * DETECTING NEGATIVE WEIGHT CYCLE:
+ * - After running the algorithm, if dist[i][i] < 0 for any `i`,
+ *   a negative weight cycle exists.
+ *
+ * COMPLEXITY:
+ * - Time: O(V^3)
+ * - Space: O(V^2)
+ */
+
+ void floydWarshall(vector<vector<int>>& dist, int n) {
+    const int INF = 1e9;
+
+    // Main triple loop
+    for (int k = 0; k < n; k++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (dist[i][k] < INF && dist[k][j] < INF) {
+                    dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+                }
+            }
+        }
+    }
+
+    // Optional: Detect negative weight cycles
+    for (int i = 0; i < n; i++) {
+        if (dist[i][i] < 0) {
+            // Negative weight cycle exists
+            cout << "Negative weight cycle detected!" << endl;
+            return;
+        }
+    }
+}
+
+/* ===================================================================
+ * PROBLEM: MINIMUM SPANNING TREE (MST) USING PRIM'S ALGORITHM
+ * =================================================================== */
+
+/**
+ * @brief Find the minimum cost to connect all nodes in an undirected, weighted graph
+ *
+ * PROBLEM STATEMENT:
+ * Given an undirected graph with `n` nodes (0 to n-1) and weighted edges,
+ * find the weight of the **Minimum Spanning Tree (MST)**.
+ *
+ * Input:
+ * - Number of nodes `n`
+ * - Adjacency list `adj[]` where:
+ *   adj[u] = vector of pairs {v, wt} representing an edge u — v with weight wt
+ *
+ * Output:
+ * - Integer `minCost` representing the total weight of the MST
+ *
+ * ALGORITHM (Prim's using Min-Heap):
+ * - Start from any node (usually node 0)
+ * - Use a priority queue to always pick the minimum weight edge
+ * - Maintain a visited array to avoid cycles
+ * - Add the edge to MST if it connects a new node
+ *
+ * COMPLEXITY:
+ * - Time: O(E * log V) using Min-Heap
+ * - Space: O(V + E)
+ */
+
+ int primsMST(int n, vector<vector<pair<int, int>>>& adj) {
+    // Min-heap: {weight, node}
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+
+    vector<bool> inMST(n, false); // To mark included nodes
+    int minCost = 0;
+
+    // Start from node 0
+    pq.push({0, 0});
+
+    while (!pq.empty()) {
+        auto [wt, u] = pq.top();
+        pq.pop();
+
+        if (inMST[u]) continue;
+
+        inMST[u] = true;
+        minCost += wt;
+
+        // Traverse neighbors
+        for (auto [v, w] : adj[u]) {
+            if (!inMST[v]) {
+                pq.push({w, v});
+            }
+        }
+    }
+
+    return minCost;
+}
 
 
 int main() {
