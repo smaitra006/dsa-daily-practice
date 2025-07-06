@@ -356,3 +356,96 @@ public:
             return luckyInt;
         }
     };
+
+    /* ===================================================================
+     * LEETCODE 1865: FINDING PAIRS WITH A CERTAIN SUM
+     * =================================================================== */
+
+    /**
+     * @brief Implement a data structure to support dynamic sum pair queries
+     *
+     * PROBLEM STATEMENT:
+     * You are given two integer arrays `nums1` and `nums2`.
+     * Implement a class `FindSumPairs` with the following operations:
+     *
+     * 1. `add(index, val)` → Adds `val` to `nums2[index]`
+     * 2. `count(tot)` → Returns the number of pairs `(i, j)` such that:
+     *                   nums1[i] + nums2[j] == tot
+     *
+     * INPUT:
+     * - vector<int> nums1, nums2
+     * - Queries: add(index, val), count(tot)
+     *
+     * OUTPUT:
+     * - Integer: Count of valid (i, j) pairs for given `tot`
+     *
+     * EXAMPLE:
+     * Input:
+     * FindSumPairs([[1,1,2,2,2,3], [1,4,5,2,5,4]])
+     * add(3, 2)
+     * count(7) → Count pairs (i, j) such that nums1[i] + nums2[j] == 7
+     *
+     * ALGORITHM:
+     * - Use a frequency map for nums2 to quickly count complements in `count(tot)`
+     * - Update the map dynamically when `add()` is called
+     *
+     * COMPLEXITY:
+     * - Constructor: O(n) for nums2 frequency map
+     * - add(): O(1)
+     * - count(): O(n1), where n1 = size of nums1
+     */
+
+    class FindSumPairs
+    {
+    public:
+        vector<int> n1, n2;
+        unordered_map<int, int> m;
+
+        /**
+         * @brief Initialize the object with two arrays
+         */
+        FindSumPairs(vector<int> &nums1, vector<int> &nums2)
+        {
+            n1 = nums1;
+            n2 = nums2;
+
+            // Create frequency map for nums2
+            for (int x : n2)
+            {
+                m[x]++;
+            }
+        }
+
+        /**
+         * @brief Adds val to nums2[index] and updates the frequency map
+         */
+        void add(int index, int val)
+        {
+            m[n2[index]]--;   // Remove old value from frequency map
+            n2[index] += val; // Update nums2[index]
+            m[n2[index]]++;   // Add new value to frequency map
+        }
+
+        /**
+         * @brief Count number of valid pairs (i, j) where n1[i] + n2[j] == tot
+         */
+        int count(int tot)
+        {
+            int c = 0;
+
+            for (int x : n1)
+            {
+                int complement = tot - x;
+                c += m[complement]; // Look up how many times complement exists in nums2
+            }
+
+            return c;
+        }
+    };
+
+    /**
+     * Example Usage:
+     * FindSumPairs* obj = new FindSumPairs(nums1, nums2);
+     * obj->add(index, val);
+     * int result = obj->count(tot);
+     */
