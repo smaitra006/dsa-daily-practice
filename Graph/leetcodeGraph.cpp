@@ -2140,3 +2140,528 @@ class Solution {
             return true;
         }
     };
+
+    /* ===================================================================
+     * LEETCODE 886: POSSIBLE BIPARTITION
+     * =================================================================== */
+
+    /**
+     * @brief Check if it’s possible to partition people into two groups such that
+     *        no pair of people who dislike each other are in the same group.
+     *
+     * PROBLEM STATEMENT:
+     * Given `n` people labeled from 1 to n and a list of `dislikes` pairs,
+     * determine if it is possible to split all people into two groups such that:
+     * - No pair in the same group dislikes each other.
+     *
+     * This is equivalent to checking if the graph is **bipartite**.
+     *
+     * Input:
+     * - Integer `n`: number of people
+     * - vector<vector<int>> dislikes: list of mutual dislikes (edges)
+     *
+     * Output:
+     * - Boolean: true if bipartition is possible, false otherwise
+     *
+     * EXAMPLE:
+     * Input: n = 4, dislikes = [[1,2],[1,3],[2,4]]
+     * Output: true
+     * Explanation: Group 1 = {1, 4}, Group 2 = {2, 3}
+     *
+     * ALGORITHM (DFS for Bipartite Check):
+     * - Build the graph using adjacency list
+     * - Use DFS to color nodes in two groups (0 and 1)
+     * - If a conflict is found (same color on both sides), return false
+     *
+     * COMPLEXITY:
+     * - Time: O(V + E), where V = n, E = size of dislikes
+     * - Space: O(V + E) for graph + O(V) for visited/group
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief Recursive DFS to check bipartiteness by coloring
+         */
+        bool checkBipart(vector<vector<int>> &adj, int curr, vector<int> &group, int currGroup)
+        {
+            group[curr] = currGroup;
+
+            for (int neighbour : adj[curr])
+            {
+                if (group[neighbour] == group[curr])
+                    return false;
+
+                if (group[neighbour] == -1)
+                {
+                    if (!checkBipart(adj, neighbour, group, 1 - currGroup))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        /**
+         * @brief Main function to check if possible to bipartition the graph
+         */
+        bool possibleBipartition(int n, vector<vector<int>> &dislikes)
+        {
+            vector<vector<int>> adj(n + 1);
+            vector<int> group(n + 1, -1); // -1 = unvisited, 0 and 1 = two groups
+
+            // Build adjacency list
+            for (auto &edge : dislikes)
+            {
+                int u = edge[0];
+                int v = edge[1];
+                adj[u].push_back(v);
+                adj[v].push_back(u);
+            }
+
+            // Check for each connected component
+            for (int i = 1; i <= n; i++)
+            {
+                if (group[i] == -1)
+                {
+                    if (!checkBipart(adj, i, group, 0))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+    };
+
+    /* ===================================================================
+     * LEETCODE 797: ALL PATHS FROM SOURCE TO TARGET
+     * =================================================================== */
+
+    /**
+     * @brief Find all paths from node 0 to node n - 1 in a DAG (Directed Acyclic Graph)
+     *
+     * PROBLEM STATEMENT:
+     * Given a directed acyclic graph (DAG) with `n` nodes labeled from 0 to n - 1,
+     * return all possible paths from node `0` to node `n - 1`.
+     *
+     * The graph is represented as an adjacency list: graph[i] contains all nodes
+     * reachable from node i.
+     *
+     * INPUT:
+     * - vector<vector<int>> graph: Adjacency list of a DAG
+     *
+     * OUTPUT:
+     * - vector<vector<int>>: All valid paths from 0 to n - 1
+     *
+     * EXAMPLE:
+     * Input: graph = [[1,2],[3],[3],[]]
+     * Output: [[0,1,3],[0,2,3]]
+     *
+     * ALGORITHM (DFS + Backtracking):
+     * - Perform DFS starting from node 0
+     * - Track the path using a vector
+     * - When reaching node n - 1, store the path in result
+     * - Backtrack after each call to explore all branches
+     *
+     * ✅ NOTE: Since the graph is a DAG, we do NOT need a `visited[]` array.
+     *          There are no cycles, so revisiting is not a problem.
+     *
+     * COMPLEXITY:
+     * - Time: O(2^N) worst case (exponential number of paths)
+     * - Space: O(N) call stack + O(#paths * avgPathLength) for result
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief DFS to explore all paths from source to target
+         */
+        void dfs(vector<vector<int>> &graph, int node,
+                 vector<vector<int>> &result, vector<int> &path)
+        {
+
+            path.push_back(node);
+
+            if (node == graph.size() - 1)
+            {
+                result.push_back(path); // Reached destination
+            }
+            else
+            {
+                for (int neighbor : graph[node])
+                {
+                    dfs(graph, neighbor, result, path);
+                }
+            }
+
+            path.pop_back(); // Backtrack
+        }
+
+        /**
+         * @brief Main function to compute all paths from node 0 to n - 1
+         */
+        vector<vector<int>> allPathsSourceTarget(vector<vector<int>> &graph)
+        {
+            vector<vector<int>> result;
+            vector<int> path;
+
+            dfs(graph, 0, result, path);
+
+            return result;
+        }
+    };
+
+    /* ===================================================================
+     * LEETCODE 1443: MINIMUM TIME TO COLLECT ALL APPLES IN A TREE
+     * =================================================================== */
+
+    /**
+     * @brief Find the minimum time needed to collect all apples in the tree
+     *
+     * PROBLEM STATEMENT:
+     * Given a tree with `n` nodes (0 to n - 1) and an array `hasApple` where
+     * hasApple[i] = true means node i has an apple, find the **minimum time**
+     * to collect all apples starting and ending at the root node (node 0).
+     *
+     * Each edge takes 1 second to go and 1 second to return (2 seconds total).
+     *
+     * INPUT:
+     * - int n: number of nodes
+     * - vector<vector<int>> edges: undirected edges of the tree
+     * - vector<bool> hasApple: array indicating which nodes have apples
+     *
+     * OUTPUT:
+     * - Integer: minimum time to collect all apples
+     *
+     * EXAMPLE:
+     * Input: n = 7, edges = [[0,1],[0,2],[1,4],[1,5],[2,3],[2,6]], hasApple = [false,false,true,false,true,true,false]
+     * Output: 8
+     *
+     * ALGORITHM (DFS Tree Traversal):
+     * - Build an adjacency list from the edge list
+     * - Do DFS from the root (node 0)
+     * - At each node, recursively calculate time for its children
+     * - If a child subtree contains an apple, add 2 seconds (go + return)
+     *
+     * COMPLEXITY:
+     * - Time: O(N)
+     * - Space: O(N) for recursion and adjacency list
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief DFS function to calculate the total time for apple collection
+         * @param adj: adjacency list of the tree
+         * @param node: current node
+         * @param parent: previous node to avoid revisiting
+         * @param hasApple: apple presence array
+         * @return time taken from this node's subtree
+         */
+        int dfs(vector<vector<int>> &adj, int node, int parent, vector<bool> &hasApple)
+        {
+            int time = 0;
+
+            for (int child : adj[node])
+            {
+                if (child == parent)
+                    continue;
+
+                int timeChild = dfs(adj, child, node, hasApple);
+
+                // If child has apple or any of its descendants have one
+                if (timeChild != 0 || hasApple[child])
+                {
+                    time += timeChild + 2; // +2 for the round trip edge
+                }
+            }
+
+            return time;
+        }
+
+        /**
+         * @brief Main function to return minimum time
+         */
+        int minTime(int n, vector<vector<int>> &edges, vector<bool> &hasApple)
+        {
+            // Build adjacency list
+            vector<vector<int>> adj(n);
+            for (auto &edge : edges)
+            {
+                int u = edge[0];
+                int v = edge[1];
+                adj[u].push_back(v);
+                adj[v].push_back(u);
+            }
+
+            // Perform DFS from root (node 0)
+            return dfs(adj, 0, -1, hasApple);
+        }
+    };
+
+    /* ===================================================================
+     * LEETCODE 1061: LEXICOGRAPHICALLY SMALLEST EQUIVALENT STRING
+     * =================================================================== */
+
+    /**
+     * @brief Return the lexicographically smallest equivalent string
+     *
+     * PROBLEM STATEMENT:
+     * You are given two strings `s1` and `s2` of equal length, and a `baseStr`.
+     * Characters from `s1[i]` and `s2[i]` are considered **equivalent**.
+     *
+     * You may replace a character in `baseStr` with any of its equivalents.
+     * Return the **lexicographically smallest** string after replacements.
+     *
+     * INPUT:
+     * - string s1, s2: mapping of equivalent characters (same length)
+     * - string baseStr: base string to transform
+     *
+     * OUTPUT:
+     * - Transformed string: lexicographically smallest equivalent version of baseStr
+     *
+     * EXAMPLE:
+     * Input: s1 = "parker", s2 = "morris", baseStr = "parser"
+     * Output: "makkek"
+     *
+     * ALGORITHM (DFS + Graph of Equivalents):
+     * - Treat characters as nodes in a graph
+     * - If s1[i] = u and s2[i] = v → add edges u ↔ v
+     * - For each character in baseStr:
+     *   - DFS to find the lexicographically smallest character in its component
+     *
+     * COMPLEXITY:
+     * - Time: O(N + M * 26), where N = length of s1/s2, M = baseStr.length()
+     * - Space: O(26) for visited array + adjacency list
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief DFS to find the lexicographically smallest character in the component
+         */
+        char dfsMinCh(unordered_map<char, vector<char>> &adj, char ch, vector<bool> &visited)
+        {
+            visited[ch - 'a'] = true;
+            char minCh = ch;
+
+            for (char neighbour : adj[ch])
+            {
+                if (!visited[neighbour - 'a'])
+                {
+                    minCh = min(minCh, dfsMinCh(adj, neighbour, visited));
+                }
+            }
+
+            return minCh;
+        }
+
+        /**
+         * @brief Main function to return lexicographically smallest equivalent string
+         */
+        string smallestEquivalentString(string s1, string s2, string baseStr)
+        {
+            int n = s1.length();
+            int m = baseStr.length();
+
+            unordered_map<char, vector<char>> adj;
+
+            // Step 1: Build equivalence graph
+            for (int i = 0; i < n; i++)
+            {
+                char u = s1[i];
+                char v = s2[i];
+                adj[u].push_back(v);
+                adj[v].push_back(u);
+            }
+
+            string result;
+
+            // Step 2: For each char in baseStr, find smallest equivalent
+            for (int i = 0; i < m; i++)
+            {
+                char ch = baseStr[i];
+                vector<bool> visited(26, false);
+                char minCh = dfsMinCh(adj, ch, visited);
+                result.push_back(minCh);
+            }
+
+            return result;
+        }
+    };
+
+    /* ===================================================================
+     * LEETCODE 2359: FIND CLOSEST NODE TO GIVEN TWO NODES
+     * =================================================================== */
+
+    /**
+     * @brief Find the node reachable from both start1 and start2 with minimal maximum distance
+     *
+     * PROBLEM STATEMENT:
+     * Given a directed graph (each node has at most one outgoing edge),
+     * and two starting nodes `start1` and `start2`,
+     * return the node that is reachable from **both** and has the **minimum maximum distance**
+     * from the two starting nodes.
+     *
+     * If multiple answers exist, return the one with the smallest index.
+     * If no such node exists, return -1.
+     *
+     * INPUT:
+     * - vector<int> edges: graph represented as edges[i] = node i points to
+     * - int start1, start2: starting nodes
+     *
+     * OUTPUT:
+     * - int: closest meeting node index
+     *
+     * EXAMPLE:
+     * Input: edges = [2,2,3,-1], start1 = 0, start2 = 1
+     * Output: 2
+     *
+     * ALGORITHM:
+     * - Perform DFS from both start1 and start2 to compute distances to all reachable nodes
+     * - For every node, if it’s reachable from both, track max(dist1, dist2)
+     * - Return node with the smallest such max distance
+     *
+     * COMPLEXITY:
+     * - Time: O(N) where N = number of nodes
+     * - Space: O(N) for storing distances
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief DFS-like traversal to populate distance array from a starting node
+         */
+        void dfs(int current, int distance, const vector<int> &edges, vector<int> &distances)
+        {
+            while (current != -1 && distances[current] == -1)
+            {
+                distances[current] = distance++;
+                current = edges[current]; // Follow the next edge
+            }
+        }
+
+        /**
+         * @brief Main function to return the closest meeting node
+         */
+        int closestMeetingNode(vector<int> &edges, int start1, int start2)
+        {
+            int n = edges.size();
+            vector<int> dist1(n, -1), dist2(n, -1);
+
+            // Compute distances from both starting nodes
+            dfs(start1, 0, edges, dist1);
+            dfs(start2, 0, edges, dist2);
+
+            int res = -1;
+            int minMaxDist = INT_MAX;
+
+            // Compare distances at each node
+            for (int i = 0; i < n; i++)
+            {
+                if (dist1[i] >= 0 && dist2[i] >= 0)
+                {
+                    int maxDist = max(dist1[i], dist2[i]);
+                    if (maxDist < minMaxDist)
+                    {
+                        minMaxDist = maxDist;
+                        res = i; // Store index of closest meeting node
+                    }
+                }
+            }
+
+            return res;
+        }
+    };
+
+    /* ===================================================================
+     * LEETCODE 2492: MINIMUM SCORE OF A PATH BETWEEN TWO CITIES
+     * =================================================================== */
+
+    /**
+     * @brief Find the minimum score of a path between city 1 and city n
+     *
+     * PROBLEM STATEMENT:
+     * You are given a connected undirected graph with `n` cities (1 to n) and weighted roads.
+     * Each road connects two cities and has a score (weight).
+     * A path from city 1 to city n can pass through any number of cities.
+     *
+     * The **score of a path** is defined as the **minimum weight** of all the roads in the path.
+     * Return the **minimum possible score** of a path between city 1 and city n.
+     *
+     * INPUT:
+     * - int n: number of cities
+     * - vector<vector<int>> roads: list of roads, each road = [u, v, weight]
+     *
+     * OUTPUT:
+     * - int: the minimum score of any path from city 1 to city n
+     *
+     * EXAMPLE:
+     * Input: n = 4, roads = [[1,2,9],[2,3,6],[2,4,5],[1,4,7]]
+     * Output: 5
+     *
+     * ALGORITHM (DFS + Min Tracking):
+     * - Use DFS to visit all reachable nodes from city 1.
+     * - Track the **minimum edge weight** encountered during traversal.
+     * - Since the graph is connected, every node is eventually reachable.
+     *
+     * COMPLEXITY:
+     * - Time: O(V + E)
+     * - Space: O(V + E)
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief DFS traversal to explore graph and track minimum edge weight
+         */
+        void dfs(int node, vector<vector<pair<int, int>>> &adj,
+                 vector<bool> &visited, int &score)
+        {
+
+            visited[node] = true;
+
+            for (auto &[neighbour, weight] : adj[node])
+            {
+                score = min(score, weight); // update minimum score
+                if (!visited[neighbour])
+                {
+                    dfs(neighbour, adj, visited, score);
+                }
+            }
+        }
+
+        /**
+         * @brief Main function to return minimum score between city 1 and city n
+         */
+        int minScore(int n, vector<vector<int>> &roads)
+        {
+            vector<vector<pair<int, int>>> adj(n + 1); // 1-based indexing
+
+            // Step 1: Build adjacency list
+            for (auto &road : roads)
+            {
+                int u = road[0], v = road[1], w = road[2];
+                adj[u].emplace_back(v, w);
+                adj[v].emplace_back(u, w); // undirected graph
+            }
+
+            vector<bool> visited(n + 1, false);
+            int minScore = INT_MAX;
+
+            // Step 2: DFS from node 1 to explore reachable area and track min edge
+            dfs(1, adj, visited, minScore);
+
+            return minScore;
+        }
+    };

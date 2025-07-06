@@ -1019,6 +1019,246 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
     return minCost;
 }
 
+/* ===================================================================
+ * TOPIC: KRUSKAL'S ALGORITHM (Minimum Spanning Tree - MST)
+ * =================================================================== */
+
+/**
+ * @brief Find the Minimum Spanning Tree (MST) of a connected, undirected,
+ *        and weighted graph using Kruskal's algorithm.
+ *
+ * PROBLEM STATEMENT:
+ * Given a graph with `V` nodes and `E` weighted edges,
+ * find a subset of edges that connects all vertices (spanning tree),
+ * and the sum of edge weights is minimized.
+ *
+ * Kruskal's algorithm is **greedy**, always picking the minimum weight edge
+ * that does **not** form a cycle (using Union-Find to detect cycles).
+ *
+ * INPUT:
+ * - Integer `n`: Number of nodes (0-indexed or 1-indexed)
+ * - vector<vector<int>> edges: List of edges {u, v, weight}
+ *
+ * OUTPUT:
+ * - Integer: Total weight of the Minimum Spanning Tree
+ *
+ * ALGORITHM:
+ * 1. Sort all edges in ascending order of weights
+ * 2. Initialize Disjoint Set Union (Union-Find) for cycle detection
+ * 3. Traverse sorted edges:
+ *    - If the edge connects two different components, add it to MST
+ *    - Merge the two components using union operation
+ * 4. Stop when MST contains (V - 1) edges
+ *
+ * COMPLEXITY:
+ * - Time: O(E * log E) for sorting + union-find operations
+ * - Space: O(V) for DSU data structures
+ */
+
+class DSU
+{
+public:
+    vector<int> parent, rank;
+
+    DSU(int n)
+    {
+        parent.resize(n);
+        rank.resize(n, 0);
+
+        for (int i = 0; i < n; i++)
+            parent[i] = i;
+    }
+
+    // Find with path compression
+    int find(int node)
+    {
+        if (parent[node] != node)
+        {
+            parent[node] = find(parent[node]);
+        }
+        return parent[node];
+    }
+
+    // Union by rank
+    bool unionSets(int u, int v)
+    {
+        int pu = find(u);
+        int pv = find(v);
+
+        if (pu == pv)
+            return false;
+
+        if (rank[pu] < rank[pv])
+        {
+            parent[pu] = pv;
+        }
+        else if (rank[pu] > rank[pv])
+        {
+            parent[pv] = pu;
+        }
+        else
+        {
+            parent[pu] = pv;
+            rank[pv]++;
+        }
+
+        return true;
+    }
+};
+
+class Solution
+{
+public:
+    /**
+     * @brief Kruskal's algorithm implementation
+     * @param n: number of nodes
+     * @param edges: list of {u, v, weight}
+     * @return total weight of MST
+     */
+    int kruskalMST(int n, vector<vector<int>> &edges)
+    {
+        // Step 1: Sort edges by weight
+        sort(edges.begin(), edges.end(), [](auto &a, auto &b)
+             { return a[2] < b[2]; });
+
+        DSU dsu(n);
+        int mstWeight = 0;
+        int edgesUsed = 0;
+
+        for (auto &edge : edges)
+        {
+            int u = edge[0];
+            int v = edge[1];
+            int wt = edge[2];
+
+            // If u and v are in different components
+            if (dsu.unionSets(u, v))
+            {
+                mstWeight += wt;
+                edgesUsed++;
+                if (edgesUsed == n - 1)
+                    break;
+            }
+        }
+
+        return mstWeight;
+    }
+};
+
+/* ===================================================================
+ * TOPIC: STRONGLY CONNECTED COMPONENTS (Kosaraju's Algorithm)
+ * =================================================================== */
+
+/**
+ * @brief Identify Strongly Connected Components (SCCs) in a directed graph
+ *
+ * DEFINITION:
+ * A **Strongly Connected Component (SCC)** is a maximal subgraph of a directed graph
+ * where every node is reachable from every other node in that subgraph.
+ *
+ * PROBLEM:
+ * Given a directed graph with `V` vertices and `E` edges,
+ * return the number of strongly connected components.
+ *
+ * APPLICATIONS:
+ * - Optimizing compilers (function/module dependencies)
+ * - Social networks (mutual follower clusters)
+ * - Circuit analysis (feedback loops)
+ * - Web page link analysis (PageRank)
+ *
+ * ALGORITHM: KOSARAJU'S ALGORITHM (3 steps)
+ * 1. Do DFS and push nodes onto a stack (in postorder, i.e., finish time)
+ * 2. Reverse the entire graph
+ * 3. Pop nodes from the stack, and do DFS on reversed graph to find components
+ *
+ * COMPLEXITY:
+ * - Time: O(V + E)
+ * - Space: O(V + E)
+ */
+
+class Solution
+{
+public:
+    /**
+     * Step 1: DFS to fill stack in post-order
+     */
+    void dfs1(int node, vector<vector<int>> &adj, vector<bool> &visited, stack<int> &st)
+    {
+        visited[node] = true;
+
+        for (int neighbor : adj[node])
+        {
+            if (!visited[neighbor])
+            {
+                dfs1(neighbor, adj, visited, st);
+            }
+        }
+
+        st.push(node); // Post-order push
+    }
+
+    /**
+     * Step 2: DFS on the transposed graph
+     */
+    void dfs2(int node, vector<vector<int>> &revAdj, vector<bool> &visited)
+    {
+        visited[node] = true;
+
+        for (int neighbor : revAdj[node])
+        {
+            if (!visited[neighbor])
+            {
+                dfs2(neighbor, revAdj, visited);
+            }
+        }
+    }
+
+    /**
+     * @brief Main function to compute number of strongly connected components
+     */
+    int kosarajuSCC(int V, vector<vector<int>> &adj)
+    {
+        stack<int> st;
+        vector<bool> visited(V, false);
+
+        // Step 1: Do a DFS and fill stack with vertices by finish time
+        for (int i = 0; i < V; i++)
+        {
+            if (!visited[i])
+            {
+                dfs1(i, adj, visited, st);
+            }
+        }
+
+        // Step 2: Reverse the graph
+        vector<vector<int>> revAdj(V);
+        for (int u = 0; u < V; u++)
+        {
+            for (int v : adj[u])
+            {
+                revAdj[v].push_back(u); // Reverse the edge
+            }
+        }
+
+        // Step 3: Process all nodes in reverse postorder (stack) and count SCCs
+        fill(visited.begin(), visited.end(), false);
+        int count = 0;
+
+        while (!st.empty())
+        {
+            int node = st.top();
+            st.pop();
+
+            if (!visited[node])
+            {
+                dfs2(node, revAdj, visited);
+                count++;
+            }
+        }
+
+        return count; // Number of strongly connected components
+    }
+};
 
 int main() {
 
