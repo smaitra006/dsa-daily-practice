@@ -2665,3 +2665,332 @@ class Solution {
             return minScore;
         }
     };
+
+    /* ===================================================================
+     * LEETCODE 1466: REORDER ROUTES TO MAKE ALL PATHS LEAD TO CITY ZERO
+     * =================================================================== */
+
+    /**
+     * @brief Count the minimum number of edge reorientations required
+     *        so that all paths lead to city 0.
+     *
+     * PROBLEM STATEMENT:
+     * You are given a directed tree (graph with n nodes and n - 1 directed edges) where each edge
+     * goes from city `u` to city `v`.
+     *
+     * Your goal is to **reorient the minimum number of edges** so that every node has a path
+     * that leads to city 0.
+     *
+     * INPUT:
+     * - int n: number of cities
+     * - vector<vector<int>> connections: directed edges from u → v
+     *
+     * OUTPUT:
+     * - int: minimum number of edges that need to be reversed
+     *
+     * EXAMPLE:
+     * Input: n = 6, connections = [[0,1],[1,3],[2,3],[4,0],[4,5]]
+     * Output: 3
+     *
+     * ALGORITHM (DFS with directed edge marking):
+     * - For each directed edge u → v:
+     *      - store (v, true) in adj[u]   → original direction
+     *      - store (u, false) in adj[v] → reverse edge to allow bidirectional DFS
+     * - Start DFS from node 0
+     *      - If we traverse an edge in the original direction (i.e., away from 0), count it
+     * - Return the total number of such edges that need to be reversed.
+     *
+     * COMPLEXITY:
+     * - Time: O(N)
+     * - Space: O(N)
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief DFS traversal that counts wrongly directed edges
+         */
+        void dfs(unordered_map<int, vector<pair<int, bool>>> &adj, int node,
+                 int parent, vector<bool> &visited, int &count)
+        {
+            visited[node] = true;
+
+            for (auto [neighbour, isReal] : adj[node])
+            {
+                if (!visited[neighbour])
+                {
+                    if (isReal)
+                    {
+                        count++; // edge needs to be reversed
+                    }
+                    dfs(adj, neighbour, node, visited, count);
+                }
+            }
+        }
+
+        /**
+         * @brief Main function to return the minimum number of edge reversals
+         */
+        int minReorder(int n, vector<vector<int>> &connections)
+        {
+            unordered_map<int, vector<pair<int, bool>>> adj;
+
+            // Step 1: Build an adjacency list with direction info
+            for (auto &edge : connections)
+            {
+                int u = edge[0];
+                int v = edge[1];
+
+                adj[u].emplace_back(v, true);  // original directed edge u → v
+                adj[v].emplace_back(u, false); // reversed (virtual) edge v → u
+            }
+
+            vector<bool> visited(n, false);
+            int count = 0;
+
+            // Step 2: DFS from node 0
+            dfs(adj, 0, -1, visited, count);
+
+            return count;
+        }
+    };
+
+    /* ===================================================================
+     * LEETCODE 2360: LONGEST CYCLE IN A GRAPH
+     * =================================================================== */
+
+    /**
+     * @brief Find the length of the longest cycle in a directed graph
+     *
+     * PROBLEM STATEMENT:
+     * Given a directed graph where each node has at most one outgoing edge,
+     * find the length of the longest cycle in the graph. If no cycle exists, return -1.
+     *
+     * INPUT:
+     * - vector<int>& edges: edges[i] = the node that node i points to (or -1 if none)
+     *
+     * OUTPUT:
+     * - int: length of the longest cycle (or -1 if none exists)
+     *
+     * EXAMPLE:
+     * Input: edges = [3,3,4,2,3]
+     * Output: 3
+     *
+     * ALGORITHM (DFS + Recursion Tracking):
+     * - Use DFS to explore paths and detect cycles
+     * - Track recursion stack (`inRecursion[]`) to identify back-edges
+     * - Maintain a `count[]` array to store distance (depth) from the start node
+     * - If a cycle is found, calculate its length using count difference
+     *
+     * COMPLEXITY:
+     * - Time: O(N), where N is number of nodes (since each node is visited once)
+     * - Space: O(N) for visited, inRecursion, and count arrays
+     */
+
+    class Solution
+    {
+    public:
+        int result = -1;
+
+        /**
+         * @brief DFS traversal to detect and measure cycles
+         */
+        void dfs(int u, vector<int> &edges, vector<bool> &visited,
+                 vector<int> &count, vector<bool> &inRecursion)
+        {
+
+            if (u == -1)
+                return;
+
+            visited[u] = true;
+            inRecursion[u] = true;
+
+            int v = edges[u];
+
+            if (v != -1 && !visited[v])
+            {
+                count[v] = count[u] + 1;
+                dfs(v, edges, visited, count, inRecursion);
+            }
+            // Cycle detected: v is in current DFS path
+            else if (v != -1 && inRecursion[v])
+            {
+                result = max(result, count[u] - count[v] + 1);
+            }
+
+            inRecursion[u] = false; // backtrack
+        }
+
+        /**
+         * @brief Main function to compute longest cycle length
+         */
+        int longestCycle(vector<int> &edges)
+        {
+            int n = edges.size();
+            vector<bool> visited(n, false);
+            vector<bool> inRecursion(n, false);
+            vector<int> count(n, 1); // initial depth is 1 for each start node
+
+            for (int i = 0; i < n; i++)
+            {
+                if (!visited[i])
+                {
+                    dfs(i, edges, visited, count, inRecursion);
+                }
+            }
+
+            return result;
+        }
+    };
+
+    /* ===================================================================
+     * LEETCODE 1557: MINIMUM NUMBER OF VERTICES TO REACH ALL NODES
+     * =================================================================== */
+
+    /**
+     * @brief Find all nodes in a DAG that have no incoming edges.
+     *
+     * PROBLEM STATEMENT:
+     * Given a directed acyclic graph (DAG) with `n` nodes labeled from 0 to n - 1,
+     * and a list of directed edges, return a list of all vertices with **in-degree 0**.
+     *
+     * These are the **minimum number of vertices** needed to reach all nodes.
+     *
+     * ALGORITHM:
+     * - Track in-degrees of each node.
+     * - Nodes with no incoming edges (in-degree 0) must be part of the answer.
+     *
+     * TIME COMPLEXITY: O(E + N)
+     * SPACE COMPLEXITY: O(N)
+     */
+
+    class Solution
+    {
+    public:
+        vector<int> findSmallestSetOfVertices(int n, vector<vector<int>> &edges)
+        {
+            // Step 1: Track which nodes have incoming edges
+            vector<bool> hasIncoming(n, false);
+
+            for (auto &edge : edges)
+            {
+                int from = edge[0];
+                int to = edge[1];
+                hasIncoming[to] = true; // mark as having an incoming edge
+            }
+
+            // Step 2: Nodes with no incoming edges are our answer
+            vector<int> result;
+            for (int i = 0; i < n; ++i)
+            {
+                if (!hasIncoming[i])
+                {
+                    result.push_back(i); // can't be reached by any other node
+                }
+            }
+
+            return result;
+        }
+    };
+
+    /* ===================================================================
+     * LEETCODE 399: EVALUATE DIVISION
+     * =================================================================== */
+
+    /**
+     * @brief Given equations like a / b = 2.0 and queries like a / c,
+     *        evaluate the result using a graph-based approach.
+     *
+     * ALGORITHM (DFS Traversal):
+     * - Treat each variable as a node in a graph.
+     * - Each equation (a / b = val) forms two edges: a → b with weight val and b → a with weight 1/val.
+     * - For each query, run DFS to find a path from source to destination,
+     *   multiplying edge weights along the way.
+     *
+     * TIME COMPLEXITY:
+     * - Building graph: O(E), where E is number of equations
+     * - Query DFS traversal: O(N + E) worst case per query
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief Helper DFS to evaluate the product path from src to dst
+         *
+         * @param adj      Adjacency list storing graph
+         * @param src      Current node
+         * @param dst      Target node
+         * @param visited  Set to prevent revisiting nodes
+         * @param product  Current accumulated product
+         * @param ans      Reference to store final result if path is found
+         */
+        void dfs(unordered_map<string, vector<pair<string, double>>> &adj,
+                 const string &src, const string &dst,
+                 unordered_set<string> &visited,
+                 double product, double &ans)
+        {
+
+            // already visited → cycle
+            if (visited.count(src))
+                return;
+
+            visited.insert(src);
+
+            // base case: source and destination matched
+            if (src == dst)
+            {
+                ans = product;
+                return;
+            }
+
+            // explore neighbors
+            for (auto &[neighbor, weight] : adj[src])
+            {
+                dfs(adj, neighbor, dst, visited, product * weight, ans);
+            }
+        }
+
+        /**
+         * @brief Solve all division queries based on given equations
+         */
+        vector<double> calcEquation(vector<vector<string>> &equations,
+                                    vector<double> &values,
+                                    vector<vector<string>> &queries)
+        {
+            int n = equations.size();
+            unordered_map<string, vector<pair<string, double>>> adj;
+
+            // Step 1: Build the graph
+            for (int i = 0; i < n; i++)
+            {
+                string u = equations[i][0];
+                string v = equations[i][1];
+                double val = values[i];
+
+                adj[u].emplace_back(v, val);       // u → v with weight val
+                adj[v].emplace_back(u, 1.0 / val); // v → u with weight 1/val
+            }
+
+            // Step 2: Process each query using DFS
+            vector<double> result;
+
+            for (auto &query : queries)
+            {
+                string src = query[0];
+                string dst = query[1];
+                double ans = -1.0;
+
+                if (adj.count(src) && adj.count(dst))
+                {
+                    unordered_set<string> visited;
+                    dfs(adj, src, dst, visited, 1.0, ans);
+                }
+
+                result.push_back(ans);
+            }
+
+            return result;
+        }
+    };

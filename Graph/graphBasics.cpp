@@ -538,9 +538,6 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
  * SPACE COMPLEXITY: O(n)
  */
 
- #include <bits/stdc++.h>
- using namespace std;
-
  class DSU {
  private:
      vector<int> parent;
