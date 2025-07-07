@@ -449,3 +449,97 @@ public:
      * obj->add(index, val);
      * int result = obj->count(tot);
      */
+
+    /* ===================================================================
+     * LEETCODE 1353: MAXIMUM NUMBER OF EVENTS THAT CAN BE ATTENDED
+     * =================================================================== */
+
+    /**
+     * @brief Attend the maximum number of non-overlapping events
+     *
+     * PROBLEM STATEMENT:
+     * You are given an array of `events` where events[i] = [startDay_i, endDay_i].
+     * You can attend only one event per day, and can choose any day `d` such that:
+     *     startDay_i <= d <= endDay_i
+     *
+     * Return the maximum number of events that can be attended.
+     *
+     * INPUT:
+     * - vector<vector<int>> events: list of events as [startDay, endDay]
+     *
+     * OUTPUT:
+     * - int: maximum number of events that can be attended
+     *
+     * EXAMPLE:
+     * Input: events = [[1,2],[2,3],[3,4]]
+     * Output: 3
+     *
+     * ALGORITHM (Greedy + DSU with Path Compression):
+     * - Sort events by their end day (to attend earlier-finishing events first)
+     * - Use a Disjoint Set (nextDay[i]) to find the earliest free day for an event
+     * - Once a day is taken, update it to point to the next available day
+     *
+     * COMPLEXITY:
+     * - Time: O(N log N + M α(N)), where N = number of events, M = max end day
+     * - Space: O(M), where M = maximum end day
+     */
+
+    class Solution
+    {
+        /**
+         * @brief DSU find function with path compression to get the next free day
+         */
+        int findNext(vector<int> &nextDay, int day)
+        {
+            if (nextDay[day] != day)
+            {
+                nextDay[day] = findNext(nextDay, nextDay[day]); // Path compression
+            }
+            return nextDay[day];
+        }
+
+    public:
+        /**
+         * @brief Main function to return the max number of events that can be attended
+         */
+        int maxEvents(vector<vector<int>> &events)
+        {
+            // Step 1: Sort events based on their ending day (greedy strategy)
+            sort(events.begin(), events.end(), [](const vector<int> &a, const vector<int> &b)
+                 { return a[1] < b[1]; });
+
+            // Step 2: Find the latest day among all events to size DSU array
+            int maxDay = 0;
+            for (const auto &evt : events)
+            {
+                maxDay = max(maxDay, evt[1]);
+            }
+
+            // Step 3: Initialize DSU (each day points to itself)
+            vector<int> nextDay(maxDay + 2); // +2 to handle boundary case
+            for (int d = 0; d <= maxDay + 1; ++d)
+            {
+                nextDay[d] = d;
+            }
+
+            int count = 0;
+
+            // Step 4: Process each event
+            for (const auto &evt : events)
+            {
+                int start = evt[0];
+                int end = evt[1];
+
+                // Find the earliest available day to attend this event
+                int day = findNext(nextDay, start);
+
+                if (day <= end)
+                {
+                    ++count;                                   // Attend this event
+                    nextDay[day] = findNext(nextDay, day + 1); // Mark the day as used
+                }
+            }
+
+            return count;
+        }
+    };
