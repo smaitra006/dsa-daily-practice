@@ -938,7 +938,7 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
  void floydWarshall(vector<vector<int>>& dist, int n) {
     const int INF = 1e9;
 
-    // Main triple loop
+    // Main triple loop -> going via k
     for (int k = 0; k < n; k++) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -1019,6 +1019,453 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
     return minCost;
 }
 
+/* ===================================================================
+ * KRUSKAL'S ALGORITHM: Minimum Spanning Tree (MST)
+ * =================================================================== */
+
+/**
+ * @brief Given a connected, undirected, and weighted graph,
+ *        Kruskal's Algorithm finds a Minimum Spanning Tree (MST)
+ *        using a greedy approach and DSU (Disjoint Set Union).
+ *
+ * ALGORITHM:
+ * 1. Sort all edges by increasing weight.
+ * 2. Initialize DSU for all nodes.
+ * 3. Iterate through sorted edges:
+ *      - If the edge connects two disjoint sets (no cycle), add to MST.
+ *      - Union the sets of the two nodes.
+ *
+ * TIME COMPLEXITY:
+ * - Sorting edges: O(E log E)
+ * - Union-Find ops: O(α(N)) ~ constant time (with path compression + union by rank)
+ * - Total: O(E log E)
+ */
+
+class DSU
+{
+    vector<int> parent, rank;
+
+public:
+    DSU(int n)
+    {
+        parent.resize(n);
+        rank.resize(n, 0); // Initially, all ranks are 0
+        for (int i = 0; i < n; ++i)
+            parent[i] = i;
+    }
+
+    // Find the root of a set with path compression
+    int find(int u)
+    {
+        if (parent[u] != u)
+            parent[u] = find(parent[u]);
+        return parent[u];
+    }
+
+    // Union two sets by rank
+    bool unionByRank(int u, int v)
+    {
+        int pu = find(u);
+        int pv = find(v);
+
+        if (pu == pv)
+            return false; // already connected
+
+        if (rank[pu] < rank[pv])
+        {
+            parent[pu] = pv;
+        }
+        else if (rank[pu] > rank[pv])
+        {
+            parent[pv] = pu;
+        }
+        else
+        {
+            parent[pv] = pu;
+            rank[pu]++;
+        }
+        return true;
+    }
+};
+
+class Solution
+{
+public:
+    /**
+     * @brief Kruskal's Algorithm implementation
+     * @param n Number of nodes (0 to n-1)
+     * @param edges Each edge as {u, v, wt}
+     * @return Total weight of MST
+     */
+    int kruskalMST(int n, vector<vector<int>> &edges)
+    {
+        // Step 1: Sort edges by weight
+        sort(edges.begin(), edges.end(), [](vector<int> &a, vector<int> &b)
+             {
+                 return a[2] < b[2]; // sort by weight
+             });
+
+        DSU dsu(n);
+        int mstWeight = 0;
+
+        // Step 2: Iterate over sorted edges
+        for (auto &edge : edges)
+        {
+            int u = edge[0];
+            int v = edge[1];
+            int wt = edge[2];
+
+            // Step 3: Add edge if it connects disjoint components
+            if (dsu.unionByRank(u, v))
+            {
+                mstWeight += wt;
+            }
+        }
+
+        return mstWeight;
+    }
+};
+
+/* ===================================================================
+ * KOSARAJU'S ALGORITHM: Strongly Connected Components (SCC)
+ * =================================================================== */
+
+/**
+ * @brief Finds the number of Strongly Connected Components (SCCs)
+ *        in a directed graph using Kosaraju's 2-pass DFS approach.
+ *
+ * ALGORITHM:
+ * 1. **Topological Sort (DFS1)**: Run DFS and store nodes in post-order stack.
+ * 2. **Transpose Graph**: Reverse the direction of all edges.
+ * 3. **DFS on Transposed Graph (DFS2)**: Run DFS in the order of the stack,
+ *    each DFS call gives one SCC.
+ *
+ * TIME COMPLEXITY: O(V + E)
+ * SPACE COMPLEXITY: O(V + E)
+ */
+
+class Solution
+{
+public:
+    // Step 1: Topological DFS - store postorder in stack
+    void dfs1(int node, vector<vector<int>> &adj, vector<bool> &visited, stack<int> &st)
+    {
+        visited[node] = true;
+
+        for (int neighbour : adj[node])
+        {
+            if (!visited[neighbour])
+            {
+                dfs1(neighbour, adj, visited, st);
+            }
+        }
+
+        st.push(node); // after visiting all descendants
+    }
+
+    // Step 3: DFS on the transposed graph
+    void dfs2(int node, vector<vector<int>> &transposed, vector<bool> &visited)
+    {
+        visited[node] = true;
+
+        for (int neighbour : transposed[node])
+        {
+            if (!visited[neighbour])
+            {
+                dfs2(neighbour, transposed, visited);
+            }
+        }
+    }
+
+    /**
+     * @param n     Number of vertices (0 to n-1)
+     * @param edges Directed edges of the graph {u, v}
+     * @return Number of Strongly Connected Components
+     */
+    int kosarajuSCC(int n, vector<vector<int>> &edges)
+    {
+        // Step 0: Build the adjacency list
+        vector<vector<int>> adj(n);
+        for (auto &edge : edges)
+        {
+            int u = edge[0], v = edge[1];
+            adj[u].push_back(v); // directed edge u → v
+        }
+
+        // Step 1: Perform DFS to fill stack in post-order
+        stack<int> st;
+        vector<bool> visited(n, false);
+
+        for (int i = 0; i < n; ++i)
+        {
+            if (!visited[i])
+            {
+                dfs1(i, adj, visited, st);
+            }
+        }
+
+        // Step 2: Transpose the graph
+        vector<vector<int>> transposed(n);
+        for (int u = 0; u < n; ++u)
+        {
+            for (int v : adj[u])
+            {
+                transposed[v].push_back(u); // reverse edge
+            }
+        }
+
+        // Step 3: Run DFS on transposed graph in stack order
+        fill(visited.begin(), visited.end(), false);
+        int sccCount = 0;
+
+        while (!st.empty())
+        {
+            int node = st.top();
+            st.pop();
+            if (!visited[node])
+            {
+                dfs2(node, transposed, visited);
+                sccCount++; // each DFS call is one SCC
+            }
+        }
+
+        return sccCount;
+    }
+};
+
+/* ===================================================================
+ * EULERIAN GRAPH THEORY NOTES
+ * =================================================================== */
+
+/**
+ * @brief An Eulerian Path is a trail in a graph that visits every edge exactly once.
+ *        An Eulerian Circuit is an Eulerian Path that starts and ends on the same vertex.
+ *
+ * DEFINITIONS:
+ * - **Eulerian Path**: A path that uses every edge of a graph exactly once.
+ * - **Eulerian Circuit (Cycle)**: An Eulerian Path that starts and ends at the same vertex.
+ *
+ * APPLICABLE TO:
+ * - **Undirected Graphs**
+ * - **Directed Graphs**
+ *
+ * ===================================================================
+ * CONDITIONS FOR EULERIAN PATH AND CIRCUIT
+ * ===================================================================
+ *
+ * UNDIRECTED GRAPHS:
+ * ------------------
+ * 1. Eulerian **Circuit** exists if:
+ *    - All vertices have even degree
+ *    - The graph is connected (excluding isolated vertices)
+ *
+ * 2. Eulerian **Path** (but not circuit) exists if:
+ *    - Exactly 2 vertices have odd degree
+ *    - The graph is connected
+ *
+ * 3. Otherwise, **no Eulerian Path or Circuit** exists
+ *
+ *
+ * DIRECTED GRAPHS:
+ * ------------------
+ * 1. Eulerian **Circuit** exists if:
+ *    - For every vertex, in-degree == out-degree
+ *    - All nodes with non-zero degree belong to a single strongly connected component
+ *
+ * 2. Eulerian **Path** exists if:
+ *    - Exactly one vertex with (out-degree = in-degree + 1) → this is the start node
+ *    - Exactly one vertex with (in-degree = out-degree + 1) → this is the end node
+ *    - All other vertices: in-degree == out-degree
+ *    - All nodes with non-zero degree belong to a single connected component (in undirected sense)
+ *
+ *
+ * ===================================================================
+ * TIME COMPLEXITY OF CHECKING:
+ * ===================================================================
+ * - Degree Counting: O(V)
+ * - Connectivity Check (DFS/BFS): O(V + E)
+ *
+ *
+ * ===================================================================
+ * EXAMPLES:
+ * ===================================================================
+ * 1. Undirected:
+ *      Graph: 0-1-2-0  → Triangle
+ *      All vertices have degree 2 → Eulerian Circuit
+ *
+ * 2. Directed:
+ *      A → B → C
+ *      A has out=1, in=0; C has in=1, out=0; B has in=1, out=1 → Eulerian Path
+ */
+
+/* ===================================================================
+ * UTILITY: Check if an undirected graph has Eulerian Path or Circuit
+ * =================================================================== */
+
+bool isConnected(vector<vector<int>> &adj, int V)
+{
+    vector<bool> visited(V, false);
+
+    // Find a starting vertex with non-zero degree
+    int start = -1;
+    for (int i = 0; i < V; i++)
+    {
+        if (!adj[i].empty())
+        {
+            start = i;
+            break;
+        }
+    }
+
+    // If no edges exist, graph is trivially Eulerian
+    if (start == -1)
+        return true;
+
+    // DFS to mark all reachable vertices
+    function<void(int)> dfs = [&](int node)
+    {
+        visited[node] = true;
+        for (int neighbor : adj[node])
+        {
+            if (!visited[neighbor])
+                dfs(neighbor);
+        }
+    };
+
+    dfs(start);
+
+    // Check if all vertices with edges are visited
+    for (int i = 0; i < V; i++)
+    {
+        if (!adj[i].empty() && !visited[i])
+            return false;
+    }
+
+    return true;
+}
+
+string classifyEulerianUndirectedGraph(vector<vector<int>> &adj, int V)
+{
+    if (!isConnected(adj, V))
+        return "Not Eulerian";
+
+    int oddCount = 0;
+    for (int i = 0; i < V; i++)
+    {
+        if (adj[i].size() % 2 != 0)
+            oddCount++;
+    }
+
+    if (oddCount == 0)
+        return "Eulerian Circuit";
+    else if (oddCount == 2)
+        return "Eulerian Path";
+    else
+        return "Not Eulerian";
+}
+
+/* ===================================================================
+ * EULERIAN GRAPH CHECK — DIRECTED GRAPH
+ * =================================================================== */
+
+/**
+ * @brief Check if a directed graph contains an Eulerian Path or Circuit.
+ *
+ * ALGORITHM:
+ * - Count in-degrees and out-degrees of all vertices.
+ * - Eulerian Circuit:
+ *     → All vertices: in-degree == out-degree
+ * - Eulerian Path:
+ *     → Exactly one vertex: out-degree = in-degree + 1 (start)
+ *     → Exactly one vertex: in-degree = out-degree + 1 (end)
+ *     → All others: in-degree == out-degree
+ * - Also check: the graph is strongly connected (or all reachable from a single node).
+ */
+
+string classifyEulerianDirectedGraph(vector<vector<int>> &adj, int V)
+{
+    vector<int> indeg(V, 0), outdeg(V, 0);
+
+    for (int u = 0; u < V; u++)
+    {
+        for (int v : adj[u])
+        {
+            outdeg[u]++;
+            indeg[v]++;
+        }
+    }
+
+    int start_nodes = 0, end_nodes = 0;
+    for (int i = 0; i < V; i++)
+    {
+        if (outdeg[i] - indeg[i] == 1)
+            start_nodes++;
+        else if (indeg[i] - outdeg[i] == 1)
+            end_nodes++;
+        else if (indeg[i] != outdeg[i])
+            return "Not Eulerian";
+    }
+
+    if (start_nodes == 0 && end_nodes == 0)
+        return "Eulerian Circuit";
+    else if (start_nodes == 1 && end_nodes == 1)
+        return "Eulerian Path";
+    else
+        return "Not Eulerian";
+}
+
+/* ===================================================================
+ * HIERHOLZER’S ALGORITHM — UNDIRECTED GRAPH
+ * =================================================================== */
+
+/**
+ * @brief Construct Eulerian Path or Circuit in an undirected graph
+ *        (Assumes that it exists)
+ *
+ * NOTE:
+ * - The graph is represented using a multiset (or multimap) to support multiple edges.
+ * - The resulting path/circuit will be in reverse — reverse at the end.
+ */
+
+void dfs(int u, unordered_map<int, multiset<int>> &graph, vector<int> &path)
+{
+    while (!graph[u].empty())
+    {
+        int v = *graph[u].begin();
+        graph[u].erase(graph[u].begin());
+        graph[v].erase(graph[v].find(u)); // remove the back edge
+        dfs(v, graph, path);
+    }
+    path.push_back(u);
+}
+
+vector<int> findEulerianTrailUndirected(vector<pair<int, int>> &edges)
+{
+    unordered_map<int, multiset<int>> graph;
+
+    for (auto &[u, v] : edges)
+    {
+        graph[u].insert(v);
+        graph[v].insert(u);
+    }
+
+    // Start at a vertex with odd degree (if any), else pick any
+    int start = edges[0].first;
+    for (auto &[u, adj] : graph)
+    {
+        if (adj.size() % 2 == 1)
+        {
+            start = u;
+            break;
+        }
+    }
+
+    vector<int> path;
+    dfs(start, graph, path);
+    reverse(path.begin(), path.end());
+
+    return path;
+}
 
 int main() {
 

@@ -2140,3 +2140,283 @@ class Solution {
             return true;
         }
     };
+
+    /* ===================================================================
+     * LEETCODE 133: CLONE GRAPH
+     * =================================================================== */
+
+    class Node
+    {
+    public:
+        int val;
+        vector<Node *> neighbors;
+        Node()
+        {
+            val = 0;
+            neighbors = vector<Node *>();
+        }
+        Node(int _val)
+        {
+            val = _val;
+            neighbors = vector<Node *>();
+        }
+        Node(int _val, vector<Node *> _neighbors)
+        {
+            val = _val;
+            neighbors = _neighbors;
+        }
+    };
+
+    /**
+     * @brief Clone an undirected graph where each node contains a value and a list of neighbors.
+     *
+     * ALGORITHM (DFS + HashMap):
+     * - Use DFS to traverse the original graph.
+     * - Maintain a hashmap to track already cloned nodes (to avoid cycles and re-cloning).
+     * - For each node:
+     *     - If it's already cloned, use the existing copy.
+     *     - Otherwise, clone the node, and recursively clone its neighbors.
+     *
+     * TIME COMPLEXITY: O(N + E), where:
+     * - N is the number of nodes.
+     * - E is the number of edges.
+     */
+
+    class Solution
+    {
+        // Map from original node to its clone
+        unordered_map<Node *, Node *> mp;
+
+        /**
+         * @brief DFS helper to clone neighbors recursively
+         *
+         * @param node         Current original node
+         * @param clone_node   Corresponding cloned node
+         */
+        void DFS(Node *node, Node *clone_node)
+        {
+            for (Node *neighbor : node->neighbors)
+            {
+                if (mp.find(neighbor) == mp.end()) // yet not cloned
+                {
+                    Node *clone = new Node(neighbor->val); // create the clone
+                    mp[neighbor] = clone; // store in map
+                    clone_node->neighbors.push_back(clone); // make the clone neighbour of clone_node
+                    DFS(neighbor, clone); // recursively call DFS on this
+                }
+                else // clone is available
+                {
+                    clone_node->neighbors.push_back(mp[neighbor]); // make the clone neighbour
+                }
+            }
+        }
+
+    public:
+        /**
+         * @brief Clones the graph starting from given node
+         *
+         * @param node   Starting node of the original graph
+         * @return       Cloned graph's starting node
+         */
+        Node *cloneGraph(Node *node)
+        {
+            if (node == NULL)
+                return NULL;
+
+            mp.clear();
+
+            Node *clone_node = new Node(node->val);
+            mp[node] = clone_node;
+
+            DFS(node, clone_node);
+
+            return clone_node;
+        }
+    };
+
+    /* ===================================================================
+     * LEETCODE 2101: DETONATE THE MAXIMUM BOMBS
+     * =================================================================== */
+
+    /**
+     * @brief Given a list of bombs where each bomb has coordinates and a radius,
+     *        determine the maximum number of bombs that can be detonated starting from any one bomb.
+     *
+     * ALGORITHM (Graph + DFS):
+     * - Treat each bomb as a node.
+     * - If bomb A can detonate bomb B (based on Euclidean distance ≤ A's radius), add a directed edge A → B.
+     * - Use DFS from each node to count the number of bombs that can be detonated starting from it.
+     * - Track and return the maximum count over all possible starting bombs.
+     *
+     * TIME COMPLEXITY:
+     * - Building graph: O(N^2)
+     * - DFS per node: O(N + E) → total O(N*(N+E)) in worst case
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief DFS to count number of bombs that can be detonated from current node
+         *
+         * @param node      Current bomb index
+         * @param adj       Adjacency list representing detonation graph
+         * @param visited   Visited tracker to avoid re-visits
+         * @return          Total number of bombs detonated in this DFS chain
+         */
+        int dfs(int node, vector<vector<int>> &adj, vector<bool> &visited)
+        {
+            visited[node] = true;
+            int count = 1; // Count this bomb
+
+            for (int neighbor : adj[node])
+            {
+                if (!visited[neighbor])
+                {
+                    count += dfs(neighbor, adj, visited);
+                }
+            }
+
+            return count;
+        }
+
+        /**
+         * @brief Compute the maximum number of bombs that can be detonated
+         *
+         * @param bombs  List of bombs: {x, y, radius}
+         * @return       Max number of bombs detonated starting from any bomb
+         */
+        int maximumDetonation(vector<vector<int>> &bombs)
+        {
+            int n = bombs.size();
+            vector<vector<int>> adj(n); // Adjacency list
+
+            // Step 1: Build the graph
+            for (int i = 0; i < n; i++)
+            {
+                long long x1 = bombs[i][0];
+                long long y1 = bombs[i][1];
+                long long r = bombs[i][2];
+
+                for (int j = 0; j < n; j++)
+                {
+                    if (i == j)
+                        continue;
+
+                    long long x2 = bombs[j][0];
+                    long long y2 = bombs[j][1];
+
+                    long long dx = x1 - x2;
+                    long long dy = y1 - y2;
+                    long long distSq = dx * dx + dy * dy;
+
+                    // If bomb j is within range of bomb i
+                    if (distSq <= r * r)
+                    {
+                        adj[i].push_back(j);
+                    }
+                }
+            }
+
+            // Step 2: Try DFS from each bomb
+            int maxDetonated = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                vector<bool> visited(n, false);
+                maxDetonated = max(maxDetonated, dfs(i, adj, visited));
+            }
+
+            return maxDetonated;
+        }
+    };
+
+    /* ===================================================================
+     * LEETCODE 2097: VALID ARRANGEMENT OF PAIRS
+     * =================================================================== */
+
+    /**
+     * @brief Given a list of directed pairs [u, v], rearrange them so that:
+     *        - For every adjacent pair (a, b) and (b, c), b matches.
+     *        - In other words, form a valid Eulerian path from the pairs.
+     *
+     * ALGORITHM (Hierholzer's Algorithm for Directed Graph):
+     * - Build adjacency list and track in-degree/out-degree for all nodes.
+     * - Identify the starting node of the Eulerian path:
+     *     → It should have out-degree = in-degree + 1
+     *     → If none, start with any node
+     * - Use a stack to simulate DFS and construct the path in reverse.
+     * - Convert the node path into an edge list format.
+     *
+     * TIME COMPLEXITY: O(E), where E = number of pairs
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief Reconstruct a valid arrangement of pairs using Eulerian path
+         *
+         * @param pairs  List of directed edges [from, to]
+         * @return       Sequence of pairs forming a valid path
+         */
+        vector<vector<int>> validArrangement(vector<vector<int>> &pairs)
+        {
+            // Step 1: Build adjacency list and degree counters
+            unordered_map<int, vector<int>> adj;
+            unordered_map<int, int> indegree, outdegree;
+
+            for (auto &edge : pairs)
+            {
+                int u = edge[0];
+                int v = edge[1];
+                adj[u].push_back(v);
+                outdegree[u]++;
+                indegree[v]++;
+            }
+
+            // Step 2: Find start node for Eulerian path
+            int start = pairs[0][0];
+            for (auto &[node, _] : adj)
+            {
+                if (outdegree[node] - indegree[node] == 1)
+                {
+                    start = node;
+                    break;
+                }
+            }
+
+            // Step 3: Perform Hierholzer’s Algorithm (iterative DFS)
+            vector<int> path;
+            stack<int> st;
+            st.push(start);
+
+            while (!st.empty())
+            {
+                int curr = st.top();
+
+                if (!adj[curr].empty())
+                {
+                    int next = adj[curr].back();
+                    adj[curr].pop_back();
+                    st.push(next);
+                }
+                else
+                {
+                    path.push_back(curr);
+                    st.pop();
+                }
+            }
+
+            // Step 4: Build result as list of edges
+            reverse(path.begin(), path.end());
+
+            vector<vector<int>> result;
+            for (int i = 0; i < path.size() - 1; i++)
+            {
+                result.push_back({path[i], path[i + 1]});
+            }
+
+            return result;
+        }
+    };
