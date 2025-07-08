@@ -356,3 +356,190 @@ public:
             return luckyInt;
         }
     };
+
+    /* ===================================================================
+     * LEETCODE 1865: FINDING PAIRS WITH A CERTAIN SUM
+     * =================================================================== */
+
+    /**
+     * @brief Implement a data structure to support dynamic sum pair queries
+     *
+     * PROBLEM STATEMENT:
+     * You are given two integer arrays `nums1` and `nums2`.
+     * Implement a class `FindSumPairs` with the following operations:
+     *
+     * 1. `add(index, val)` → Adds `val` to `nums2[index]`
+     * 2. `count(tot)` → Returns the number of pairs `(i, j)` such that:
+     *                   nums1[i] + nums2[j] == tot
+     *
+     * INPUT:
+     * - vector<int> nums1, nums2
+     * - Queries: add(index, val), count(tot)
+     *
+     * OUTPUT:
+     * - Integer: Count of valid (i, j) pairs for given `tot`
+     *
+     * EXAMPLE:
+     * Input:
+     * FindSumPairs([[1,1,2,2,2,3], [1,4,5,2,5,4]])
+     * add(3, 2)
+     * count(7) → Count pairs (i, j) such that nums1[i] + nums2[j] == 7
+     *
+     * ALGORITHM:
+     * - Use a frequency map for nums2 to quickly count complements in `count(tot)`
+     * - Update the map dynamically when `add()` is called
+     *
+     * COMPLEXITY:
+     * - Constructor: O(n) for nums2 frequency map
+     * - add(): O(1)
+     * - count(): O(n1), where n1 = size of nums1
+     */
+
+    class FindSumPairs
+    {
+    public:
+        vector<int> n1, n2;
+        unordered_map<int, int> m;
+
+        /**
+         * @brief Initialize the object with two arrays
+         */
+        FindSumPairs(vector<int> &nums1, vector<int> &nums2)
+        {
+            n1 = nums1;
+            n2 = nums2;
+
+            // Create frequency map for nums2
+            for (int x : n2)
+            {
+                m[x]++;
+            }
+        }
+
+        /**
+         * @brief Adds val to nums2[index] and updates the frequency map
+         */
+        void add(int index, int val)
+        {
+            m[n2[index]]--;   // Remove old value from frequency map
+            n2[index] += val; // Update nums2[index]
+            m[n2[index]]++;   // Add new value to frequency map
+        }
+
+        /**
+         * @brief Count number of valid pairs (i, j) where n1[i] + n2[j] == tot
+         */
+        int count(int tot)
+        {
+            int c = 0;
+
+            for (int x : n1)
+            {
+                int complement = tot - x;
+                c += m[complement]; // Look up how many times complement exists in nums2
+            }
+
+            return c;
+        }
+    };
+
+    /**
+     * Example Usage:
+     * FindSumPairs* obj = new FindSumPairs(nums1, nums2);
+     * obj->add(index, val);
+     * int result = obj->count(tot);
+     */
+
+    /* ===================================================================
+     * LEETCODE 1353: MAXIMUM NUMBER OF EVENTS THAT CAN BE ATTENDED
+     * =================================================================== */
+
+    /**
+     * @brief Attend the maximum number of non-overlapping events
+     *
+     * PROBLEM STATEMENT:
+     * You are given an array of `events` where events[i] = [startDay_i, endDay_i].
+     * You can attend only one event per day, and can choose any day `d` such that:
+     *     startDay_i <= d <= endDay_i
+     *
+     * Return the maximum number of events that can be attended.
+     *
+     * INPUT:
+     * - vector<vector<int>> events: list of events as [startDay, endDay]
+     *
+     * OUTPUT:
+     * - int: maximum number of events that can be attended
+     *
+     * EXAMPLE:
+     * Input: events = [[1,2],[2,3],[3,4]]
+     * Output: 3
+     *
+     * ALGORITHM (Greedy + DSU with Path Compression):
+     * - Sort events by their end day (to attend earlier-finishing events first)
+     * - Use a Disjoint Set (nextDay[i]) to find the earliest free day for an event
+     * - Once a day is taken, update it to point to the next available day
+     *
+     * COMPLEXITY:
+     * - Time: O(N log N + M α(N)), where N = number of events, M = max end day
+     * - Space: O(M), where M = maximum end day
+     */
+
+    class Solution
+    {
+        /**
+         * @brief DSU find function with path compression to get the next free day
+         */
+        int findNext(vector<int> &nextDay, int day)
+        {
+            if (nextDay[day] != day)
+            {
+                nextDay[day] = findNext(nextDay, nextDay[day]); // Path compression
+            }
+            return nextDay[day];
+        }
+
+    public:
+        /**
+         * @brief Main function to return the max number of events that can be attended
+         */
+        int maxEvents(vector<vector<int>> &events)
+        {
+            // Step 1: Sort events based on their ending day (greedy strategy)
+            sort(events.begin(), events.end(), [](const vector<int> &a, const vector<int> &b)
+                 { return a[1] < b[1]; });
+
+            // Step 2: Find the latest day among all events to size DSU array
+            int maxDay = 0;
+            for (const auto &evt : events)
+            {
+                maxDay = max(maxDay, evt[1]);
+            }
+
+            // Step 3: Initialize DSU (each day points to itself)
+            vector<int> nextDay(maxDay + 2); // +2 to handle boundary case
+            for (int d = 0; d <= maxDay + 1; ++d)
+            {
+                nextDay[d] = d;
+            }
+
+            int count = 0;
+
+            // Step 4: Process each event
+            for (const auto &evt : events)
+            {
+                int start = evt[0];
+                int end = evt[1];
+
+                // Find the earliest available day to attend this event
+                int day = findNext(nextDay, start);
+
+                if (day <= end)
+                {
+                    ++count;                                   // Attend this event
+                    nextDay[day] = findNext(nextDay, day + 1); // Mark the day as used
+                }
+            }
+
+            return count;
+        }
+    };
