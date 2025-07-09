@@ -38,9 +38,11 @@ using namespace std;
 /* ============================================================
  *        ADJACENCY MATRIX REPRESENTATION (Undirected)
  * ============================================================ */
-void createAdjMatrix(int n, int m, vector<vector<int>>& adj) {
+void createAdjMatrix(int n, int m, vector<vector<int>> &adj)
+{
     cout << "Enter " << m << " edges (u v):\n";
-    for(int i = 0; i < m; i++) {
+    for (int i = 0; i < m; i++)
+    {
         int u, v;
         cin >> u >> v;
         adj[u][v] = 1;
@@ -48,12 +50,14 @@ void createAdjMatrix(int n, int m, vector<vector<int>>& adj) {
     }
 }
 
- /* ============================================================
+/* ============================================================
  *        ADJACENCY LIST REPRESENTATION (Undirected)
  * ============================================================ */
-void createAdjList(int n, int m, vector<vector<int>>& adj) {
+void createAdjList(int n, int m, vector<vector<int>> &adj)
+{
     cout << "Enter " << m << " edges (u v):\n";
-    for (int i = 0; i < m; ++i) {
+    for (int i = 0; i < m; ++i)
+    {
         int u, v;
         cin >> u >> v;
         adj[u].push_back(v);
@@ -65,22 +69,28 @@ void createAdjList(int n, int m, vector<vector<int>>& adj) {
  *                   DFS TRAVERSAL
  * ============================================================ */
 // Time: O(N + M), Space: O(N)
-void dfs(int start, vector<vector<int>>& adj, vector<bool>& visited) {
+void dfs(int start, vector<vector<int>> &adj, vector<bool> &visited)
+{
     visited[start] = true;
     cout << start << " ";
-    for(auto neighbour : adj[start]) {
-        if(!visited[neighbour]) {
+    for (auto neighbour : adj[start])
+    {
+        if (!visited[neighbour])
+        {
             dfs(neighbour, adj, visited);
         }
     }
 }
 
 // Callinf function for bfs -> We do it so that we handle the case of components
-void callDFS(int start, vector<vector<int>>adj) {
+void callDFS(int start, vector<vector<int>> adj)
+{
     int n = adj.size();
     vector<bool> visited(n + 1, false); // Made (n + 1) so that 1-basec indexing is also supported
-    for(int i = 1; i < n + 1; i++) { // This is for 1-based indexing case
-        if(!visited[i]) {
+    for (int i = 1; i < n + 1; i++)
+    { // This is for 1-based indexing case
+        if (!visited[i])
+        {
             dfs(i, adj, visited);
         }
     }
@@ -90,17 +100,21 @@ void callDFS(int start, vector<vector<int>>adj) {
  *                   BFS TRAVERSAL
  * ============================================================ */
 // Time: O(N + M), Space: O(N)
-void bfs(int start, vector<vector<int>>& adj, vector<bool>& visited) {
+void bfs(int start, vector<vector<int>> &adj, vector<bool> &visited)
+{
     queue<int> q;
     q.push(start);
     visited[start] = true;
 
-    while(!q.empty()) {
+    while (!q.empty())
+    {
         int node = q.front();
         q.pop();
         cout << node << " ";
-        for(auto neighbour : adj[node]) {
-            if(!visited[neighbour]) {
+        for (auto neighbour : adj[node])
+        {
+            if (!visited[neighbour])
+            {
                 q.push(neighbour);
                 visited[neighbour] = true;
             }
@@ -109,11 +123,14 @@ void bfs(int start, vector<vector<int>>& adj, vector<bool>& visited) {
 }
 
 // Callinf function for bfs -> We do it so that we handle the case of components
-void callBFS(int start, vector<vector<int>>adj) {
+void callBFS(int start, vector<vector<int>> adj)
+{
     int n = adj.size();
     vector<bool> visited(n + 1, false); // Made (n + 1) so that 1-basec indexing is also supported
-    for(int i = 0; i < n; i++) { // This is for 0-based indexing case
-        if(!visited[i]) {
+    for (int i = 0; i < n; i++)
+    { // This is for 0-based indexing case
+        if (!visited[i])
+        {
             bfs(i, adj, visited);
         }
     }
@@ -123,14 +140,17 @@ void callBFS(int start, vector<vector<int>>adj) {
  *               CONNECTED COMPONENTS COUNT
  * ============================================================ */
 // Time: O(N + (V + 2*E)) -> O(N), Space: O(N)
-int countConnectedComponents(int n, vector<vector<int>>& adj) {
+int countConnectedComponents(int n, vector<vector<int>> &adj)
+{
     vector<bool> visited(n + 1, false);
     int components = 0;
 
-    for (int i = 1; i <= n; ++i) {
-        if (!visited[i]) {
+    for (int i = 1; i <= n; ++i)
+    {
+        if (!visited[i])
+        {
             components++;
-            dfs(i, adj, visited);  // can also use BFS
+            dfs(i, adj, visited); // can also use BFS
             cout << endl;
         }
     }
@@ -171,38 +191,48 @@ int countConnectedComponents(int n, vector<vector<int>>& adj) {
  * Time: O(N + M) - N = number of nodes, M = number of edges
  * Space: O(N) - visited array + recursion stack
  */
-        // DFS helper function to detect cycle
-        bool dfsHelper(int node, int parent, vector<vector<int>>& adj, vector<bool>& visited) {
-            visited[node] = true;
+// DFS helper function to detect cycle
+bool dfsHelper(int node, int parent, vector<vector<int>> &adj, vector<bool> &visited)
+{
+    visited[node] = true;
 
-            for (int neighbor : adj[node]) {
-                if (!visited[neighbor]) {
-                    if (dfsHelper(neighbor, node, adj, visited)) {
-                        return true;
-                    }
-                } else if (neighbor != parent) {
-                    // A visited neighbor not equal to parent means a cycle
-                    return true;
-                }
+    for (int neighbor : adj[node])
+    {
+        if (!visited[neighbor])
+        {
+            if (dfsHelper(neighbor, node, adj, visited))
+            {
+                return true;
             }
-
-            return false;
         }
+        else if (neighbor != parent)
+        {
+            // A visited neighbor not equal to parent means a cycle
+            return true;
+        }
+    }
 
-        // Check all components for cycles
-        bool hasCycleDFS(int n, vector<vector<int>>& adj) {
-            vector<bool> visited(n, false);
+    return false;
+}
 
-            for (int node = 0; node < n; node++) {
-                if (!visited[node]) {
-                    if (dfsHelper(node, -1, adj, visited)) {
-                        return true;
-                    }
-                }
+// Check all components for cycles
+bool hasCycleDFS(int n, vector<vector<int>> &adj)
+{
+    vector<bool> visited(n, false);
+
+    for (int node = 0; node < n; node++)
+    {
+        if (!visited[node])
+        {
+            if (dfsHelper(node, -1, adj, visited))
+            {
+                return true;
             }
-
-            return false;
         }
+    }
+
+    return false;
+}
 
 /* ============================================================================
  * PROBLEM XX: DETECT CYCLE IN AN UNDIRECTED GRAPH USING BFS
@@ -234,44 +264,54 @@ int countConnectedComponents(int n, vector<vector<int>>& adj) {
  * Time: O(N + M) - N = nodes, M = edges
  * Space: O(N) - visited array + queue
  */
-        // BFS helper to detect cycle from a starting node
-        bool bfsHelper(int start, vector<vector<int>>& adj, vector<bool>& visited) {
-            queue<pair<int, int>> q; // {node, parent}
-            visited[start] = true;
-            q.push({start, -1});
+// BFS helper to detect cycle from a starting node
+bool bfsHelper(int start, vector<vector<int>> &adj, vector<bool> &visited)
+{
+    queue<pair<int, int>> q; // {node, parent}
+    visited[start] = true;
+    q.push({start, -1});
 
-            while (!q.empty()) {
-                auto [node, parent] = q.front();
-                q.pop();
+    while (!q.empty())
+    {
+        auto [node, parent] = q.front();
+        q.pop();
 
-                for (int neighbor : adj[node]) {
-                    if (!visited[neighbor]) {
-                        visited[neighbor] = true;
-                        q.push({neighbor, node});
-                    } else if (neighbor != parent) {
-                        // Already visited and not the parent ⇒ cycle
-                        return true;
-                    }
-                }
+        for (int neighbor : adj[node])
+        {
+            if (!visited[neighbor])
+            {
+                visited[neighbor] = true;
+                q.push({neighbor, node});
             }
-
-            return false;
-        }
-
-        // Check all components for cycles
-        bool hasCycleBFS(int n, vector<vector<int>>& adj) {
-            vector<bool> visited(n, false);
-
-            for (int node = 0; node < n; node++) {
-                if (!visited[node]) {
-                    if (bfsHelper(node, adj, visited)) {
-                        return true;
-                    }
-                }
+            else if (neighbor != parent)
+            {
+                // Already visited and not the parent ⇒ cycle
+                return true;
             }
-
-            return false;
         }
+    }
+
+    return false;
+}
+
+// Check all components for cycles
+bool hasCycleBFS(int n, vector<vector<int>> &adj)
+{
+    vector<bool> visited(n, false);
+
+    for (int node = 0; node < n; node++)
+    {
+        if (!visited[node])
+        {
+            if (bfsHelper(node, adj, visited))
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
 
 /* ===================================================================
  * PROBLEM: NUMBER OF DISTINCT ISLANDS (Leetcode Premium)
@@ -288,7 +328,8 @@ int countConnectedComponents(int n, vector<vector<int>>& adj) {
  * Space Complexity: O(m * n) for visited + path recording
  */
 
- void numDistinctIslandsDFS(int i, int j, vector<vector<int>>& grid, vector<vector<bool>>& visited, string& path, char dir) {
+void numDistinctIslandsDFS(int i, int j, vector<vector<int>> &grid, vector<vector<bool>> &visited, string &path, char dir)
+{
     int m = grid.size();
     int n = grid[0].size();
 
@@ -296,29 +337,33 @@ int countConnectedComponents(int n, vector<vector<int>>& adj) {
         return;
 
     visited[i][j] = true;
-    path += dir;  // record direction of movement
+    path += dir; // record direction of movement
 
     // Explore in all 4 directions
-    numDistinctIslandsDFS(i + 1, j, grid, visited, path, 'D');  // Down
-    numDistinctIslandsDFS(i - 1, j, grid, visited, path, 'U');  // Up
-    numDistinctIslandsDFS(i, j + 1, grid, visited, path, 'R');  // Right
-    numDistinctIslandsDFS(i, j - 1, grid, visited, path, 'L');  // Left
+    numDistinctIslandsDFS(i + 1, j, grid, visited, path, 'D'); // Down
+    numDistinctIslandsDFS(i - 1, j, grid, visited, path, 'U'); // Up
+    numDistinctIslandsDFS(i, j + 1, grid, visited, path, 'R'); // Right
+    numDistinctIslandsDFS(i, j - 1, grid, visited, path, 'L'); // Left
 
-    path += 'B';  // Backtrack marker (to differentiate shapes)
+    path += 'B'; // Backtrack marker (to differentiate shapes)
 }
 
-int numDistinctIslands(vector<vector<int>>& grid) {
+int numDistinctIslands(vector<vector<int>> &grid)
+{
     int m = grid.size();
     int n = grid[0].size();
 
     set<string> shapes;
     vector<vector<bool>> visited(m, vector<bool>(n, false));
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            if (grid[i][j] == 1 && !visited[i][j]) {
+    for (int i = 0; i < m; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (grid[i][j] == 1 && !visited[i][j])
+            {
                 string path = "";
-                numDistinctIslandsDFS(i, j, grid, visited, path, 'S');  // 'S' = Start
+                numDistinctIslandsDFS(i, j, grid, visited, path, 'S'); // 'S' = Start
                 shapes.insert(path);
             }
         }
@@ -356,16 +401,22 @@ int numDistinctIslands(vector<vector<int>>& grid) {
  * Space: O(V) - for visited and recursion stack
  */
 
-bool hasCycleDFS(int node, vector<vector<int>>& graph, vector<bool>& visited, vector<bool>& pathVisited) {
+bool hasCycleDFS(int node, vector<vector<int>> &graph, vector<bool> &visited, vector<bool> &pathVisited)
+{
     visited[node] = true;
     pathVisited[node] = true;
 
-    for (int neighbor : graph[node]) {
-        if (!visited[neighbor]) {
-            if (hasCycleDFS(neighbor, graph, visited, pathVisited)) {
+    for (int neighbor : graph[node])
+    {
+        if (!visited[neighbor])
+        {
+            if (hasCycleDFS(neighbor, graph, visited, pathVisited))
+            {
                 return true;
             }
-        } else if (pathVisited[neighbor]) {
+        }
+        else if (pathVisited[neighbor])
+        {
             // Found a back edge → cycle exists
             return true;
         }
@@ -375,14 +426,18 @@ bool hasCycleDFS(int node, vector<vector<int>>& graph, vector<bool>& visited, ve
     return false;
 }
 
-bool hasCycle(vector<vector<int>>& graph) {
+bool hasCycle(vector<vector<int>> &graph)
+{
     int n = graph.size();
     vector<bool> visited(n, false);
     vector<bool> pathVisited(n, false);
 
-    for (int i = 0; i < n; i++) {
-        if (!visited[i]) {
-            if (hasCycleDFS(i, graph, visited, pathVisited)) {
+    for (int i = 0; i < n; i++)
+    {
+        if (!visited[i])
+        {
+            if (hasCycleDFS(i, graph, visited, pathVisited))
+            {
                 return true;
             }
         }
@@ -415,41 +470,48 @@ bool hasCycle(vector<vector<int>>& graph) {
  * SPACE COMPLEXITY: O(V) for visited and recursion stack
  */
 
- // Topological Sort using DFS
- void topologicalSortDFS(int node, vector<vector<int>>& adj, vector<bool>& visited, stack<int>& st) {
-     visited[node] = true;
+// Topological Sort using DFS
+void topologicalSortDFS(int node, vector<vector<int>> &adj, vector<bool> &visited, stack<int> &st)
+{
+    visited[node] = true;
 
-     for (int neighbor : adj[node]) {
-         if (!visited[neighbor]) {
+    for (int neighbor : adj[node])
+    {
+        if (!visited[neighbor])
+        {
             topologicalSortDFS(neighbor, adj, visited, st);
-         }
-     }
+        }
+    }
 
-     st.push(node); // Push after exploring all neighbors. u -> v1 -> v2, here goes v2, v1, u. so that while popping from stack we get u, v1, v2.
- }
+    st.push(node); // Push after exploring all neighbors. u -> v1 -> v2, here goes v2, v1, u. so that while popping from stack we get u, v1, v2.
+}
 
- vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
-     vector<bool> visited(V, false);
-     stack<int> st;
+vector<int> topologicalSort(int V, vector<vector<int>> &adj)
+{
+    vector<bool> visited(V, false);
+    stack<int> st;
 
-     // Call DFS for all unvisited nodes
-     for (int i = 0; i < V; i++) {
-         if (!visited[i]) {
+    // Call DFS for all unvisited nodes
+    for (int i = 0; i < V; i++)
+    {
+        if (!visited[i])
+        {
             topologicalSortDFS(i, adj, visited, st);
-         }
-     }
+        }
+    }
 
-     // Pop elements to get topological order
-     vector<int> topo;
-     while (!st.empty()) {
-         topo.push_back(st.top());
-         st.pop();
-     }
+    // Pop elements to get topological order
+    vector<int> topo;
+    while (!st.empty())
+    {
+        topo.push_back(st.top());
+        st.pop();
+    }
 
-     return topo;
- }
+    return topo;
+}
 
- /* ================================================================
+/* ================================================================
  * GRAPH ALGORITHM: TOPOLOGICAL SORT USING KAHN'S ALGORITHM (BFS)
  * ================================================================ */
 
@@ -473,40 +535,50 @@ bool hasCycle(vector<vector<int>>& graph) {
  */
 
 // Topological Sort using Kahn's Algorithm (BFS)
-vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
+vector<int> topologicalSort(int V, vector<vector<int>> &adj)
+{
     vector<int> indegree(V, 0);
     vector<int> topo;
     queue<int> q;
 
     // Step 1: Compute indegree of each node
-    for (int u = 0; u < V; u++) {
-        for (int v : adj[u]) {
+    for (int u = 0; u < V; u++)
+    {
+        for (int v : adj[u])
+        {
             indegree[v]++;
         }
     }
 
     // Step 2: Push nodes with 0 indegree to queue
-    for (int i = 0; i < V; i++) {
-        if (indegree[i] == 0) {
+    for (int i = 0; i < V; i++)
+    {
+        if (indegree[i] == 0)
+        {
             q.push(i);
         }
     }
 
     // Step 3: BFS traversal
-    while (!q.empty()) {
-        int node = q.front(); q.pop();
+    while (!q.empty())
+    {
+        int node = q.front();
+        q.pop();
         topo.push_back(node);
 
-        for (int neighbor : adj[node]) {
+        for (int neighbor : adj[node])
+        {
             indegree[neighbor]--;
-            if (indegree[neighbor] == 0) {
+            if (indegree[neighbor] == 0)
+            {
                 q.push(neighbor);
             }
         }
     }
 
     // Step 4: If topo size != V, cycle exists
-    if (topo.size() < V) {
+    if (topo.size() < V)
+    {
         cout << "Graph has a cycle (not a DAG)\n";
         return {};
     }
@@ -538,71 +610,86 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
  * SPACE COMPLEXITY: O(n)
  */
 
- class DSU {
- private:
-     vector<int> parent;
-     vector<int> rank;
+class DSU
+{
+private:
+    vector<int> parent;
+    vector<int> rank;
 
- public:
-     // Constructor to initialize DSU with n nodes (0 to n-1)
-     DSU(int n) {
-         parent.resize(n);
-         rank.resize(n, 0); // Rank starts as 0
-         for(int i = 0; i < n; i++) {
-             parent[i] = i; // Initially, each node is its own parent
-         }
-     }
+public:
+    // Constructor to initialize DSU with n nodes (0 to n-1)
+    DSU(int n)
+    {
+        parent.resize(n);
+        rank.resize(n, 0); // Rank starts as 0
+        for (int i = 0; i < n; i++)
+        {
+            parent[i] = i; // Initially, each node is its own parent
+        }
+    }
 
-     // Find with Path Compression
-     int findParent(int node) {
-         if (parent[node] == node)
-             return node;
-         return parent[node] = findParent(parent[node]);
-     }
+    // Find with Path Compression
+    int findParent(int node)
+    {
+        if (parent[node] == node)
+            return node;
+        return parent[node] = findParent(parent[node]);
+    }
 
-     // Union by Rank
-     bool unionByRank(int u, int v) {
-         int pu = findParent(u);
-         int pv = findParent(v);
+    // Union by Rank
+    bool unionByRank(int u, int v)
+    {
+        int pu = findParent(u);
+        int pv = findParent(v);
 
-         if (pu == pv) return false; // Same set, no need to union
+        if (pu == pv)
+            return false; // Same set, no need to union
 
-         // Attach lower-rank tree under higher-rank tree
-         if (rank[pu] < rank[pv]) {
-             parent[pu] = pv;
-         } else if (rank[pv] < rank[pu]) {
-             parent[pv] = pu;
-         } else {
-             parent[pv] = pu;
-             rank[pu]++; // Increase rank only if both are equal
-         }
-         return true; // sucessful union
-     }
+        // Attach lower-rank tree under higher-rank tree
+        if (rank[pu] < rank[pv])
+        {
+            parent[pu] = pv;
+        }
+        else if (rank[pv] < rank[pu])
+        {
+            parent[pv] = pu;
+        }
+        else
+        {
+            parent[pv] = pu;
+            rank[pu]++; // Increase rank only if both are equal
+        }
+        return true; // sucessful union
+    }
 
-     // Optional: Check if two nodes are connected
-     bool isConnected(int u, int v) {
-         return findParent(u) == findParent(v);
-     }
+    // Optional: Check if two nodes are connected
+    bool isConnected(int u, int v)
+    {
+        return findParent(u) == findParent(v);
+    }
 
-     /*
-    * FUNCTION: detectCycle
-    * ----------------------
-    * @param n    → Number of vertices (0-indexed)
-    * @param edges → Vector of edges (undirected)
-    * @return true if a cycle exists, false otherwise
-    */
-   bool detectCycle(int n, vector<pair<int, int>>& edges) {
+    /*
+     * FUNCTION: detectCycle
+     * ----------------------
+     * @param n    → Number of vertices (0-indexed)
+     * @param edges → Vector of edges (undirected)
+     * @return true if a cycle exists, false otherwise
+     */
+    bool detectCycle(int n, vector<pair<int, int>> &edges)
+    {
         DSU dsu(n);
 
-        for(auto [u, v] : edges) {
-            if(!unionByRank(u, v)) {
+        for (auto [u, v] : edges)
+        {
+            if (!unionByRank(u, v))
+            {
                 return true; // Cycle detected
             }
         }
 
         return false; // No cycles found
     }
- };
+};
 
 /* =============================================================================
  * ALGORITHM: DIJKSTRA’S SHORTEST PATH ALGORITHM (Single Source)
@@ -645,38 +732,43 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
  * Space: O(V) for distance array + O(V) for priority queue
  */
 
- class Solution {
-    public:
-        vector<int> dijkstra(int V, vector<vector<pair<int, int>>>& adj, int source) {
-            // Step 1: Distance array initialized to infinity
-            vector<int> dist(V, INT_MAX);
-            dist[source] = 0;
+class Solution
+{
+public:
+    vector<int> dijkstra(int V, vector<vector<pair<int, int>>> &adj, int source)
+    {
+        // Step 1: Distance array initialized to infinity
+        vector<int> dist(V, INT_MAX);
+        dist[source] = 0;
 
-            // Step 2: Min-heap to store {distance, node}
-            priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
-            pq.push({0, source}); // {distance, node}
+        // Step 2: Min-heap to store {distance, node}
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
+        pq.push({0, source}); // {distance, node}
 
-            // Step 3: BFS-like traversal using priority queue
-            while (!pq.empty()) { // TC -> V
-                int currDist = pq.top().first;
-                int node = pq.top().second;
-                pq.pop(); // TC -> log(V)
+        // Step 3: BFS-like traversal using priority queue
+        while (!pq.empty())
+        { // TC -> V
+            int currDist = pq.top().first;
+            int node = pq.top().second;
+            pq.pop(); // TC -> log(V)
 
-                for (auto neighbor : adj[node]) { // TC -> E
-                    int adjNode = neighbor.first;
-                    int weight = neighbor.second;
+            for (auto neighbor : adj[node])
+            { // TC -> E
+                int adjNode = neighbor.first;
+                int weight = neighbor.second;
 
-                    // Relaxation step
-                    if (currDist + weight < dist[adjNode]) {
-                        dist[adjNode] = currDist + weight;
-                        pq.push({dist[adjNode], adjNode}); // TC -> log(V)
-                    }
+                // Relaxation step
+                if (currDist + weight < dist[adjNode])
+                {
+                    dist[adjNode] = currDist + weight;
+                    pq.push({dist[adjNode], adjNode}); // TC -> log(V)
                 }
             }
-
-            return dist;
         }
-    };
+
+        return dist;
+    }
+};
 
 /* =============================================================================
  * ALGORITHM: DIJKSTRA’S SHORTEST PATH ALGORITHM using SET
@@ -722,46 +814,52 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
  * Space: O(V + E)
  */
 
- class Solution {
-    public:
-        vector<int> dijkstra(int V, vector<vector<pair<int, int>>>& adj, int source) {
-            // Step 1: Distance array initialized to infinity
-            vector<int> dist(V, INT_MAX);
-            dist[source] = 0;
+class Solution
+{
+public:
+    vector<int> dijkstra(int V, vector<vector<pair<int, int>>> &adj, int source)
+    {
+        // Step 1: Distance array initialized to infinity
+        vector<int> dist(V, INT_MAX);
+        dist[source] = 0;
 
-            // Step 2: Set stores pairs of {distance, node}
-            set<pair<int, int>> st;
-            st.insert({0, source});
+        // Step 2: Set stores pairs of {distance, node}
+        set<pair<int, int>> st;
+        st.insert({0, source});
 
-            // Step 3: Traverse
-            while (!st.empty()) {
-                auto top = *st.begin();
-                st.erase(st.begin());
+        // Step 3: Traverse
+        while (!st.empty())
+        {
+            auto top = *st.begin();
+            st.erase(st.begin());
 
-                int currDist = top.first;
-                int node = top.second;
+            int currDist = top.first;
+            int node = top.second;
 
-                for (auto neighbor : adj[node]) {
-                    int adjNode = neighbor.first;
-                    int weight = neighbor.second;
+            for (auto neighbor : adj[node])
+            {
+                int adjNode = neighbor.first;
+                int weight = neighbor.second;
 
-                    // Relaxation: If better distance is found
-                    if (currDist + weight < dist[adjNode]) {
-                        // If node already exists with older distance, erase it
-                        if (dist[adjNode] != INT_MAX) {
-                            st.erase({dist[adjNode], adjNode});
-                        }
-
-                        // Update new distance and insert
-                        dist[adjNode] = currDist + weight;
-                        st.insert({dist[adjNode], adjNode});
+                // Relaxation: If better distance is found
+                if (currDist + weight < dist[adjNode])
+                {
+                    // If node already exists with older distance, erase it
+                    if (dist[adjNode] != INT_MAX)
+                    {
+                        st.erase({dist[adjNode], adjNode});
                     }
+
+                    // Update new distance and insert
+                    dist[adjNode] = currDist + weight;
+                    st.insert({dist[adjNode], adjNode});
                 }
             }
-
-            return dist;
         }
-    };
+
+        return dist;
+    }
+};
 
 /* ===================================================================
  * PROBLEM: SHORTEST PATH IN WEIGHTED UNDIRECTED GRAPH
@@ -793,23 +891,28 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
  * - Space: O(V + E)
  */
 
- pair<vector<int>, vector<vector<int>>> dijkstraWithPaths(int n, vector<vector<pair<int, int>>>& adj, int src) {
+pair<vector<int>, vector<vector<int>>> dijkstraWithPaths(int n, vector<vector<pair<int, int>>> &adj, int src)
+{
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
     vector<int> dist(n, INT_MAX);
-    vector<int> parent(n);  // To track shortest path
+    vector<int> parent(n);        // To track shortest path
     vector<vector<int>> paths(n); // To store the actual paths
 
     // Initialization
-    for (int i = 0; i < n; i++) parent[i] = i;
+    for (int i = 0; i < n; i++)
+        parent[i] = i;
     dist[src] = 0;
     pq.push({0, src});
 
-    while (!pq.empty()) {
+    while (!pq.empty())
+    {
         auto [d, node] = pq.top();
         pq.pop();
 
-        for (auto [neighbor, wt] : adj[node]) {
-            if (dist[neighbor] > d + wt) {
+        for (auto [neighbor, wt] : adj[node])
+        {
+            if (dist[neighbor] > d + wt)
+            {
                 dist[neighbor] = d + wt;
                 pq.push({dist[neighbor], neighbor});
                 parent[neighbor] = node;
@@ -818,10 +921,12 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
     }
 
     // Path Reconstruction
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
+    {
         vector<int> path;
         int curr = i;
-        while (parent[curr] != curr) {
+        while (parent[curr] != curr)
+        {
             path.push_back(curr);
             curr = parent[curr];
         }
@@ -868,25 +973,31 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
  * - Space: O(V)
  */
 
- vector<int> bellmanFord(int n, vector<vector<int>>& edges, int src) {
+vector<int> bellmanFord(int n, vector<vector<int>> &edges, int src)
+{
     vector<int> dist(n, INT_MAX);
     dist[src] = 0;
 
     // Relax all edges n-1 times
-    for (int i = 0; i < n - 1; i++) {
-        for (auto& edge : edges) {
+    for (int i = 0; i < n - 1; i++)
+    {
+        for (auto &edge : edges)
+        {
             int u = edge[0], v = edge[1], wt = edge[2];
-            if (dist[u] != INT_MAX && dist[u] + wt < dist[v]) {
+            if (dist[u] != INT_MAX && dist[u] + wt < dist[v])
+            {
                 dist[v] = dist[u] + wt;
             }
         }
     }
 
     // Check for negative weight cycle
-    for (auto& edge : edges) {
+    for (auto &edge : edges)
+    {
         int u = edge[0], v = edge[1], wt = edge[2];
-        if (dist[u] != INT_MAX && dist[u] + wt < dist[v]) {
-            return { -1 }; // Negative weight cycle detected
+        if (dist[u] != INT_MAX && dist[u] + wt < dist[v])
+        {
+            return {-1}; // Negative weight cycle detected
         }
     }
 
@@ -932,14 +1043,19 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
  * - Space: O(V^2)
  */
 
- void floydWarshall(vector<vector<int>>& dist, int n) {
+void floydWarshall(vector<vector<int>> &dist, int n)
+{
     const int INF = 1e9;
 
     // Main triple loop -> going via k
-    for (int k = 0; k < n; k++) {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (dist[i][k] < INF && dist[k][j] < INF) {
+    for (int k = 0; k < n; k++)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (dist[i][k] < INF && dist[k][j] < INF)
+                {
                     dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
                 }
             }
@@ -947,8 +1063,10 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
     }
 
     // Optional: Detect negative weight cycles
-    for (int i = 0; i < n; i++) {
-        if (dist[i][i] < 0) {
+    for (int i = 0; i < n; i++)
+    {
+        if (dist[i][i] < 0)
+        {
             // Negative weight cycle exists
             cout << "Negative weight cycle detected!" << endl;
             return;
@@ -986,7 +1104,8 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
  * - Space: O(V + E)
  */
 
- int primsMST(int n, vector<vector<pair<int, int>>>& adj) {
+int primsMST(int n, vector<vector<pair<int, int>>> &adj)
+{
     // Min-heap: {weight, node}
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
 
@@ -996,18 +1115,22 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
     // Start from node 0
     pq.push({0, 0});
 
-    while (!pq.empty()) {
+    while (!pq.empty())
+    {
         auto [wt, u] = pq.top();
         pq.pop();
 
-        if (inMST[u]) continue;
+        if (inMST[u])
+            continue;
 
         inMST[u] = true;
         minCost += wt;
 
         // Traverse neighbors
-        for (auto [v, w] : adj[u]) {
-            if (!inMST[v]) {
+        for (auto [v, w] : adj[u])
+        {
+            if (!inMST[v])
+            {
                 pq.push({w, v});
             }
         }
@@ -1017,27 +1140,6 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
 }
 
 /* ===================================================================
-<<<<<<< HEAD
- * KRUSKAL'S ALGORITHM: Minimum Spanning Tree (MST)
- * =================================================================== */
-
-/**
- * @brief Given a connected, undirected, and weighted graph,
- *        Kruskal's Algorithm finds a Minimum Spanning Tree (MST)
- *        using a greedy approach and DSU (Disjoint Set Union).
- *
- * ALGORITHM:
- * 1. Sort all edges by increasing weight.
- * 2. Initialize DSU for all nodes.
- * 3. Iterate through sorted edges:
- *      - If the edge connects two disjoint sets (no cycle), add to MST.
- *      - Union the sets of the two nodes.
- *
- * TIME COMPLEXITY:
- * - Sorting edges: O(E log E)
- * - Union-Find ops: O(α(N)) ~ constant time (with path compression + union by rank)
- * - Total: O(E log E)
-=======
  * TOPIC: KRUSKAL'S ALGORITHM (Minimum Spanning Tree - MST)
  * =================================================================== */
 
@@ -1071,34 +1173,10 @@ vector<int> topologicalSort(int V, vector<vector<int>>& adj) {
  * COMPLEXITY:
  * - Time: O(E * log E) for sorting + union-find operations
  * - Space: O(V) for DSU data structures
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
  */
 
 class DSU
 {
-<<<<<<< HEAD
-    vector<int> parent, rank;
-
-public:
-    DSU(int n)
-    {
-        parent.resize(n);
-        rank.resize(n, 0); // Initially, all ranks are 0
-        for (int i = 0; i < n; ++i)
-            parent[i] = i;
-    }
-
-    // Find the root of a set with path compression
-    int find(int u)
-    {
-        if (parent[u] != u)
-            parent[u] = find(parent[u]);
-        return parent[u];
-    }
-
-    // Union two sets by rank
-    bool unionByRank(int u, int v)
-=======
 public:
     vector<int> parent, rank;
 
@@ -1123,17 +1201,12 @@ public:
 
     // Union by rank
     bool unionSets(int u, int v)
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
     {
         int pu = find(u);
         int pv = find(v);
 
         if (pu == pv)
-<<<<<<< HEAD
-            return false; // already connected
-=======
             return false;
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
 
         if (rank[pu] < rank[pv])
         {
@@ -1145,16 +1218,10 @@ public:
         }
         else
         {
-<<<<<<< HEAD
-            parent[pv] = pu;
-            rank[pu]++;
-        }
-=======
             parent[pu] = pv;
             rank[pv]++;
         }
 
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
         return true;
     }
 };
@@ -1163,32 +1230,14 @@ class Solution
 {
 public:
     /**
-<<<<<<< HEAD
-     * @brief Kruskal's Algorithm implementation
-     * @param n Number of nodes (0 to n-1)
-     * @param edges Each edge as {u, v, wt}
-     * @return Total weight of MST
-=======
      * @brief Kruskal's algorithm implementation
      * @param n: number of nodes
      * @param edges: list of {u, v, weight}
      * @return total weight of MST
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
      */
     int kruskalMST(int n, vector<vector<int>> &edges)
     {
         // Step 1: Sort edges by weight
-<<<<<<< HEAD
-        sort(edges.begin(), edges.end(), [](vector<int> &a, vector<int> &b)
-             {
-                 return a[2] < b[2]; // sort by weight
-             });
-
-        DSU dsu(n);
-        int mstWeight = 0;
-
-        // Step 2: Iterate over sorted edges
-=======
         sort(edges.begin(), edges.end(), [](auto &a, auto &b)
              { return a[2] < b[2]; });
 
@@ -1196,19 +1245,12 @@ public:
         int mstWeight = 0;
         int edgesUsed = 0;
 
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
         for (auto &edge : edges)
         {
             int u = edge[0];
             int v = edge[1];
             int wt = edge[2];
 
-<<<<<<< HEAD
-            // Step 3: Add edge if it connects disjoint components
-            if (dsu.unionByRank(u, v))
-            {
-                mstWeight += wt;
-=======
             // If u and v are in different components
             if (dsu.unionSets(u, v))
             {
@@ -1216,7 +1258,6 @@ public:
                 edgesUsed++;
                 if (edgesUsed == n - 1)
                     break;
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
             }
         }
 
@@ -1225,23 +1266,6 @@ public:
 };
 
 /* ===================================================================
-<<<<<<< HEAD
- * KOSARAJU'S ALGORITHM: Strongly Connected Components (SCC)
- * =================================================================== */
-
-/**
- * @brief Finds the number of Strongly Connected Components (SCCs)
- *        in a directed graph using Kosaraju's 2-pass DFS approach.
- *
- * ALGORITHM:
- * 1. **Topological Sort (DFS1)**: Run DFS and store nodes in post-order stack.
- * 2. **Transpose Graph**: Reverse the direction of all edges.
- * 3. **DFS on Transposed Graph (DFS2)**: Run DFS in the order of the stack,
- *    each DFS call gives one SCC.
- *
- * TIME COMPLEXITY: O(V + E)
- * SPACE COMPLEXITY: O(V + E)
-=======
  * TOPIC: STRONGLY CONNECTED COMPONENTS (Kosaraju's Algorithm)
  * =================================================================== */
 
@@ -1270,46 +1294,18 @@ public:
  * COMPLEXITY:
  * - Time: O(V + E)
  * - Space: O(V + E)
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
  */
 
 class Solution
 {
 public:
-<<<<<<< HEAD
-    // Step 1: Topological DFS - store postorder in stack
-=======
     /**
      * Step 1: DFS to fill stack in post-order
      */
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
     void dfs1(int node, vector<vector<int>> &adj, vector<bool> &visited, stack<int> &st)
     {
         visited[node] = true;
 
-<<<<<<< HEAD
-        for (int neighbour : adj[node])
-        {
-            if (!visited[neighbour])
-            {
-                dfs1(neighbour, adj, visited, st);
-            }
-        }
-
-        st.push(node); // after visiting all descendants
-    }
-
-    // Step 3: DFS on the transposed graph
-    void dfs2(int node, vector<vector<int>> &transposed, vector<bool> &visited)
-    {
-        visited[node] = true;
-
-        for (int neighbour : transposed[node])
-        {
-            if (!visited[neighbour])
-            {
-                dfs2(neighbour, transposed, visited);
-=======
         for (int neighbor : adj[node])
         {
             if (!visited[neighbor])
@@ -1333,33 +1329,11 @@ public:
             if (!visited[neighbor])
             {
                 dfs2(neighbor, revAdj, visited);
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
             }
         }
     }
 
     /**
-<<<<<<< HEAD
-     * @param n     Number of vertices (0 to n-1)
-     * @param edges Directed edges of the graph {u, v}
-     * @return Number of Strongly Connected Components
-     */
-    int kosarajuSCC(int n, vector<vector<int>> &edges)
-    {
-        // Step 0: Build the adjacency list
-        vector<vector<int>> adj(n);
-        for (auto &edge : edges)
-        {
-            int u = edge[0], v = edge[1];
-            adj[u].push_back(v); // directed edge u → v
-        }
-
-        // Step 1: Perform DFS to fill stack in post-order
-        stack<int> st;
-        vector<bool> visited(n, false);
-
-        for (int i = 0; i < n; ++i)
-=======
      * @brief Main function to compute number of strongly connected components
      */
     int kosarajuSCC(int V, vector<vector<int>> &adj)
@@ -1369,7 +1343,6 @@ public:
 
         // Step 1: Do a DFS and fill stack with vertices by finish time
         for (int i = 0; i < V; i++)
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
         {
             if (!visited[i])
             {
@@ -1377,21 +1350,6 @@ public:
             }
         }
 
-<<<<<<< HEAD
-        // Step 2: Transpose the graph
-        vector<vector<int>> transposed(n);
-        for (int u = 0; u < n; ++u)
-        {
-            for (int v : adj[u])
-            {
-                transposed[v].push_back(u); // reverse edge
-            }
-        }
-
-        // Step 3: Run DFS on transposed graph in stack order
-        fill(visited.begin(), visited.end(), false);
-        int sccCount = 0;
-=======
         // Step 2: Reverse the graph
         vector<vector<int>> revAdj(V);
         for (int u = 0; u < V; u++)
@@ -1405,258 +1363,11 @@ public:
         // Step 3: Process all nodes in reverse postorder (stack) and count SCCs
         fill(visited.begin(), visited.end(), false);
         int count = 0;
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
 
         while (!st.empty())
         {
             int node = st.top();
             st.pop();
-<<<<<<< HEAD
-            if (!visited[node])
-            {
-                dfs2(node, transposed, visited);
-                sccCount++; // each DFS call is one SCC
-            }
-        }
-
-        return sccCount;
-    }
-};
-
-/* ===================================================================
- * EULERIAN GRAPH THEORY NOTES
- * =================================================================== */
-
-/**
- * @brief An Eulerian Path is a trail in a graph that visits every edge exactly once.
- *        An Eulerian Circuit is an Eulerian Path that starts and ends on the same vertex.
- *
- * DEFINITIONS:
- * - **Eulerian Path**: A path that uses every edge of a graph exactly once.
- * - **Eulerian Circuit (Cycle)**: An Eulerian Path that starts and ends at the same vertex.
- *
- * APPLICABLE TO:
- * - **Undirected Graphs**
- * - **Directed Graphs**
- *
- * ===================================================================
- * CONDITIONS FOR EULERIAN PATH AND CIRCUIT
- * ===================================================================
- *
- * UNDIRECTED GRAPHS:
- * ------------------
- * 1. Eulerian **Circuit** exists if:
- *    - All vertices have even degree
- *    - The graph is connected (excluding isolated vertices)
- *
- * 2. Eulerian **Path** (but not circuit) exists if:
- *    - Exactly 2 vertices have odd degree
- *    - The graph is connected
- *
- * 3. Otherwise, **no Eulerian Path or Circuit** exists
- *
- *
- * DIRECTED GRAPHS:
- * ------------------
- * 1. Eulerian **Circuit** exists if:
- *    - For every vertex, in-degree == out-degree
- *    - All nodes with non-zero degree belong to a single strongly connected component
- *
- * 2. Eulerian **Path** exists if:
- *    - Exactly one vertex with (out-degree = in-degree + 1) → this is the start node
- *    - Exactly one vertex with (in-degree = out-degree + 1) → this is the end node
- *    - All other vertices: in-degree == out-degree
- *    - All nodes with non-zero degree belong to a single connected component (in undirected sense)
- *
- *
- * ===================================================================
- * TIME COMPLEXITY OF CHECKING:
- * ===================================================================
- * - Degree Counting: O(V)
- * - Connectivity Check (DFS/BFS): O(V + E)
- *
- *
- * ===================================================================
- * EXAMPLES:
- * ===================================================================
- * 1. Undirected:
- *      Graph: 0-1-2-0  → Triangle
- *      All vertices have degree 2 → Eulerian Circuit
- *
- * 2. Directed:
- *      A → B → C
- *      A has out=1, in=0; C has in=1, out=0; B has in=1, out=1 → Eulerian Path
- */
-
-/* ===================================================================
- * UTILITY: Check if an undirected graph has Eulerian Path or Circuit
- * =================================================================== */
-
-bool isConnected(vector<vector<int>> &adj, int V)
-{
-    vector<bool> visited(V, false);
-
-    // Find a starting vertex with non-zero degree
-    int start = -1;
-    for (int i = 0; i < V; i++)
-    {
-        if (!adj[i].empty())
-        {
-            start = i;
-            break;
-        }
-    }
-
-    // If no edges exist, graph is trivially Eulerian
-    if (start == -1)
-        return true;
-
-    // DFS to mark all reachable vertices
-    function<void(int)> dfs = [&](int node)
-    {
-        visited[node] = true;
-        for (int neighbor : adj[node])
-        {
-            if (!visited[neighbor])
-                dfs(neighbor);
-        }
-    };
-
-    dfs(start);
-
-    // Check if all vertices with edges are visited
-    for (int i = 0; i < V; i++)
-    {
-        if (!adj[i].empty() && !visited[i])
-            return false;
-    }
-
-    return true;
-}
-
-string classifyEulerianUndirectedGraph(vector<vector<int>> &adj, int V)
-{
-    if (!isConnected(adj, V))
-        return "Not Eulerian";
-
-    int oddCount = 0;
-    for (int i = 0; i < V; i++)
-    {
-        if (adj[i].size() % 2 != 0)
-            oddCount++;
-    }
-
-    if (oddCount == 0)
-        return "Eulerian Circuit";
-    else if (oddCount == 2)
-        return "Eulerian Path";
-    else
-        return "Not Eulerian";
-}
-
-/* ===================================================================
- * EULERIAN GRAPH CHECK — DIRECTED GRAPH
- * =================================================================== */
-
-/**
- * @brief Check if a directed graph contains an Eulerian Path or Circuit.
- *
- * ALGORITHM:
- * - Count in-degrees and out-degrees of all vertices.
- * - Eulerian Circuit:
- *     → All vertices: in-degree == out-degree
- * - Eulerian Path:
- *     → Exactly one vertex: out-degree = in-degree + 1 (start)
- *     → Exactly one vertex: in-degree = out-degree + 1 (end)
- *     → All others: in-degree == out-degree
- * - Also check: the graph is strongly connected (or all reachable from a single node).
- */
-
-string classifyEulerianDirectedGraph(vector<vector<int>> &adj, int V)
-{
-    vector<int> indeg(V, 0), outdeg(V, 0);
-
-    for (int u = 0; u < V; u++)
-    {
-        for (int v : adj[u])
-        {
-            outdeg[u]++;
-            indeg[v]++;
-        }
-    }
-
-    int start_nodes = 0, end_nodes = 0;
-    for (int i = 0; i < V; i++)
-    {
-        if (outdeg[i] - indeg[i] == 1)
-            start_nodes++;
-        else if (indeg[i] - outdeg[i] == 1)
-            end_nodes++;
-        else if (indeg[i] != outdeg[i])
-            return "Not Eulerian";
-    }
-
-    if (start_nodes == 0 && end_nodes == 0)
-        return "Eulerian Circuit";
-    else if (start_nodes == 1 && end_nodes == 1)
-        return "Eulerian Path";
-    else
-        return "Not Eulerian";
-}
-
-/* ===================================================================
- * HIERHOLZER’S ALGORITHM — UNDIRECTED GRAPH
- * =================================================================== */
-
-/**
- * @brief Construct Eulerian Path or Circuit in an undirected graph
- *        (Assumes that it exists)
- *
- * NOTE:
- * - The graph is represented using a multiset (or multimap) to support multiple edges.
- * - The resulting path/circuit will be in reverse — reverse at the end.
- */
-
-void dfs(int u, unordered_map<int, multiset<int>> &graph, vector<int> &path)
-{
-    while (!graph[u].empty())
-    {
-        int v = *graph[u].begin();
-        graph[u].erase(graph[u].begin());
-        graph[v].erase(graph[v].find(u)); // remove the back edge
-        dfs(v, graph, path);
-    }
-    path.push_back(u);
-}
-
-vector<int> findEulerianTrailUndirected(vector<pair<int, int>> &edges)
-{
-    unordered_map<int, multiset<int>> graph;
-
-    for (auto &[u, v] : edges)
-    {
-        graph[u].insert(v);
-        graph[v].insert(u);
-    }
-
-    // Start at a vertex with odd degree (if any), else pick any
-    int start = edges[0].first;
-    for (auto &[u, adj] : graph)
-    {
-        if (adj.size() % 2 == 1)
-        {
-            start = u;
-            break;
-        }
-    }
-
-    vector<int> path;
-    dfs(start, graph, path);
-    reverse(path.begin(), path.end());
-
-    return path;
-}
-=======
 
             if (!visited[node])
             {
@@ -1668,9 +1379,9 @@ vector<int> findEulerianTrailUndirected(vector<pair<int, int>> &edges)
         return count; // Number of strongly connected components
     }
 };
->>>>>>> cd12ea80505b2591ef719769e4eb0f7941c91f77
 
-int main() {
+int main()
+{
 
     return 0;
 }
