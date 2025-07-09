@@ -1380,6 +1380,296 @@ public:
     }
 };
 
+/* ===================================================================
+ * EULERIAN GRAPH THEORY NOTES
+ * =================================================================== */
+
+/**
+ * @brief An Eulerian Path is a trail in a graph that visits every edge exactly once.
+ *        An Eulerian Circuit is an Eulerian Path that starts and ends on the same vertex.
+ *
+ * DEFINITIONS:
+ * - **Eulerian Path**: A path that uses every edge of a graph exactly once.
+ * - **Eulerian Circuit (Cycle)**: An Eulerian Path that starts and ends at the same vertex.
+ *
+ * APPLICABLE TO:
+ * - **Undirected Graphs**
+ * - **Directed Graphs**
+ *
+ * ===================================================================
+ * CONDITIONS FOR EULERIAN PATH AND CIRCUIT
+ * ===================================================================
+ *
+ * UNDIRECTED GRAPHS:
+ * ------------------
+ * 1. Eulerian **Circuit** exists if:
+ *    - All vertices have even degree
+ *    - The graph is connected (excluding isolated vertices)
+ *
+ * 2. Eulerian **Path** (but not circuit) exists if:
+ *    - Exactly 2 vertices have odd degree
+ *    - The graph is connected
+ *
+ * 3. Otherwise, **no Eulerian Path or Circuit** exists
+ *
+ *
+ * DIRECTED GRAPHS:
+ * ------------------
+ * 1. Eulerian **Circuit** exists if:
+ *    - For every vertex, in-degree == out-degree
+ *    - All nodes with non-zero degree belong to a single strongly connected component
+ *
+ * 2. Eulerian **Path** exists if:
+ *    - Exactly one vertex with (out-degree = in-degree + 1) → this is the start node
+ *    - Exactly one vertex with (in-degree = out-degree + 1) → this is the end node
+ *    - All other vertices: in-degree == out-degree
+ *    - All nodes with non-zero degree belong to a single connected component (in undirected sense)
+ *
+ *
+ * ===================================================================
+ * TIME COMPLEXITY OF CHECKING:
+ * ===================================================================
+ * - Degree Counting: O(V)
+ * - Connectivity Check (DFS/BFS): O(V + E)
+ *
+ *
+ * ===================================================================
+ * EXAMPLES:
+ * ===================================================================
+ * 1. Undirected:
+ *      Graph: 0-1-2-0  → Triangle
+ *      All vertices have degree 2 → Eulerian Circuit ✅
+ *
+ * 2. Directed:
+ *      A → B → C
+ *      A has out=1, in=0; C has in=1, out=0; B has in=1, out=1 → Eulerian Path ✅
+ */
+
+/* ===================================================================
+ * UTILITY: Check if an undirected graph has Eulerian Path or Circuit
+ * =================================================================== */
+
+bool isConnected(vector<vector<int>> &adj, int V)
+{
+    vector<bool> visited(V, false);
+
+    // Find a starting vertex with non-zero degree
+    int start = -1;
+    for (int i = 0; i < V; i++)
+    {
+        if (!adj[i].empty())
+        {
+            start = i;
+            break;
+        }
+    }
+
+    // If no edges exist, graph is trivially Eulerian
+    if (start == -1)
+        return true;
+
+    // DFS to mark all reachable vertices
+    function<void(int)> dfs = [&](int node)
+    {
+        visited[node] = true;
+        for (int neighbor : adj[node])
+        {
+            if (!visited[neighbor])
+                dfs(neighbor);
+        }
+    };
+
+    dfs(start);
+
+    // Check if all vertices with edges are visited
+    for (int i = 0; i < V; i++)
+    {
+        if (!adj[i].empty() && !visited[i])
+            return false;
+    }
+
+    return true;
+}
+
+string classifyEulerianUndirectedGraph(vector<vector<int>> &adj, int V)
+{
+    if (!isConnected(adj, V))
+        return "Not Eulerian ❌";
+
+    int oddCount = 0;
+    for (int i = 0; i < V; i++)
+    {
+        if (adj[i].size() % 2 != 0)
+            oddCount++;
+    }
+
+    if (oddCount == 0)
+        return "Eulerian Circuit ✅";
+    else if (oddCount == 2)
+        return "Eulerian Path ✅";
+    else
+        return "Not Eulerian ❌";
+}
+
+/* ===================================================================
+ * EULERIAN GRAPH CHECK — DIRECTED GRAPH
+ * =================================================================== */
+
+/**
+ * @brief Check if a directed graph contains an Eulerian Path or Circuit.
+ *
+ * ALGORITHM:
+ * - Count in-degrees and out-degrees of all vertices.
+ * - Eulerian Circuit:
+ *     → All vertices: in-degree == out-degree
+ * - Eulerian Path:
+ *     → Exactly one vertex: out-degree = in-degree + 1 (start)
+ *     → Exactly one vertex: in-degree = out-degree + 1 (end)
+ *     → All others: in-degree == out-degree
+ * - Also check: the graph is strongly connected (or all reachable from a single node).
+ */
+
+string classifyEulerianDirectedGraph(vector<vector<int>> &adj, int V)
+{
+    vector<int> indeg(V, 0), outdeg(V, 0);
+
+    for (int u = 0; u < V; u++)
+    {
+        for (int v : adj[u])
+        {
+            outdeg[u]++;
+            indeg[v]++;
+        }
+    }
+
+    int start_nodes = 0, end_nodes = 0;
+    for (int i = 0; i < V; i++)
+    {
+        if (outdeg[i] - indeg[i] == 1)
+            start_nodes++;
+        else if (indeg[i] - outdeg[i] == 1)
+            end_nodes++;
+        else if (indeg[i] != outdeg[i])
+            return "Not Eulerian ❌";
+    }
+
+    if (start_nodes == 0 && end_nodes == 0)
+        return "Eulerian Circuit ✅";
+    else if (start_nodes == 1 && end_nodes == 1)
+        return "Eulerian Path ✅";
+    else
+        return "Not Eulerian ❌";
+}
+
+/* ===================================================================
+ * HIERHOLZER’S ALGORITHM — UNDIRECTED GRAPH
+ * =================================================================== */
+
+/**
+ * @brief Construct Eulerian Path or Circuit in an undirected graph
+ *        (Assumes that it exists)
+ *
+ * NOTE:
+ * - The graph is represented using a multiset (or multimap) to support multiple edges.
+ * - The resulting path/circuit will be in reverse — reverse at the end.
+ */
+
+void dfs(int u, unordered_map<int, multiset<int>> &graph, vector<int> &path)
+{
+    while (!graph[u].empty())
+    {
+        int v = *graph[u].begin();
+        graph[u].erase(graph[u].begin());
+        graph[v].erase(graph[v].find(u)); // remove the back edge
+        dfs(v, graph, path);
+    }
+    path.push_back(u);
+}
+
+vector<int> findEulerianTrailUndirected(vector<pair<int, int>> &edges)
+{
+    unordered_map<int, multiset<int>> graph;
+
+    for (auto &[u, v] : edges)
+    {
+        graph[u].insert(v);
+        graph[v].insert(u);
+    }
+
+    // Start at a vertex with odd degree (if any), else pick any
+    int start = edges[0].first;
+    for (auto &[u, adj] : graph)
+    {
+        if (adj.size() % 2 == 1)
+        {
+            start = u;
+            break;
+        }
+    }
+
+    vector<int> path;
+    dfs(start, graph, path);
+    reverse(path.begin(), path.end());
+
+    return path;
+}
+
+/* ===================================================================
+ * HIERHOLZER’S ALGORITHM — DIRECTED GRAPH
+ * =================================================================== */
+
+/**
+ * @brief Construct Eulerian Path or Circuit in a directed graph
+ *        (Assumes that it exists)
+ *
+ * NOTE:
+ * - Graph: adjacency list (multiset or deque preferred)
+ * - Start node is:
+ *     → Any node with out-degree = in-degree + 1 (if Eulerian Path)
+ *     → Any node with non-zero degree (if Eulerian Circuit)
+ */
+
+void dfsDirected(int u, unordered_map<int, deque<int>> &graph, vector<int> &path)
+{
+    while (!graph[u].empty())
+    {
+        int v = graph[u].front();
+        graph[u].pop_front();
+        dfsDirected(v, graph, path);
+    }
+    path.push_back(u);
+}
+
+vector<int> findEulerianTrailDirected(vector<pair<int, int>> &edges)
+{
+    unordered_map<int, deque<int>> graph;
+    unordered_map<int, int> indeg, outdeg;
+
+    for (auto &[u, v] : edges)
+    {
+        graph[u].push_back(v);
+        outdeg[u]++;
+        indeg[v]++;
+    }
+
+    // Find start node
+    int start = edges[0].first;
+    for (auto &[node, _] : graph)
+    {
+        if (outdeg[node] - indeg[node] == 1)
+        {
+            start = node;
+            break;
+        }
+    }
+
+    vector<int> path;
+    dfsDirected(start, graph, path);
+    reverse(path.begin(), path.end());
+
+    return path;
+}
+
 int main()
 {
 

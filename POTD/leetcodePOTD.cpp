@@ -543,3 +543,109 @@ public:
             return count;
         }
     };
+
+    /* ===================================================================
+     * LEETCODE 3439: RESCHEDULE MEETINGS FOR MAXIMUM FREE TIME I
+     * =================================================================== */
+
+    /**
+     * @brief Given non-overlapping meetings and event duration,
+     *        you can shift at most k meetings earlier (preserving order and duration)
+     *        to **maximize the longest free time** during the event.
+     *
+     * CONSTRAINTS:
+     * - Meetings must remain non-overlapping
+     * - At most k meetings can be rescheduled
+     * - Rescheduling means moving the start earlier, duration stays the same
+     * - All meetings must fit in [0, eventTime]
+     *
+     * GOAL: Maximize the longest continuous **free period**
+     *       within [0, eventTime] after at most `k` reschedules.
+     *
+     * ALGORITHM (Binary Search + Greedy Simulation):
+     * - Binary search on answer: longest possible free time F
+     * - For each candidate F:
+     *     → Simulate scheduling the meetings greedily
+     *     → Shift up to k meetings to ensure each free gap ≥ F
+     * - If possible → try larger F, else try smaller
+     *
+     * TIME COMPLEXITY: O(n log eventTime)
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief Simulates rescheduling to test if a minimum free time gap is possible
+         *
+         * @param start      Original start times of meetings
+         * @param end        Original end times of meetings
+         * @param k          Max number of allowed reschedules
+         * @param eventTime  Duration of the overall event
+         * @param gap        Target free time gap to validate
+         * @return           true if gap is achievable, false otherwise
+         */
+        bool isPossible(vector<int> &start, vector<int> &end, int k, int eventTime, int gap)
+        {
+            int n = start.size();
+            int rescheduled = 0;
+            int currentTime = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                int duration = end[i] - start[i];
+                // Required earliest start to maintain `gap` before this meeting
+                int minStart = currentTime + gap;
+
+                if (start[i] < minStart)
+                {
+                    // Must reschedule this meeting to start at minStart
+                    if (++rescheduled > k)
+                        return false;
+                    currentTime = minStart + duration;
+                }
+                else
+                {
+                    // No reschedule needed, take original position
+                    currentTime = start[i] + duration;
+                }
+
+                if (currentTime > eventTime)
+                    return false;
+            }
+
+            // Check if there's a gap at the end
+            return (eventTime - currentTime) >= gap;
+        }
+
+        /**
+         * @brief Returns the maximum free time possible after at most k reschedules
+         *
+         * @param eventTime  Duration of the entire event
+         * @param startTime  Start times of meetings
+         * @param endTime    End times of meetings
+         * @param k          Max reschedules allowed
+         * @return           Longest continuous free time after adjustments
+         */
+        int maxFreeTime(int eventTime, vector<int> &startTime, vector<int> &endTime, int k)
+        {
+            int low = 0, high = eventTime, ans = 0;
+
+            while (low <= high)
+            {
+                int mid = low + (high - low) / 2;
+
+                if (isPossible(startTime, endTime, k, eventTime, mid))
+                {
+                    ans = mid; // valid gap found, try larger
+                    low = mid + 1;
+                }
+                else
+                {
+                    high = mid - 1; // too large gap, reduce
+                }
+            }
+
+            return ans;
+        }
+    };

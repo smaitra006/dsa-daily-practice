@@ -171,3 +171,94 @@ public:
         return maxLen;
     }
 };
+
+/* ===================================================================
+ * LEETCODE 438: FIND ALL ANAGRAMS IN A STRING
+ * =================================================================== */
+
+/**
+ * @brief Given strings `s` and `p`, return all starting indices in `s`
+ *        where the substring is an anagram of `p`.
+ *
+ * ALGORITHM (Sliding Window + Hash Map):
+ * - Use a hashmap to store frequency of characters in string `p`.
+ * - Use a fixed-size sliding window of length `k = p.size()` over `s`.
+ * - Maintain a count of how many unique characters still need to match.
+ * - When count == 0 and window size matches, it's an anagram.
+ * - As the window slides, update the frequency map and count accordingly.
+ *
+ * TIME COMPLEXITY: O(N), where N = s.length()
+ * SPACE COMPLEXITY: O(1) — max 26 characters in lowercase alphabet
+ */
+
+class Solution
+{
+public:
+    /**
+     * @brief Finds all start indices where anagram of p appears in s
+     *
+     * @param s  Main string
+     * @param p  Pattern string (anagram target)
+     * @return   List of starting indices of valid anagrams
+     */
+    vector<int> findAnagrams(string s, string p)
+    {
+        unordered_map<char, int> mpp;
+
+        // Step 1: Build frequency map for string p
+        for (char ch : p)
+        {
+            mpp[ch]++;
+        }
+
+        int cnt = mpp.size(); // Number of unique characters to match
+        int k = p.length();   // Fixed window size
+        int i = 0, j = 0;
+        vector<int> ans;
+
+        // Step 2: Start sliding window
+        while (j < s.length())
+        {
+            // If current character is in pattern, decrement its frequency
+            if (mpp.count(s[j]))
+            {
+                mpp[s[j]]--;
+                if (mpp[s[j]] == 0)
+                {
+                    cnt--; // Character matched completely
+                }
+            }
+
+            // If window size is less than k, just expand
+            if (j - i + 1 < k)
+            {
+                j++;
+            }
+
+            // When window size hits k
+            else if (j - i + 1 == k)
+            {
+                if (cnt == 0)
+                {
+                    ans.push_back(i); // Anagram found
+                }
+
+                // Before sliding the window, restore left character
+                if (mpp.count(s[i]))
+                {
+                    if (mpp[s[i]] == 0)
+                    {
+                        cnt++; // Character mismatch reintroduced
+                    }
+                    mpp[s[i]]++;
+                }
+
+                // Slide the window
+                i++;
+                j++;
+            }
+        }
+
+        return ans;
+    }
+};

@@ -3268,3 +3268,93 @@ public:
         return result;
     }
 };
+
+/* ===================================================================
+ * LEETCODE 2097: VALID ARRANGEMENT OF PAIRS
+ * =================================================================== */
+
+/**
+ * @brief Given a list of directed pairs [u, v], rearrange them so that:
+ *        - For every adjacent pair (a, b) and (b, c), b matches.
+ *        - In other words, form a valid Eulerian path from the pairs.
+ *
+ * ALGORITHM (Hierholzer's Algorithm for Directed Graph):
+ * - Build adjacency list and track in-degree/out-degree for all nodes.
+ * - Identify the starting node of the Eulerian path:
+ *     → It should have out-degree = in-degree + 1
+ *     → If none, start with any node
+ * - Use a stack to simulate DFS and construct the path in reverse.
+ * - Convert the node path into an edge list format.
+ *
+ * TIME COMPLEXITY: O(E), where E = number of pairs
+ */
+
+class Solution
+{
+public:
+    /**
+     * @brief Reconstruct a valid arrangement of pairs using Eulerian path
+     *
+     * @param pairs  List of directed edges [from, to]
+     * @return       Sequence of pairs forming a valid path
+     */
+    vector<vector<int>> validArrangement(vector<vector<int>> &pairs)
+    {
+        // Step 1: Build adjacency list and degree counters
+        unordered_map<int, vector<int>> adj;
+        unordered_map<int, int> indegree, outdegree;
+
+        for (auto &edge : pairs)
+        {
+            int u = edge[0];
+            int v = edge[1];
+            adj[u].push_back(v);
+            outdegree[u]++;
+            indegree[v]++;
+        }
+
+        // Step 2: Find start node for Eulerian path
+        int start = pairs[0][0];
+        for (auto &[node, _] : adj)
+        {
+            if (outdegree[node] - indegree[node] == 1)
+            {
+                start = node;
+                break;
+            }
+        }
+
+        // Step 3: Perform Hierholzer’s Algorithm (iterative DFS)
+        vector<int> path;
+        stack<int> st;
+        st.push(start);
+
+        while (!st.empty())
+        {
+            int curr = st.top();
+
+            if (!adj[curr].empty())
+            {
+                int next = adj[curr].back();
+                adj[curr].pop_back();
+                st.push(next);
+            }
+            else
+            {
+                path.push_back(curr);
+                st.pop();
+            }
+        }
+
+        // Step 4: Build result as list of edges
+        reverse(path.begin(), path.end());
+
+        vector<vector<int>> result;
+        for (int i = 0; i < path.size() - 1; i++)
+        {
+            result.push_back({path[i], path[i + 1]});
+        }
+
+        return result;
+    }
+};
