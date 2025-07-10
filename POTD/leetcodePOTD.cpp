@@ -649,3 +649,87 @@ public:
             return ans;
         }
     };
+
+    /* ===================================================================
+     * LEETCODE 3439: MAXIMUM FREE TIME AFTER ONE RESCHEDULE II
+     * =================================================================== */
+
+    /**
+     * @brief Given meetings scheduled in an event timeline, compute the maximum
+     *        continuous free time possible if you are allowed to reschedule exactly
+     *        one meeting (shift earlier without overlapping, maintaining order).
+     *
+     * STRATEGY:
+     * - Compute all free gaps:
+     *     → gap[0] = before first meeting
+     *     → gap[i] = between end of meeting i-1 and start of meeting i
+     *     → gap[n] = after last meeting till end of event
+     *
+     * - Precompute:
+     *     → largest gap to the **right** of each index (suffix max)
+     *
+     * - Then, iterate through each potential reschedule point:
+     *     → Try combining adjacent gaps with the shifted meeting duration
+     *     → Maintain maximum merged gap found
+     *
+     * TIME COMPLEXITY: O(n)
+     * SPACE COMPLEXITY: O(n)
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief Computes max free time after one allowed reschedule
+         *
+         * @param eventTime   Total duration of the event
+         * @param startTime   Start times of the meetings
+         * @param endTime     End times of the meetings
+         * @return            Maximum continuous free time possible
+         */
+        int maxFreeTime(int eventTime, vector<int> &startTime, vector<int> &endTime)
+        {
+            int n = startTime.size();
+
+            // Step 1: Calculate free gaps before, between, and after meetings
+            vector<int> gap;
+            gap.push_back(startTime[0]); // before first meeting
+            for (int i = 1; i < n; ++i)
+            {
+                gap.push_back(startTime[i] - endTime[i - 1]); // between meetings
+            }
+            gap.push_back(eventTime - endTime.back()); // after last meeting
+
+            int m = gap.size();
+
+            // Step 2: Precompute largest gap to the right (suffix max)
+            vector<int> largestRight(m, 0);
+            for (int i = m - 2; i >= 0; --i)
+            {
+                largestRight[i] = max(largestRight[i + 1], gap[i + 1]);
+            }
+
+            // Step 3: Iterate and evaluate max possible merged free time
+            int ans = 0, largestLeft = 0;
+
+            for (int i = 1; i < m; ++i)
+            {
+                int meetingDuration = endTime[i - 1] - startTime[i - 1];
+
+                // Try merging current meeting with adjacent gaps if its duration
+                // is not larger than the max free time on either side
+                if (meetingDuration <= max(largestLeft, largestRight[i]))
+                {
+                    ans = max(ans, gap[i - 1] + gap[i] + meetingDuration);
+                }
+
+                // Or just merge the two gaps without shifting any meeting
+                ans = max(ans, gap[i - 1] + gap[i]);
+
+                // Update largest gap seen to the left
+                largestLeft = max(largestLeft, gap[i - 1]);
+            }
+
+            return ans;
+        }
+    };
