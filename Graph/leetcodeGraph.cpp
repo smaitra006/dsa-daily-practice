@@ -3358,3 +3358,396 @@ public:
         return result;
     }
 };
+
+/* ===================================================================
+ * LEETCODE: MINIMUM DIAMETER AFTER MERGE OF TWO TREES
+ * =================================================================== */
+
+/**
+ * @brief Given two trees (acyclic connected graphs), you are to merge them
+ *        by connecting one node from each with a new edge.
+ *        Return the minimum diameter of the resulting tree.
+ *
+ * KEY OBSERVATION:
+ * - Connecting two trees of diameters `d1` and `d2` through a new edge increases
+ *   the longest path possibly via midpoints of each tree → total = ⌊(d1+1)/2⌋ + ⌊(d2+1)/2⌋ + 1
+ * - Final diameter = max(existing d1 or d2, or the new combined path)
+ *
+ * APPROACH:
+ * - Use BFS twice to find the **diameter** of each tree:
+ *     1. First BFS: from any node to find farthest node (one endpoint of diameter)
+ *     2. Second BFS: from that endpoint to compute the actual diameter
+ * - Merge logic = connect deepest midpoints of both trees to minimize overall diameter
+ *
+ * TIME COMPLEXITY: O(N1 + N2) where N1 and N2 are number of nodes in tree1 and tree2
+ */
+
+class Solution
+{
+public:
+    /**
+     * @brief Perform BFS to find the farthest node and its distance from source
+     *
+     * @param adj     Adjacency list of the tree
+     * @param source  Starting node
+     * @return        {farthestNode, distance}
+     */
+    pair<int, int> BFS(unordered_map<int, vector<int>> &adj, int source)
+    {
+        queue<int> q;
+        unordered_map<int, bool> visited;
+
+        q.push(source);
+        visited[source] = true;
+
+        int dist = 0;
+        int node = source;
+
+        while (!q.empty())
+        {
+            int size = q.size();
+            while (size--)
+            {
+                int temp = q.front();
+                q.pop();
+                node = temp;
+
+                for (int neighbor : adj[temp])
+                {
+                    if (!visited[neighbor])
+                    {
+                        visited[neighbor] = true;
+                        q.push(neighbor);
+                    }
+                }
+            }
+            dist++;
+        }
+
+        return {node, dist - 1}; // dist - 1 as we count levels
+    }
+
+    /**
+     * @brief Finds the diameter of a tree using double BFS
+     */
+    int findDiameter(unordered_map<int, vector<int>> &adj)
+    {
+        // First BFS to find one end of the diameter
+        auto [farthestNode, _] = BFS(adj, 0);
+
+        // Second BFS from farthest node to get actual diameter
+        auto [otherEnd, diameter] = BFS(adj, farthestNode);
+
+        return diameter;
+    }
+
+    /**
+     * @brief Builds adjacency list from edge list
+     */
+    unordered_map<int, vector<int>> buildGraph(const vector<vector<int>> &edges)
+    {
+        unordered_map<int, vector<int>> adj;
+        for (const auto &edge : edges)
+        {
+            int u = edge[0];
+            int v = edge[1];
+            adj[u].push_back(v);
+            adj[v].push_back(u);
+        }
+        return adj;
+    }
+
+    /**
+     * @brief Returns the minimum possible diameter after merging two trees
+     *
+     * @param edges1   Tree 1 edges
+     * @param edges2   Tree 2 edges
+     * @return         Diameter of merged tree
+     */
+    int minimumDiameterAfterMerge(vector<vector<int>> &edges1, vector<vector<int>> &edges2)
+    {
+        // Build adjacency lists for both trees
+        unordered_map<int, vector<int>> adj1 = buildGraph(edges1);
+        unordered_map<int, vector<int>> adj2 = buildGraph(edges2);
+
+        // Compute diameters of each tree
+        int d1 = findDiameter(adj1);
+        int d2 = findDiameter(adj2);
+
+        // Combined path through midpoints + 1 edge connecting them
+        int combinedPath = ((d1 + 1) / 2) + ((d2 + 1) / 2) + 1;
+
+        // Final diameter is the max of original diameters and the combined path
+        return max({d1, d2, combinedPath});
+    }
+};
+
+/* ===================================================================
+ * LEETCODE 1765: MAP OF HIGHEST PEAK
+ * =================================================================== */
+
+/**
+ * @brief Given a grid with water and land, assign height to each cell such that:
+ *        - Water cells have height 0
+ *        - Heights of adjacent cells differ by at most 1
+ *        - The final result forms the "highest peak" from water sources
+ *
+ * STRATEGY:
+ * - Use multi-source BFS starting from all water cells
+ * - Assign increasing heights to adjacent unvisited land cells
+ *
+ * TIME COMPLEXITY: O(M * N)
+ * SPACE COMPLEXITY: O(M * N)
+ */
+
+class Solution
+{
+public:
+    /**
+     * @brief Returns height map for the terrain where water cells are 0 and heights increase by 1 away from water.
+     *
+     * @param isWater  2D grid marking water (1) and land (0)
+     * @return         2D height grid
+     */
+    vector<vector<int>> highestPeak(vector<vector<int>> &isWater)
+    {
+        int m = isWater.size(), n = isWater[0].size();
+
+        // Step 1: Initialize height matrix and BFS queue
+        vector<vector<int>> height(m, vector<int>(n, -1)); // -1 = unvisited
+        queue<pair<int, int>> q;
+
+        for (int i = 0; i < m; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (isWater[i][j] == 1)
+                {
+                    height[i][j] = 0; // Water cell = height 0
+                    q.push({i, j});   // Enqueue all water cells
+                }
+            }
+        }
+
+        // Step 2: Directions for up, down, left, right
+        int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+        // Step 3: BFS from all water cells
+        while (!q.empty())
+        {
+            auto [x, y] = q.front();
+            q.pop();
+
+            for (auto &dir : dirs)
+            {
+                int nx = x + dir[0], ny = y + dir[1];
+
+                // Valid and unvisited neighbor
+                if (nx >= 0 && nx < m && ny >= 0 && ny < n && height[nx][ny] == -1)
+                {
+                    height[nx][ny] = height[x][y] + 1; // increase height
+                    q.push({nx, ny});
+                }
+            }
+        }
+
+        return height;
+    }
+};
+
+/* ===================================================================
+ * LEETCODE 787: CHEAPEST FLIGHTS WITHIN K STOPS
+ * =================================================================== */
+
+/**
+ * @brief Given a list of flights (u → v with cost), find the cheapest price
+ *        from `src` to `dst` with at most `k` stops (i.e., k+1 flights).
+ *
+ * APPROACH (Dijkstra Variant with K-stops constraint):
+ * - Use a min-heap (priority queue) where each entry stores:
+ *       {total_cost, {current_node, stops_so_far}}
+ * - Track the minimum number of stops used to reach a node to prune paths.
+ * - Skip expanding nodes if current path exceeds allowed stops (k).
+ *
+ * TIME COMPLEXITY: O(E log V), but controlled by K (max depth)
+ * SPACE COMPLEXITY: O(V + E)
+ */
+
+class Solution
+{
+public:
+    /**
+     * @brief Find cheapest price from src to dst within at most k stops
+     *
+     * @param n       Number of cities
+     * @param flights Edge list [from, to, cost]
+     * @param src     Source city
+     * @param dst     Destination city
+     * @param k       Max number of allowed stops
+     * @return        Minimum cost or -1 if not possible
+     */
+    int findCheapestPrice(int n, vector<vector<int>> &flights, int src, int dst, int k)
+    {
+        // Step 1: Build adjacency list → u -> {v, price}
+        unordered_map<int, vector<pair<int, int>>> adj;
+        for (auto &flight : flights)
+        {
+            int u = flight[0], v = flight[1], price = flight[2];
+            adj[u].emplace_back(v, price);
+        }
+
+        // Step 2: Min-heap → {totalCost, {currentNode, stopsSoFar}}
+        using T = pair<int, pair<int, int>>;
+        priority_queue<T, vector<T>, greater<>> pq;
+        pq.push({0, {src, 0}}); // Initial state
+
+        // Step 3: Track minimum stops to each node to avoid unnecessary revisits
+        vector<int> minStops(n, INT_MAX);
+
+        // Step 4: Explore graph with cost and stop tracking
+        while (!pq.empty())
+        {
+            auto [cost, info] = pq.top();
+            pq.pop();
+            int node = info.first;
+            int stops = info.second;
+
+            // If destination is reached
+            if (node == dst)
+                return cost;
+
+            // Prune if stops exceeded
+            if (stops > k)
+                continue;
+
+            // Skip if we've already reached this node with fewer stops
+            if (stops >= minStops[node])
+                continue;
+            minStops[node] = stops;
+
+            // Explore all neighbors
+            for (auto &[neighbor, weight] : adj[node])
+            {
+                pq.push({cost + weight, {neighbor, stops + 1}});
+            }
+        }
+
+        // Destination not reachable within k stops
+        return -1;
+    }
+};
+
+/* ===================================================================
+ * LEETCODE 721: ACCOUNTS MERGE
+ * =================================================================== */
+
+/**
+ * @brief Given accounts with multiple emails, merge all accounts that share
+ *        at least one common email. Output should be [name, sorted emails...].
+ *
+ * APPROACH (Disjoint Set Union - DSU):
+ * - Treat each account as a node.
+ * - If two accounts share an email, connect them (union operation).
+ * - Finally, group emails by their parent node.
+ *
+ * TIME COMPLEXITY: O(N * α(N) + E log E), where N = accounts, E = emails
+ * SPACE COMPLEXITY: O(N + E)
+ */
+
+class DisjointSet
+{
+    vector<int> parent, size;
+
+public:
+    DisjointSet(int n)
+    {
+        parent.resize(n);
+        size.resize(n, 1);
+        for (int i = 0; i < n; ++i)
+            parent[i] = i;
+    }
+
+    int findUPar(int node)
+    {
+        if (node == parent[node])
+            return node;
+        return parent[node] = findUPar(parent[node]); // path compression
+    }
+
+    void unionBySize(int u, int v)
+    {
+        int pu = findUPar(u), pv = findUPar(v);
+        if (pu == pv)
+            return;
+
+        if (size[pu] < size[pv])
+        {
+            parent[pu] = pv;
+            size[pv] += size[pu];
+        }
+        else
+        {
+            parent[pv] = pu;
+            size[pu] += size[pv];
+        }
+    }
+};
+
+class Solution
+{
+public:
+    /**
+     * @brief Merges accounts with common emails using DSU
+     *
+     * @param accounts  List of accounts: [name, email1, email2, ...]
+     * @return          Merged account list
+     */
+    vector<vector<string>> accountsMerge(vector<vector<string>> &accounts)
+    {
+        int n = accounts.size();
+        DisjointSet ds(n);
+
+        unordered_map<string, int> emailToIndex; // email → account index
+
+        // Step 1: Union accounts with shared emails
+        for (int i = 0; i < n; ++i)
+        {
+            for (int j = 1; j < accounts[i].size(); ++j)
+            {
+                string email = accounts[i][j];
+                if (emailToIndex.count(email))
+                {
+                    ds.unionBySize(i, emailToIndex[email]);
+                }
+                else
+                {
+                    emailToIndex[email] = i;
+                }
+            }
+        }
+
+        // Step 2: Group emails by parent index
+        vector<string> mergedEmails[n];
+        for (auto &[email, idx] : emailToIndex)
+        {
+            int parent = ds.findUPar(idx);
+            mergedEmails[parent].push_back(email);
+        }
+
+        // Step 3: Build final result
+        vector<vector<string>> result;
+        for (int i = 0; i < n; ++i)
+        {
+            if (mergedEmails[i].empty())
+                continue;
+
+            sort(mergedEmails[i].begin(), mergedEmails[i].end());
+            vector<string> temp;
+            temp.push_back(accounts[i][0]); // account name
+            temp.insert(temp.end(), mergedEmails[i].begin(), mergedEmails[i].end());
+            result.push_back(temp);
+        }
+
+        return result;
+    }
+};
