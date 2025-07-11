@@ -733,3 +733,94 @@ public:
             return ans;
         }
     };
+
+    /* ===================================================================
+     * LEETCODE 2402: MEETING ROOMS III
+     * =================================================================== */
+
+    /**
+     * @brief You are given `n` meeting rooms and a list of meetings.
+     *        Schedule all meetings in a way that respects:
+     *        - A meeting can only be held in a room that is available
+     *        - If all rooms are busy, delay the meeting until the earliest available room
+     *        - Always choose the room with the **lowest index**
+     *
+     * Return the index of the room with the most meetings.
+     *
+     * TIME COMPLEXITY: O(M * N) in worst case
+     * SPACE COMPLEXITY: O(N)
+     */
+
+    class Solution
+    {
+    public:
+        int mostBooked(int n, vector<vector<int>> &meetings)
+        {
+            // Step 1: Sort meetings by start time
+            sort(meetings.begin(), meetings.end());
+            int m = meetings.size();
+
+            // last_available[i]: the earliest time room i becomes free
+            vector<long long> last_available(n, 0);
+
+            // used_count[i]: number of meetings room i has hosted
+            vector<int> used_count(n, 0);
+
+            // Step 2: Process each meeting
+            for (auto &meet : meetings)
+            {
+                int start = meet[0];
+                int end = meet[1];
+                int duration = end - start;
+
+                int chosenRoom = -1;
+
+                // Try to find an available room (lowest index)
+                for (int room = 0; room < n; ++room)
+                {
+                    if (last_available[room] <= start)
+                    {
+                        chosenRoom = room;
+                        break;
+                    }
+                }
+
+                if (chosenRoom != -1)
+                {
+                    // Room is available, assign meeting directly
+                    last_available[chosenRoom] = end;
+                    used_count[chosenRoom]++;
+                }
+                else
+                {
+                    // No room is free, delay the meeting to earliest available room
+                    long long earliest = LLONG_MAX;
+
+                    for (int room = 0; room < n; ++room)
+                    {
+                        if (last_available[room] < earliest)
+                        {
+                            earliest = last_available[room];
+                            chosenRoom = room;
+                        }
+                    }
+
+                    // Assign meeting starting at earliest time
+                    last_available[chosenRoom] += duration;
+                    used_count[chosenRoom]++;
+                }
+            }
+
+            // Step 3: Find the room with max usage
+            int ans = 0;
+            for (int room = 1; room < n; ++room)
+            {
+                if (used_count[room] > used_count[ans])
+                {
+                    ans = room;
+                }
+            }
+
+            return ans;
+        }
+    };
