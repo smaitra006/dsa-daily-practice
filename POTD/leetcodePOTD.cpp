@@ -824,3 +824,121 @@ public:
             return ans;
         }
     };
+
+    /* ===================================================================
+     * LEETCODE 1900: EARLIEST AND LATEST ROUNDS WHERE PLAYERS MEET
+     * =================================================================== */
+
+    /**
+     * @brief In a knockout tournament of `n` players labeled 1 to n,
+     *        players compete in rounds. Each round, players are paired
+     *        from the outside inward (1 vs n, 2 vs n-1, etc.).
+     *
+     *        Two players `firstPlayer` and `secondPlayer` want to know
+     *        the earliest and latest round they can possibly meet.
+     *
+     * STRATEGY:
+     * ---------
+     * Simulate all possible tournament paths using DFS and memoization.
+     * For each round:
+     *   - Pair players from the outside inward.
+     *   - If players meet, record round.
+     *   - Else, recursively simulate next round with all valid match outcomes.
+     *
+     * TIME COMPLEXITY: Exponential (but pruned due to symmetric conditions)
+     * SPACE COMPLEXITY: O(N^2) stack space + cache (if memoized)
+     */
+
+    class Solution
+    {
+    public:
+        /**
+         * @brief Depth-first search to compute earliest and latest round
+         *        two players can meet in a knockout bracket.
+         *
+         * @param n   Total players in current round
+         * @param p1  Position of first player
+         * @param p2  Position of second player
+         * @return    {earliest_round, latest_round}
+         */
+        pair<int, int> dfs(int n, int p1, int p2)
+        {
+            // Step 1: If they are currently facing each other
+            if (p1 + p2 == n + 1)
+            {
+                return {1, 1};
+            }
+
+            // Step 2: Normalize positions (p1 < p2)
+            if (p1 > p2)
+            {
+                swap(p1, p2);
+            }
+
+            // Step 3: Base case for small tournaments
+            if (n <= 4)
+            {
+                return {2, 2};
+            }
+
+            int m = (n + 1) / 2; // Next round size
+            int minR = INT_MAX;
+            int maxR = INT_MIN;
+
+            // Step 4: Reflect positions for symmetry optimization
+            if (p1 - 1 > n - p2)
+            {
+                int t = n + 1 - p1;
+                p1 = n + 1 - p2;
+                p2 = t;
+            }
+
+            // Step 5: Simulate both players in left half
+            if (p2 * 2 <= n + 1)
+            {
+                int a = p1 - 1;
+                int b = p2 - p1 - 1;
+
+                for (int i = 0; i <= a; ++i)
+                {
+                    for (int j = 0; j <= b; ++j)
+                    {
+                        auto [r1, r2] = dfs(m, i + 1, i + j + 2);
+                        minR = min(minR, r1 + 1);
+                        maxR = max(maxR, r2 + 1);
+                    }
+                }
+            }
+            // Step 6: Players are in opposite halves
+            else
+            {
+                int p4 = n + 1 - p2;
+                int a = p1 - 1;
+                int b = p4 - p1 - 1;
+                int c = p2 - p4 - 1;
+
+                for (int i = 0; i <= a; ++i)
+                {
+                    for (int j = 0; j <= b; ++j)
+                    {
+                        int offset = i + j + 1 + (c + 1) / 2 + 1;
+                        auto [r1, r2] = dfs(m, i + 1, offset);
+                        minR = min(minR, r1 + 1);
+                        maxR = max(maxR, r2 + 1);
+                    }
+                }
+            }
+
+            return {minR, maxR};
+        }
+
+        /**
+         * @brief Main function to compute earliest and latest round
+         *        two players can meet.
+         */
+        vector<int> earliestAndLatest(int n, int firstPlayer, int secondPlayer)
+        {
+            auto [earliest, latest] = dfs(n, firstPlayer, secondPlayer);
+            return {earliest, latest};
+        }
+    };
