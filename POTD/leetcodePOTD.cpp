@@ -942,3 +942,54 @@ public:
             return {earliest, latest};
         }
     };
+
+    /* ============================================================================
+     * LEETCODE 2410: MATCH PLAYERS WITH TRAINERS
+     * ============================================================================ */
+
+    /**
+     * @brief Each player has a strength requirement, and each trainer
+     *        has a maximum strength they can train.
+     *        We want to match as many players as possible with trainers such that:
+     *        trainer[i] >= player[j] (each used only once)
+     *
+     * ALGORITHM:
+     * - Sort both arrays
+     * - Use two pointers to greedily match smallest eligible trainer to each player
+     *
+     * TIME COMPLEXITY: O(N log N + M log M)
+     * SPACE COMPLEXITY: O(1)
+     */
+
+    class Solution
+    {
+    public:
+        int matchPlayersAndTrainers(vector<int> &players, vector<int> &trainers)
+        {
+            // Step 1: Sort both players and trainers
+            sort(begin(players), end(players));
+            sort(begin(trainers), end(trainers));
+
+            int player = 0, trainer = 0;
+            int count = 0;
+
+            // Step 2: Greedily match trainers to players
+            while (player < players.size() && trainer < trainers.size())
+            {
+                if (trainers[trainer] >= players[player])
+                {
+                    // Found a match
+                    count++;
+                    player++;
+                    trainer++;
+                }
+                else
+                {
+                    // Trainer too weak, try next trainer
+                    trainer++;
+                }
+            }
+
+            return count;
+        }
+    };
