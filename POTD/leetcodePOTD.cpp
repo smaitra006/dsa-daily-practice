@@ -1038,3 +1038,55 @@ public:
             return ans;
         }
     };
+
+    /* ============================================================================
+     * CUSTOM VALIDATION: CHECK STRING FOR AT LEAST ONE VOWEL AND ONE CONSONANT
+     * ============================================================================ */
+
+    /**
+     * @brief Check if a string is valid:
+     *        - At least length 3
+     *        - Contains at least one vowel and one consonant
+     *        - Only contains alphabets and digits (non-alphanumerics are invalid)
+     *
+     * TIME COMPLEXITY: O(N) — where N is length of string
+     * SPACE COMPLEXITY: O(1)
+     */
+
+    class Solution
+    {
+    public:
+        bool isValid(string s)
+        {
+            int n = s.length();
+            if (n < 3)
+                return false;
+
+            int vowels = 0, consonants = 0;
+            string vowelList = "aeiouAEIOU";
+
+            for (char c : s)
+            {
+                if (isalpha(c))
+                {
+                    // Check for vowel or consonant
+                    if (vowelList.find(c) != string::npos)
+                    {
+                        vowels++;
+                    }
+                    else
+                    {
+                        consonants++;
+                    }
+                }
+                else if (!isdigit(c))
+                {
+                    // Invalid character (not alphanumeric)
+                    return false;
+                }
+            }
+
+            // At least one vowel and one consonant required
+            return vowels >= 1 && consonants >= 1;
+        }
+    };
