@@ -993,3 +993,48 @@ public:
             return count;
         }
     };
+
+    /* ============================================================================
+     * LEETCODE 1290: CONVERT BINARY NUMBER IN A LINKED LIST TO INTEGER
+     * ============================================================================ */
+
+    /**
+     * @brief A singly linked list represents a binary number.
+     *        Convert it into its corresponding integer value.
+     *
+     * ALGORITHM:
+     * - Traverse the linked list from head to end.
+     * - Use bit manipulation: left shift the result and add current node value.
+     *
+     * TIME COMPLEXITY: O(N) — one pass through the list
+     * SPACE COMPLEXITY: O(1) — constant extra space
+     */
+
+    /**
+     * Definition for singly-linked list.
+     */
+    struct ListNode
+    {
+        int val;
+        ListNode *next;
+        ListNode() : val(0), next(nullptr) {}
+        ListNode(int x) : val(x), next(nullptr) {}
+        ListNode(int x, ListNode *next) : val(x), next(next) {}
+    };
+
+    class Solution
+    {
+    public:
+        static int getDecimalValue(ListNode *head)
+        {
+            int ans = 0;
+
+            // Traverse the list and compute decimal value
+            for (ListNode *curr = head; curr != nullptr; curr = curr->next)
+            {
+                ans = (ans << 1) + curr->val; // Left shift and add current bit
+            }
+
+            return ans;
+        }
+    };
