@@ -1090,3 +1090,62 @@ public:
             return vowels >= 1 && consonants >= 1;
         }
     };
+
+    /* ============================================================================
+     * CUSTOM LOGIC: MAXIMUM LENGTH OF ALTERNATING EVEN-ODD SEQUENCE
+     * ============================================================================ */
+
+    /**
+     * @brief Given an array of integers, find the maximum length of a sequence
+     *        that alternates between even and odd numbers.
+     *
+     * ALGORITHM:
+     * - Count total number of evens and odds.
+     * - Use dynamic programming logic:
+     *   - even_dp: longest subsequence ending with even
+     *   - odd_dp : longest subsequence ending with odd
+     * - For each number:
+     *     - If even → it can extend an odd-ending sequence
+     *     - If odd  → it can extend an even-ending sequence
+     *
+     * TIME COMPLEXITY: O(N)
+     * SPACE COMPLEXITY: O(1)
+     */
+
+    class Solution
+    {
+    public:
+        int maximumLength(vector<int> &nums)
+        {
+            int count_even = 0, count_odd = 0;
+
+            // Step 1: Count total evens and odds
+            for (int num : nums)
+            {
+                if (num % 2 == 0)
+                    count_even++;
+                else
+                    count_odd++;
+            }
+
+            // Step 2: DP-style pass for longest alternating sequence
+            int even_dp = 0, odd_dp = 0;
+
+            for (int num : nums)
+            {
+                if (num % 2 == 0)
+                {
+                    // Can extend a subsequence ending in odd
+                    even_dp = max(even_dp, odd_dp + 1);
+                }
+                else
+                {
+                    // Can extend a subsequence ending in even
+                    odd_dp = max(odd_dp, even_dp + 1);
+                }
+            }
+
+            // Step 3: Return max of simple counts or alternating chain
+            return max({count_even, count_odd, even_dp, odd_dp});
+        }
+    };
