@@ -1149,3 +1149,53 @@ public:
             return max({count_even, count_odd, even_dp, odd_dp});
         }
     };
+
+    /* =============================================================================
+     * 3202. Find the Maximum Length of Valid Subsequence II
+     * =============================================================================
+     * You are given an integer array nums and a positive integer k.
+     *
+     * A subsequence `sub` is valid if:
+     *    (sub[0] + sub[1]) % k == (sub[1] + sub[2]) % k == ...
+     *    == (sub[x - 2] + sub[x - 1]) % k.
+     *
+     * GOAL: Return the length of the longest valid subsequence.
+     *
+     * IDEA:
+     * - Use DP to track the longest valid subsequence for each mod value.
+     * - dp[mod][i]: longest valid subsequence ending at index i
+     *               where (nums[j] + nums[i]) % k == mod
+     *
+     * TIME COMPLEXITY: O(n^2)
+     * SPACE COMPLEXITY: O(k * n)
+     */
+
+    class Solution
+    {
+    public:
+        int maximumLength(vector<int> &nums, int k)
+        {
+            int n = nums.size();
+            int maxSub = 1;
+
+            // dp[mod][i] = max length of subsequence ending at i with pairwise % k == mod
+            vector<vector<int>> dp(k, vector<int>(n, 1));
+
+            // Compare each pair (j, i) to extend subsequence ending at j
+            for (int i = 1; i < n; ++i)
+            {
+                for (int j = 0; j < i; ++j)
+                {
+                    int mod = (nums[j] + nums[i]) % k;
+
+                    // If valid, update dp[mod][i] based on dp[mod][j]
+                    dp[mod][i] = max(dp[mod][i], 1 + dp[mod][j]);
+
+                    // Track global maximum
+                    maxSub = max(maxSub, dp[mod][i]);
+                }
+            }
+
+            return maxSub;
+        }
+    };
