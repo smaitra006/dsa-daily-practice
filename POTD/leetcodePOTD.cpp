@@ -1199,3 +1199,78 @@ public:
             return maxSub;
         }
     };
+
+    /* ============================================================================
+     * LeetCode 2163. Minimum Difference in Sums After Removal of Elements
+     * ============================================================================
+     * Given an array of 3n integers, remove n elements such that:
+     *   - n elements are removed from prefix (first 2n elements)
+     *   - n elements are removed from suffix (last 2n elements)
+     * Goal: Minimize the difference between sum of the smallest n from the first
+     * 2n and the largest n from the last 2n elements.
+     *
+     * STRATEGY:
+     * - Use a max-heap to track smallest `n` sum from left (first 2n)
+     * - Use a min-heap to track largest `n` sum from right (last 2n)
+     *
+     * TIME COMPLEXITY: O(N log N)
+     * SPACE COMPLEXITY: O(N)
+     * ========================================================================= */
+
+    class Solution
+    {
+    public:
+        long long minimumDifference(vector<int> &nums)
+        {
+            int N = nums.size();
+            int n = N / 3;
+
+            vector<long long> leftMinSum(N, 0);  // Sum of smallest n elements from left
+            vector<long long> rightMaxSum(N, 0); // Sum of largest n elements from right
+
+            // ----------- LEFT TO RIGHT: maintain smallest n from 0 to 2n-1 ----------
+            priority_queue<int> maxHeap;
+            long long leftSum = 0;
+
+            for (int i = 0; i < 2 * n; i++)
+            {
+                maxHeap.push(nums[i]);
+                leftSum += nums[i];
+
+                if (maxHeap.size() > n)
+                {
+                    leftSum -= maxHeap.top(); // remove largest (to keep n smallest)
+                    maxHeap.pop();
+                }
+
+                leftMinSum[i] = leftSum;
+            }
+
+            // ----------- RIGHT TO LEFT: maintain largest n from N-1 to n ------------
+            priority_queue<int, vector<int>, greater<>> minHeap;
+            long long rightSum = 0;
+
+            for (int i = N - 1; i >= n; i--)
+            {
+                minHeap.push(nums[i]);
+                rightSum += nums[i];
+
+                if (minHeap.size() > n)
+                {
+                    rightSum -= minHeap.top(); // remove smallest (to keep n largest)
+                    minHeap.pop();
+                }
+
+                rightMaxSum[i] = rightSum;
+            }
+
+            // ------------- Find minimum difference between prefix & suffix -----------
+            long long ans = LLONG_MAX;
+            for (int i = n - 1; i < 2 * n; i++)
+            {
+                ans = min(ans, leftMinSum[i] - rightMaxSum[i + 1]);
+            }
+
+            return ans;
+        }
+    };
