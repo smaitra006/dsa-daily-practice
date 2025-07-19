@@ -1274,3 +1274,49 @@ public:
             return ans;
         }
     };
+
+/* ============================================================================
+ * LeetCode 1233. Remove Sub-Folders from the Filesystem
+ * ============================================================================
+ * Given a list of folder paths, remove all sub-folders such that only the
+ * top-level (non-sub) folders remain.
+ *
+ * A folder is a sub-folder if it starts with a top-level folder path followed
+ * immediately by a '/' (to avoid false matches like "/a" and "/ab").
+ *
+ * STRATEGY:
+ * - Sort the folder list lexicographically.
+ * - For each folder, check if it's a subfolder of the last added result.
+ * - Use string matching with boundary check (next char is '/') to confirm.
+ *
+ * TIME COMPLEXITY: O(N * L log N) — N = number of folders, L = avg. folder length
+ * SPACE COMPLEXITY: O(N)
+ * ========================================================================= */
+
+class Solution {
+public:
+    vector<string> removeSubfolders(vector<string>& folder) {
+        // Sort folders so subfolders follow their parent folders
+        sort(folder.begin(), folder.end());
+
+        vector<string> res;
+
+        for (const auto& f : folder) {
+            if (res.empty()) {
+                res.push_back(f);  // First folder always added
+            } else {
+                const string& prev = res.back();
+
+                // Check if current folder is a sub-folder of prev
+                // Must start with prev and have '/' right after it
+                if (f.find(prev) == 0 && f.size() > prev.size() && f[prev.size()] == '/') {
+                    continue;  // Skip sub-folder
+                } else {
+                    res.push_back(f);  // Not a sub-folder, add to result
+                }
+            }
+        }
+
+        return res;
+    }
+};
