@@ -395,3 +395,528 @@ public:
         return max(a1, a2);
     }
 };
+
+/* =============================================================
+ * LEETCODE 62 :UNIQUE PATHS (DP – Move Right or Down from top-left to bottom-right)
+ * ============================================================= */
+
+class Solution
+{
+public:
+    /* ------------------------------------------------------------
+     * METHOD 1: Recursion (Brute Force)
+     * TIME: Exponential, SPACE: O(m + n) stack
+     * ------------------------------------------------------------ */
+    int recur(int i, int j)
+    {
+        if (i == 0 && j == 0)
+            return 1;
+        if (i < 0 || j < 0)
+            return 0;
+
+        int up = recur(i - 1, j);
+        int left = recur(i, j - 1);
+
+        return up + left;
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(m * n), SPACE: O(m * n)
+     * ------------------------------------------------------------ */
+    int memo(int i, int j, vector<vector<int>> &dp)
+    {
+        if (i == 0 && j == 0)
+            return 1;
+        if (i < 0 || j < 0)
+            return 0;
+
+        if (dp[i][j] != -1)
+            return dp[i][j];
+
+        int up = memo(i - 1, j, dp);
+        int left = memo(i, j - 1, dp);
+
+        return dp[i][j] = up + left;
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(m * n), SPACE: O(m * n)
+     * ------------------------------------------------------------ */
+    int tabulation(int m, int n)
+    {
+        vector<vector<int>> dp(m, vector<int>(n, 0));
+
+        for (int i = 0; i < m; ++i)
+        {
+            for (int j = 0; j < n; ++j)
+            {
+                if (i == 0 && j == 0)
+                    dp[i][j] = 1;
+                else
+                {
+                    int up = (i > 0) ? dp[i - 1][j] : 0;
+                    int left = (j > 0) ? dp[i][j - 1] : 0;
+                    dp[i][j] = up + left;
+                }
+            }
+        }
+
+        return dp[m - 1][n - 1];
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 4: Space Optimized DP
+     * TIME: O(m * n), SPACE: O(n)
+     * ------------------------------------------------------------ */
+    int uniquePaths(int m, int n)
+    {
+        vector<int> prev(n, 1); // First row is all 1s
+
+        for (int i = 1; i < m; i++)
+        {
+            vector<int> curr(n, 1);
+            for (int j = 1; j < n; j++)
+            {
+                curr[j] = curr[j - 1] + prev[j];
+            }
+            prev = curr;
+        }
+
+        return prev[n - 1];
+    }
+};
+
+/* ====================================================================
+ * Leetcode 63: Unique Paths II (DP with obstacles, can move Right or Down)
+ * ==================================================================== */
+
+class Solution
+{
+public:
+    /* ----------------------------------------------------------------
+     * METHOD 1: RECURSION (TLE for large inputs)
+     * TIME: Exponential | SPACE: O(m + n) stack space
+     * ---------------------------------------------------------------- */
+    int recur(int i, int j, vector<vector<int>> &grid)
+    {
+        if (i >= 0 && j >= 0 && grid[i][j] == 1)
+            return 0;
+        if (i == 0 && j == 0)
+            return 1;
+        if (i < 0 || j < 0)
+            return 0;
+
+        int up = recur(i - 1, j, grid);
+        int left = recur(i, j - 1, grid);
+
+        return up + left;
+    }
+
+    /* ----------------------------------------------------------------
+     * METHOD 2: MEMOIZATION (Top-Down DP)
+     * TIME: O(m * n) | SPACE: O(m * n)
+     * ---------------------------------------------------------------- */
+    int memo(int i, int j, vector<vector<int>> &grid, vector<vector<int>> &dp)
+    {
+        if (i >= 0 && j >= 0 && grid[i][j] == 1)
+            return 0;
+        if (i == 0 && j == 0)
+            return 1;
+        if (i < 0 || j < 0)
+            return 0;
+
+        if (dp[i][j] != -1)
+            return dp[i][j];
+
+        int up = memo(i - 1, j, grid, dp);
+        int left = memo(i, j - 1, grid, dp);
+
+        return dp[i][j] = up + left;
+    }
+
+    /* ----------------------------------------------------------------
+     * METHOD 3: TABULATION (Bottom-Up DP)
+     * TIME: O(m * n) | SPACE: O(m * n)
+     * ---------------------------------------------------------------- */
+    int tabulation(vector<vector<int>> &grid)
+    {
+        int m = grid.size();
+        int n = grid[0].size();
+
+        vector<vector<int>> dp(m, vector<int>(n, 0));
+
+        for (int i = 0; i < m; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+
+                if (grid[i][j] == 1)
+                {
+                    dp[i][j] = 0;
+                }
+                else if (i == 0 && j == 0)
+                {
+                    dp[i][j] = 1;
+                }
+                else
+                {
+                    int up = (i > 0) ? dp[i - 1][j] : 0;
+                    int left = (j > 0) ? dp[i][j - 1] : 0;
+                    dp[i][j] = up + left;
+                }
+            }
+        }
+
+        return dp[m - 1][n - 1];
+    }
+
+    /* ----------------------------------------------------------------
+     * METHOD 4: SPACE OPTIMIZED DP (1D array)
+     * TIME: O(m * n) | SPACE: O(n)
+     * ---------------------------------------------------------------- */
+    int uniquePathsWithObstacles(vector<vector<int>> &grid)
+    {
+        int m = grid.size();
+        int n = grid[0].size();
+
+        if (grid[0][0] == 1)
+            return 0;
+
+        vector<int> prev(n, 0);
+        prev[0] = 1;
+
+        for (int i = 0; i < m; i++)
+        {
+            vector<int> curr(n, 0);
+            for (int j = 0; j < n; j++)
+            {
+
+                if (grid[i][j] == 1)
+                {
+                    curr[j] = 0;
+                }
+                else
+                {
+                    int left = (j > 0) ? curr[j - 1] : 0;
+                    curr[j] = prev[j] + left;
+                }
+            }
+            prev = curr;
+        }
+
+        return prev[n - 1];
+    }
+};
+
+/* ================================================================
+ * LEETCODE 62 : MINIMUM PATH SUM (Only Right and Down)
+ * ================================================================ */
+
+class Solution
+{
+public:
+    /* ------------------------------------------------------------
+     * METHOD 1: PURE RECURSION (TLE for large inputs)
+     * TIME: O(2^(m * n)) | SPACE: O(m + n) stack
+     * ------------------------------------------------------------ */
+    int recur(int i, int j, vector<vector<int>> &grid)
+    {
+        if (i < 0 || j < 0)
+            return 1e9; // invalid path
+        if (i == 0 && j == 0)
+            return grid[0][0];
+
+        int up = recur(i - 1, j, grid);
+        int left = recur(i, j - 1, grid);
+
+        return grid[i][j] + min(up, left);
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 2: MEMOIZATION (Top-Down DP)
+     * TIME: O(m * n) | SPACE: O(m * n) + Recursion stack
+     * ------------------------------------------------------------ */
+    int memo(int i, int j, vector<vector<int>> &grid, vector<vector<int>> &dp)
+    {
+        if (i < 0 || j < 0)
+            return 1e9;
+        if (i == 0 && j == 0)
+            return grid[0][0];
+
+        if (dp[i][j] != -1)
+            return dp[i][j];
+
+        int up = memo(i - 1, j, grid, dp);
+        int left = memo(i, j - 1, grid, dp);
+
+        return dp[i][j] = grid[i][j] + min(up, left);
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 3: TABULATION (Bottom-Up DP)
+     * TIME: O(m * n) | SPACE: O(m * n)
+     * ------------------------------------------------------------ */
+    int tabulation(vector<vector<int>> &grid)
+    {
+        int m = grid.size(), n = grid[0].size();
+        vector<vector<int>> dp(m, vector<int>(n, 0));
+
+        for (int i = 0; i < m; ++i)
+        {
+            for (int j = 0; j < n; ++j)
+            {
+                if (i == 0 && j == 0)
+                {
+                    dp[i][j] = grid[i][j];
+                }
+                else
+                {
+                    int up = (i > 0) ? dp[i - 1][j] : 1e9;
+                    int left = (j > 0) ? dp[i][j - 1] : 1e9;
+                    dp[i][j] = grid[i][j] + min(up, left);
+                }
+            }
+        }
+
+        return dp[m - 1][n - 1];
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 4: SPACE OPTIMIZED (1D DP)
+     * TIME: O(m * n) | SPACE: O(n)
+     * ------------------------------------------------------------ */
+    int minPathSum(vector<vector<int>> &grid)
+    {
+        int m = grid.size(), n = grid[0].size();
+        vector<int> prev(n, 0);
+
+        for (int i = 0; i < m; ++i)
+        {
+            vector<int> curr(n, 0);
+            for (int j = 0; j < n; ++j)
+            {
+                if (i == 0 && j == 0)
+                {
+                    curr[j] = grid[i][j];
+                }
+                else
+                {
+                    int up = (i > 0) ? prev[j] : 1e9;
+                    int left = (j > 0) ? curr[j - 1] : 1e9;
+                    curr[j] = grid[i][j] + min(up, left);
+                }
+            }
+            prev = curr;
+        }
+
+        return prev[n - 1];
+    }
+};
+
+/* ================================================================
+ * TRIANGLE - MINIMUM PATH SUM (Top to Bottom)
+ * ================================================================ */
+
+class Solution
+{
+public:
+    /* ------------------------------------------------------------
+     * METHOD 1: RECURSION
+     * TIME: O(2^n) | SPACE: O(n)
+     * ------------------------------------------------------------ */
+    int recur(int r, int c, vector<vector<int>> &triangle)
+    {
+        int n = triangle.size();
+        if (r == n - 1)
+            return triangle[r][c];
+
+        int down = recur(r + 1, c, triangle);
+        int diag = recur(r + 1, c + 1, triangle);
+
+        return triangle[r][c] + min(down, diag);
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 2: MEMOIZATION (Top-Down DP)
+     * TIME: O(n^2) | SPACE: O(n^2) + Recursion Stack
+     * ------------------------------------------------------------ */
+    int memo(int r, int c, vector<vector<int>> &triangle, vector<vector<int>> &dp)
+    {
+        int n = triangle.size();
+        if (r == n - 1)
+            return triangle[r][c];
+
+        if (dp[r][c] != -1)
+            return dp[r][c];
+
+        int down = memo(r + 1, c, triangle, dp);
+        int diag = memo(r + 1, c + 1, triangle, dp);
+
+        return dp[r][c] = triangle[r][c] + min(down, diag);
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 3: TABULATION (Bottom-Up DP)
+     * TIME: O(n^2) | SPACE: O(n^2)
+     * ------------------------------------------------------------ */
+    int tabulation(vector<vector<int>> &triangle)
+    {
+        int n = triangle.size();
+        vector<vector<int>> dp(n, vector<int>(n, 0));
+
+        // Base case: bottom row
+        for (int j = 0; j < triangle[n - 1].size(); ++j)
+        {
+            dp[n - 1][j] = triangle[n - 1][j];
+        }
+
+        // Bottom-up filling
+        for (int r = n - 2; r >= 0; --r)
+        {
+            for (int c = 0; c < triangle[r].size(); ++c)
+            {
+                int down = dp[r + 1][c];
+                int diag = dp[r + 1][c + 1];
+                dp[r][c] = triangle[r][c] + min(down, diag);
+            }
+        }
+
+        return dp[0][0];
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 4: SPACE OPTIMIZATION (1D DP)
+     * TIME: O(n^2) | SPACE: O(n)
+     * ------------------------------------------------------------ */
+    int minimumTotal(vector<vector<int>> &triangle)
+    {
+        int n = triangle.size();
+        vector<int> front(n, 0);
+
+        // Base case: bottom row
+        for (int j = 0; j < triangle[n - 1].size(); ++j)
+        {
+            front[j] = triangle[n - 1][j];
+        }
+
+        // Bottom-up filling
+        for (int r = n - 2; r >= 0; --r)
+        {
+            vector<int> curr(n, 0);
+            for (int c = 0; c < triangle[r].size(); ++c)
+            {
+                int down = front[c];
+                int diag = front[c + 1];
+                curr[c] = triangle[r][c] + min(down, diag);
+            }
+            front = curr;
+        }
+
+        return front[0];
+    }
+};
+
+/* ================================================================
+ * TRIANGLE - MINIMUM PATH SUM (Top to Bottom)
+ * ================================================================ */
+
+class Solution
+{
+public:
+    /* ------------------------------------------------------------
+     * METHOD 1: RECURSION
+     * TIME: O(2^n) | SPACE: O(n)
+     * ------------------------------------------------------------ */
+    int recur(int r, int c, vector<vector<int>> &triangle)
+    {
+        int n = triangle.size();
+        if (r == n - 1)
+            return triangle[r][c];
+
+        int down = recur(r + 1, c, triangle);
+        int diag = recur(r + 1, c + 1, triangle);
+
+        return triangle[r][c] + min(down, diag);
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 2: MEMOIZATION (Top-Down DP)
+     * TIME: O(n^2) | SPACE: O(n^2) + Recursion Stack
+     * ------------------------------------------------------------ */
+    int memo(int r, int c, vector<vector<int>> &triangle, vector<vector<int>> &dp)
+    {
+        int n = triangle.size();
+        if (r == n - 1)
+            return triangle[r][c];
+
+        if (dp[r][c] != -1)
+            return dp[r][c];
+
+        int down = memo(r + 1, c, triangle, dp);
+        int diag = memo(r + 1, c + 1, triangle, dp);
+
+        return dp[r][c] = triangle[r][c] + min(down, diag);
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 3: TABULATION (Bottom-Up DP)
+     * TIME: O(n^2) | SPACE: O(n^2)
+     * ------------------------------------------------------------ */
+    int tabulation(vector<vector<int>> &triangle)
+    {
+        int n = triangle.size();
+        vector<vector<int>> dp(n, vector<int>(n, 0));
+
+        // Base case: bottom row
+        for (int j = 0; j < triangle[n - 1].size(); ++j)
+        {
+            dp[n - 1][j] = triangle[n - 1][j];
+        }
+
+        // Bottom-up filling
+        for (int r = n - 2; r >= 0; --r)
+        {
+            for (int c = 0; c < triangle[r].size(); ++c)
+            {
+                int down = dp[r + 1][c];
+                int diag = dp[r + 1][c + 1];
+                dp[r][c] = triangle[r][c] + min(down, diag);
+            }
+        }
+
+        return dp[0][0];
+    }
+
+    /* ------------------------------------------------------------
+     * METHOD 4: SPACE OPTIMIZATION (1D DP)
+     * TIME: O(n^2) | SPACE: O(n)
+     * ------------------------------------------------------------ */
+    int minimumTotal(vector<vector<int>> &triangle)
+    {
+        int n = triangle.size();
+        vector<int> front(n, 0);
+
+        // Base case: bottom row
+        for (int j = 0; j < triangle[n - 1].size(); ++j)
+        {
+            front[j] = triangle[n - 1][j];
+        }
+
+        // Bottom-up filling
+        for (int r = n - 2; r >= 0; --r)
+        {
+            vector<int> curr(n, 0);
+            for (int c = 0; c < triangle[r].size(); ++c)
+            {
+                int down = front[c];
+                int diag = front[c + 1];
+                curr[c] = triangle[r][c] + min(down, diag);
+            }
+            front = curr;
+        }
+
+        return front[0];
+    }
+};
