@@ -1320,3 +1320,119 @@ public:
         return res;
     }
 };
+
+/* ============================================================================
+ * LeetCode 1948: Delete Duplicate Folders in a System
+ * ============================================================================
+ * You are given a list of folder paths. If two folder subtrees are identical
+ * (i.e., same structure and names), remove all such duplicate folders.
+ *
+ * STRATEGY:
+ * 1. Build a tree (Trie-like) from all paths.
+ * 2. Assign a unique "signature" to each subtree (based on children structure).
+ * 3. Use the signature to count duplicates.
+ * 4. In second DFS, skip any subtree whose signature appears ≥2 times.
+ *
+ * TIME COMPLEXITY: O(N * L log L) — N = paths, L = avg path depth
+ * SPACE COMPLEXITY: O(N * L)
+ * ========================================================================= */
+
+struct Node
+{
+    string name;
+    unordered_map<string, Node *> children;
+    string signature;
+
+    Node(string name) : name(name) {}
+};
+
+class Solution
+{
+public:
+    // Step 1: First DFS to compute unique subtree signatures
+    void dfs(Node *node, unordered_map<string, int> &signatureCount)
+    {
+        if (node->children.empty())
+        {
+            node->signature = "";
+            return;
+        }
+
+        vector<string> childSignatures;
+        for (const auto &[name, child] : node->children)
+        {
+            dfs(child, signatureCount);
+            // Build signature using folder name and child signature
+            childSignatures.push_back(name + "(" + child->signature + ")");
+        }
+
+        // Sort to ensure deterministic order for matching
+        sort(childSignatures.begin(), childSignatures.end());
+
+        node->signature = "";
+        for (const string &sig : childSignatures)
+        {
+            node->signature += sig;
+        }
+
+        // Count how many times this signature has appeared
+        signatureCount[node->signature]++;
+    }
+
+    // Step 2: Second DFS to rebuild filtered tree
+    void dfs2(Node *node, vector<string> &currentPath,
+              vector<vector<string>> &result,
+              unordered_map<string, int> &signatureCount)
+    {
+
+        // If subtree is duplicate, don't add to result
+        if (!node->children.empty() && signatureCount[node->signature] >= 2)
+        {
+            return;
+        }
+
+        currentPath.push_back(node->name);
+        result.push_back(currentPath);
+
+        for (const auto &[name, child] : node->children)
+        {
+            dfs2(child, currentPath, result, signatureCount);
+        }
+
+        currentPath.pop_back(); // Backtrack
+    }
+
+    // Main function
+    vector<vector<string>> deleteDuplicateFolder(vector<vector<string>> &paths)
+    {
+        // Step 0: Build folder tree
+        Node *root = new Node("");
+        for (const auto &path : paths)
+        {
+            Node *curr = root;
+            for (const string &folder : path)
+            {
+                if (!curr->children.count(folder))
+                {
+                    curr->children[folder] = new Node(folder);
+                }
+                curr = curr->children[folder];
+            }
+        }
+
+        // Step 1: Compute subtree signatures
+        unordered_map<string, int> signatureCount;
+        dfs(root, signatureCount);
+
+        // Step 2: Reconstruct tree without duplicate subtrees
+        vector<vector<string>> result;
+        vector<string> currentPath;
+        for (const auto &[name, child] : root->children)
+        {
+            dfs2(child, currentPath, result, signatureCount);
+        }
+
+        delete root; // Optional: cleanup root (no smart pointers used)
+        return result;
+    }
+};
