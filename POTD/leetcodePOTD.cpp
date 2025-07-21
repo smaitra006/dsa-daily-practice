@@ -1436,3 +1436,47 @@ public:
         return result;
     }
 };
+
+/* ============================================================================
+ * LeetCode 1957: Delete Characters to Make Fancy String
+ * ============================================================================
+ * Problem:
+ * Given a string `s`, delete the minimum number of characters so that no
+ * three consecutive characters are the same.
+ *
+ * Strategy:
+ * - Traverse the string while checking if the current character and its
+ *   neighbors form a triplet.
+ * - Skip characters that would cause three consecutive identical letters.
+ *
+ * Time Complexity: O(n)
+ * Space Complexity: O(n) (for output string)
+ * ========================================================================== */
+
+class Solution
+{
+public:
+    string makeFancyString(string s)
+    {
+        // Handle edge case: single character
+        if (s.size() == 1)
+            return s;
+
+        string ans;
+        ans += s[0]; // Always take the first character
+
+        // Loop from 1 to n-2, checking for triplets
+        for (int i = 1; i < s.size() - 1; i++)
+        {
+            // If current and both neighbors are the same, skip current
+            if (s[i - 1] == s[i] && s[i] == s[i + 1])
+            {
+                continue;
+            }
+            ans += s[i]; // Otherwise, keep it
+        }
+
+        ans += s[s.size() - 1]; // Always take the last character
+        return ans;
+    }
+};
