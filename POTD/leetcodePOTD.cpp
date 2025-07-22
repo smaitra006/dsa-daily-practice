@@ -1480,3 +1480,55 @@ public:
         return ans;
     }
 };
+
+/* ==============================================================================
+ * LeetCode 1695: Maximum Erasure Value
+ * ==============================================================================
+ * Problem:
+ * You are given an array of positive integers `nums`.
+ * Return the maximum sum of a subarray with all unique elements.
+ *
+ * Approach: Sliding Window + HashMap (Two Pointers)
+ * - Maintain a window `[l, r]` where all elements are unique.
+ * - If a duplicate appears, shrink the window from the left until it's unique.
+ * - Keep updating the sum and track the maximum.
+ *
+ * Time Complexity: O(n)
+ * Space Complexity: O(n)
+ * ============================================================================== */
+
+class Solution
+{
+public:
+    int maximumUniqueSubarray(vector<int> &nums)
+    {
+        int n = nums.size();
+        int l = 0, r = 0;           // Left and right pointers
+        int sum = 0;                // Current window sum
+        int mx = -1;                // Maximum unique subarray sum
+        unordered_map<int, int> mp; // Frequency map of elements in window
+
+        while (r < n)
+        {
+            mp[nums[r]] += 1;
+
+            // If nums[r] is a duplicate, shrink the window from the left
+            if (mp[nums[r]] > 1)
+            {
+                while (mp[nums[r]] > 1 && l <= r)
+                {
+                    sum -= nums[l];
+                    mp[nums[l]] -= 1;
+                    l += 1;
+                }
+            }
+
+            // Add current element to sum and update max
+            sum += nums[r];
+            mx = max(mx, sum);
+            r += 1;
+        }
+
+        return mx;
+    }
+};
