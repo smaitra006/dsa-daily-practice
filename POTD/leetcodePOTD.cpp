@@ -1532,3 +1532,95 @@ public:
         return mx;
     }
 };
+
+/* ==============================================================================
+ * Problem: Maximum Gain from Substrings
+ * ==============================================================================
+ * You are given a string `s` and two integers `x` and `y`.
+ * You can remove substrings "ab" for x points and "ba" for y points.
+ * The removal can be done in any order.
+ *
+ * Goal: Maximize total score from such removals.
+ *
+ * Strategy:
+ * - Always remove the higher value pair first (greedy).
+ * - Traverse and simulate removing either "ab" or "ba" first,
+ *   depending on which of x or y is larger.
+ * - Use counters to simulate a stack-like behavior efficiently.
+ *
+ * Time Complexity: O(n)
+ * Space Complexity: O(1)
+ * ============================================================================== */
+
+class Solution
+{
+public:
+    int maximumGain(string s, int x, int y)
+    {
+        int cnt1 = 0, cnt2 = 0; // Stack simulation counters
+        int score = 0;
+        int i = 0;
+
+        // Decide which pair to remove first based on value
+        while (i < s.size())
+        {
+            if (y >= x)
+            {
+                // Prefer removing "ba" first (y is higher)
+                if (s[i] == 'b')
+                {
+                    cnt2++;
+                }
+                else if (s[i] == 'a')
+                {
+                    if (cnt2 > 0)
+                    {
+                        cnt2--;     // Match with previous 'b'
+                        score += y; // Add score for "ba"
+                    }
+                    else
+                    {
+                        cnt1++; // 'a' with no matching 'b'
+                    }
+                }
+                else
+                {
+                    // Any non a/b character, reset and remove "ab" pairs
+                    score += (x * min(cnt1, cnt2));
+                    cnt1 = cnt2 = 0;
+                }
+            }
+            else
+            {
+                // Prefer removing "ab" first (x is higher)
+                if (s[i] == 'a')
+                {
+                    cnt2++;
+                }
+                else if (s[i] == 'b')
+                {
+                    if (cnt2 > 0)
+                    {
+                        cnt2--;     // Match with previous 'a'
+                        score += x; // Add score for "ab"
+                    }
+                    else
+                    {
+                        cnt1++; // 'b' with no matching 'a'
+                    }
+                }
+                else
+                {
+                    // Reset and remove "ba" pairs
+                    score += (y * min(cnt1, cnt2));
+                    cnt1 = cnt2 = 0;
+                }
+            }
+            i++;
+        }
+
+        // Final leftover pair cleanup (secondary lower-valued pair)
+        score += min(x, y) * min(cnt1, cnt2);
+        return score;
+    }
+};
