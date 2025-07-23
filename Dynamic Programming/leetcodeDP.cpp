@@ -1025,19 +1025,21 @@ public:
         // start filling up from the second last row
         for (int i = m - 2; i >= 0; i--)
         {
+            // all combinations of j1 and j2
             for (int j1 = 0; j1 < n; j1++)
             {
                 for (int j2 = 0; j2 < n; j2++)
                 {
                     int maxCherries = INT_MIN;
 
+                    // going to all directions from all those positions
                     for (int dj1 : directions)
                     {
                         for (int dj2 : directions)
                         {
                             int nj1 = j1 + dj1;
                             int nj2 = j2 + dj2;
-
+                            // if inside the bounds
                             if (nj1 >= 0 && nj1 < n && nj2 >= 0 && nj2 < n)
                             {
                                 int value = (j1 == j2 ? grid[i][j1] : grid[i][j1] + grid[i][j2]);
