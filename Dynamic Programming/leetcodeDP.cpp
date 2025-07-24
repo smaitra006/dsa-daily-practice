@@ -1,4 +1,4 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
 /* ===================================================================
@@ -1107,5 +1107,396 @@ public:
         }
 
         return front[0][n - 1];
+    }
+};
+
+/* ================================================================
+ * PARTITION EQUAL SUBSET SUM (Leetcode 416)
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given a non-empty array `nums` of positive integers, determine
+ * if the array can be partitioned into two subsets such that the
+ * sum of elements in both subsets is equal.
+ *
+ * Recurrence:
+ * -----------
+ * dp[i][k] = dp[i+1][k] || dp[i+1][k - nums[i]] if k >= nums[i]
+ *
+ * TIME COMPLEXITY: O(n * k)
+ * SPACE COMPLEXITY: O(n * k) → O(k) (if space optimized)
+ */
+
+class Solution
+{
+public:
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n)
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    bool recur(int i, int k, vector<int> &nums)
+    {
+        if (k == 0)
+            return true;
+        if (i >= nums.size())
+            return false;
+
+        bool take = false;
+        if (k >= nums[i])
+            take = recur(i + 1, k - nums[i], nums);
+
+        bool notTake = recur(i + 1, k, nums);
+
+        return take || notTake;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n * k)
+     * SPACE: O(n * k) + O(n) stack
+     * --------------------------------------------------------------- */
+    bool memo(int i, int k, vector<int> &nums, vector<vector<int>> &dp)
+    {
+        if (k == 0)
+            return true;
+        if (i >= nums.size())
+            return false;
+        if (dp[i][k] != -1)
+            return dp[i][k];
+
+        bool take = false;
+        if (k >= nums[i])
+            take = memo(i + 1, k - nums[i], nums, dp);
+
+        bool notTake = memo(i + 1, k, nums, dp);
+
+        return dp[i][k] = take || notTake;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n * k)
+     * SPACE: O(n * k)
+     * --------------------------------------------------------------- */
+    bool tabulation(vector<int> &nums, int target)
+    {
+        int n = nums.size();
+        vector<vector<bool>> dp(n + 1, vector<bool>(target + 1, false));
+
+        // base case: sum = 0 is always possible
+        for (int i = 0; i <= n; i++)
+            dp[i][0] = true;
+
+        for (int i = n - 1; i >= 0; i--)
+        {
+            for (int k = 0; k <= target; k++)
+            {
+                bool notTake = dp[i + 1][k];
+                bool take = false;
+                if (k >= nums[i])
+                    take = dp[i + 1][k - nums[i]];
+                dp[i][k] = take || notTake;
+            }
+        }
+
+        return dp[0][target];
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Space Optimized (1D DP)
+     * TIME: O(n * k)
+     * SPACE: O(k)
+     * --------------------------------------------------------------- */
+    bool canPartition(vector<int> &nums)
+    {
+        int total_sum = accumulate(nums.begin(), nums.end(), 0);
+        if (total_sum % 2 != 0)
+            return false;
+
+        int target = total_sum / 2;
+        int n = nums.size();
+
+        vector<bool> prev(target + 1, false), curr(target + 1, false);
+        prev[0] = true;
+
+        if (nums[0] <= target)
+            prev[nums[0]] = true;
+
+        for (int i = 1; i < n; i++)
+        {
+            curr[0] = true;
+            for (int k = 1; k <= target; k++)
+            {
+                bool notTake = prev[k];
+                bool take = (k >= nums[i]) ? prev[k - nums[i]] : false;
+                curr[k] = take || notTake;
+            }
+            prev = curr;
+        }
+
+        return prev[target];
+    }
+};
+
+/* ================================================================
+ * COIN CHANGE (Leetcode 322)
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given a list of coins `coins[]` and an integer `amount`,
+ * return the fewest number of coins needed to make up that amount.
+ * If that amount cannot be made up by any combination of coins,
+ * return -1.
+ *
+ * Unlimited supply of each coin.
+ *
+ * Recurrence:
+ * -----------
+ * dp[i][amt] = min(1 + dp[i][amt - coins[i]], dp[i+1][amt])
+ *
+ * TIME COMPLEXITY: O(n * amount)
+ * SPACE COMPLEXITY: O(n * amount) → O(amount) (if space optimized)
+ */
+
+class Solution
+{
+public:
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n * amount)
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    int recur(int i, int amount, vector<int> &coins)
+    {
+        if (amount == 0)
+            return 0;
+        if (i >= coins.size())
+            return INT_MAX;
+
+        // Skip current coin
+        int notTake = recur(i + 1, amount, coins);
+
+        // Take current coin (unlimited)
+        int take = INT_MAX;
+        if (coins[i] <= amount)
+        {
+            int res = recur(i, amount - coins[i], coins);
+            if (res != INT_MAX)
+                take = 1 + res;
+        }
+
+        return min(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n * amount)
+     * SPACE: O(n * amount) + O(n) stack
+     * --------------------------------------------------------------- */
+    int memo(int i, int amount, vector<int> &coins, vector<vector<int>> &dp)
+    {
+        if (amount == 0)
+            return 0;
+        if (i >= coins.size())
+            return INT_MAX;
+
+        if (dp[i][amount] != -1)
+            return dp[i][amount];
+
+        int notTake = memo(i + 1, amount, coins, dp);
+
+        int take = INT_MAX;
+        if (coins[i] <= amount)
+        {
+            int res = memo(i, amount - coins[i], coins, dp);
+            if (res != INT_MAX)
+                take = 1 + res;
+        }
+
+        return dp[i][amount] = min(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n * amount)
+     * SPACE: O(n * amount)
+     * --------------------------------------------------------------- */
+    int tabulation(vector<int> &coins, int amount)
+    {
+        int n = coins.size();
+        vector<vector<int>> dp(n + 1, vector<int>(amount + 1, INT_MAX));
+
+        // Base case: 0 amount requires 0 coins
+        for (int i = 0; i <= n; i++)
+            dp[i][0] = 0;
+
+        for (int i = n - 1; i >= 0; i--)
+        {
+            for (int amt = 1; amt <= amount; amt++)
+            {
+                int notTake = dp[i + 1][amt];
+
+                int take = INT_MAX;
+                if (coins[i] <= amt && dp[i][amt - coins[i]] != INT_MAX)
+                    take = 1 + dp[i][amt - coins[i]];
+
+                dp[i][amt] = min(take, notTake);
+            }
+        }
+
+        return (dp[0][amount] == INT_MAX) ? -1 : dp[0][amount];
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Space Optimized (1D DP)
+     * TIME: O(n * amount)
+     * SPACE: O(amount)
+     * --------------------------------------------------------------- */
+    int coinChange(vector<int> &coins, int amount)
+    {
+        int n = coins.size();
+        vector<int> dp(amount + 1, INT_MAX);
+
+        dp[0] = 0; // base case: 0 amount needs 0 coins
+
+        for (int i = 0; i < n; i++)
+        {
+            for (int amt = coins[i]; amt <= amount; amt++)
+            {
+                if (dp[amt - coins[i]] != INT_MAX)
+                    dp[amt] = min(dp[amt], 1 + dp[amt - coins[i]]);
+            }
+        }
+
+        return (dp[amount] == INT_MAX) ? -1 : dp[amount];
+    }
+};
+
+/* ================================================================
+ * COIN CHANGE II (Leetcode 518)
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given a list of coins `coins[]` and an integer `amount`, return
+ * the total number of combinations that make up that amount.
+ *
+ * Each coin can be used unlimited times.
+ *
+ * Order of coins in combinations doesn’t matter (i.e., combinations,
+ * not permutations).
+ *
+ * Recurrence:
+ * -----------
+ * dp[i][amt] = dp[i-1][amt] + dp[i][amt - coins[i]]
+ *
+ * TIME COMPLEXITY: O(n * amount)
+ * SPACE COMPLEXITY: O(n * amount) → O(amount) (if space optimized)
+ */
+
+class Solution
+{
+public:
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: Exponential
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    int recur(int i, int amount, vector<int> &coins)
+    {
+        if (i == 0)
+        {
+            return (amount % coins[0] == 0) ? 1 : 0;
+        }
+
+        int notTake = recur(i - 1, amount, coins);
+        int take = 0;
+        if (coins[i] <= amount)
+            take = recur(i, amount - coins[i], coins);
+
+        return take + notTake;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n * amount)
+     * SPACE: O(n * amount) + O(n) stack
+     * --------------------------------------------------------------- */
+    int memo(int i, int amount, vector<int> &coins, vector<vector<int>> &dp)
+    {
+        if (i == 0)
+        {
+            return (amount % coins[0] == 0) ? 1 : 0;
+        }
+
+        if (dp[i][amount] != -1)
+            return dp[i][amount];
+
+        int notTake = memo(i - 1, amount, coins, dp);
+        int take = 0;
+        if (coins[i] <= amount)
+            take = memo(i, amount - coins[i], coins, dp);
+
+        return dp[i][amount] = take + notTake;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n * amount)
+     * SPACE: O(n * amount)
+     * --------------------------------------------------------------- */
+    int tabulation(int amount, vector<int> &coins)
+    {
+        int n = coins.size();
+        vector<vector<int>> dp(n, vector<int>(amount + 1, 0));
+
+        // Base case: ways to make 0 amount is 1 (choose nothing)
+        for (int i = 0; i < n; i++)
+            dp[i][0] = 1;
+
+        // Fill first row: only using coins[0]
+        for (int amt = 0; amt <= amount; amt++)
+        {
+            if (amt % coins[0] == 0)
+                dp[0][amt] = 1;
+        }
+
+        for (int i = 1; i < n; i++)
+        {
+            for (int amt = 0; amt <= amount; amt++)
+            {
+                int notTake = dp[i - 1][amt];
+                int take = (coins[i] <= amt) ? dp[i][amt - coins[i]] : 0;
+                dp[i][amt] = take + notTake;
+            }
+        }
+
+        return dp[n - 1][amount];
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Space Optimized (1D DP)
+     * TIME: O(n * amount)
+     * SPACE: O(amount)
+     * --------------------------------------------------------------- */
+    int change(int amount, vector<int> &coins)
+    {
+        int n = coins.size();
+        vector<int> dp(amount + 1, 0);
+
+        dp[0] = 1; // 1 way to make amount 0
+
+        for (int i = 0; i < n; i++)
+        {
+            for (int amt = coins[i]; amt <= amount; amt++)
+            {
+                dp[amt] += dp[amt - coins[i]];
+            }
+        }
+
+        return dp[amount];
     }
 };

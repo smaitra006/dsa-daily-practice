@@ -505,3 +505,425 @@ public:
         return prev[sum];
     }
 };
+
+/* ===================================================================
+ * COUNT SUBSETS WITH SUM K (DP – 0/1 Knapsack Variant)
+ * =================================================================== */
+
+/**
+ * @brief Given an array of integers and a target sum `k`,
+ *        return the number of subsets whose elements sum to exactly `k`.
+ *
+ * Recurrence:
+ * -----------
+ * dp[i][target] = dp[i+1][target] + dp[i+1][target - arr[i]] (if arr[i] <= target)
+ *
+ * TIME COMPLEXITY:
+ * - Recursion:      O(2^n)
+ * - Memoization:    O(n * k)
+ * - Tabulation:     O(n * k)
+ * - Space Optimized: O(k)
+ *
+ * SPACE COMPLEXITY:
+ * - Memoization:    O(n * k)
+ * - Tabulation:     O(n * k)
+ * - Space Optimized: O(k)
+ */
+
+class Solution
+{
+public:
+    /* ---------------------------------------------------------------
+     * METHOD 1: Plain Recursion (Exponential Time)
+     * --------------------------------------------------------------- */
+    int recur(int i, int target, vector<int> &nums)
+    {
+        if (i == 0)
+        {
+            if (target == 0 && nums[0] == 0)
+                return 2; // {} and {0}
+            if (target == 0 || target == nums[0])
+                return 1;
+            return 0;
+        }
+
+        int notPick = recur(i - 1, target, nums);
+        int pick = 0;
+        if (nums[i] <= target)
+            pick = recur(i - 1, target - nums[i], nums);
+
+        return pick + notPick;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n * k), SPACE: O(n * k)
+     * --------------------------------------------------------------- */
+    int memo(int i, int target, vector<int> &nums, vector<vector<int>> &dp)
+    {
+        if (i == 0)
+        {
+            if (target == 0 && nums[0] == 0)
+                return 2;
+            if (target == 0 || target == nums[0])
+                return 1;
+            return 0;
+        }
+
+        if (dp[i][target] != -1)
+            return dp[i][target];
+
+        int notPick = memo(i - 1, target, nums, dp);
+        int pick = 0;
+        if (nums[i] <= target)
+            pick = memo(i - 1, target - nums[i], nums, dp);
+
+        return dp[i][target] = pick + notPick;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n * k), SPACE: O(n * k)
+     * --------------------------------------------------------------- */
+    int tabulation(vector<int> &nums, int k)
+    {
+        int n = nums.size();
+        vector<vector<int>> dp(n, vector<int>(k + 1, 0));
+
+        // base cases
+        dp[0][0] = (nums[0] == 0) ? 2 : 1; // if nums[0] == 0: {} and {0}, else only {}
+        if (nums[0] != 0 && nums[0] <= k)
+            dp[0][nums[0]] = 1;
+
+        for (int i = 1; i < n; ++i)
+        {
+            for (int target = 0; target <= k; ++target)
+            {
+                int notPick = dp[i - 1][target];
+                int pick = 0;
+                if (nums[i] <= target)
+                    pick = dp[i - 1][target - nums[i]];
+
+                dp[i][target] = pick + notPick;
+            }
+        }
+
+        return dp[n - 1][k];
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Space Optimized Tabulation (O(k) Space)
+     * TIME: O(n * k), SPACE: O(k)
+     * --------------------------------------------------------------- */
+    int countSubsets(vector<int> &nums, int k)
+    {
+        int n = nums.size();
+        vector<int> prev(k + 1, 0), curr(k + 1, 0);
+
+        prev[0] = (nums[0] == 0) ? 2 : 1;
+        if (nums[0] != 0 && nums[0] <= k)
+            prev[nums[0]] = 1;
+
+        for (int i = 1; i < n; ++i)
+        {
+            curr[0] = (nums[i] == 0) ? 2 * prev[0] : prev[0]; // careful for zeros
+            for (int target = 1; target <= k; ++target)
+            {
+                int notPick = prev[target];
+                int pick = 0;
+                if (nums[i] <= target)
+                    pick = prev[target - nums[i]];
+                curr[target] = pick + notPick;
+            }
+            prev = curr;
+        }
+
+        return prev[k];
+    }
+};
+
+/* ================================================================
+ * PARTITIONS WITH GIVEN DIFFERENCE
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given an array `nums` and a difference `d`, count the number
+ * of ways to partition the array into two subsets such that
+ * the absolute difference of their sums is exactly `d`.
+ *
+ * Observation:
+ * ------------
+ * Let total_sum = sum(nums)
+ * Let the two subset sums be s1 and s2 such that:
+ *   s1 - s2 = d  and  s1 + s2 = total_sum
+ *
+ * Solving:
+ * --------
+ *   s1 = (total_sum + d) / 2
+ *
+ * So, reduce to: Count number of subsets with sum = s1
+ *
+ * TIME COMPLEXITY: O(n * k)
+ * SPACE COMPLEXITY: O(n * k) → O(k) (if space optimized)
+ */
+
+class Solution {
+public:
+
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n)
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    int recur(int i, int target, vector<int>& nums) {
+        if (i == 0) {
+            if (target == 0 && nums[0] == 0) return 2; // pick or not pick 0
+            if (target == 0 || target == nums[0]) return 1;
+            return 0;
+        }
+
+        int notTake = recur(i - 1, target, nums);
+        int take = 0;
+        if (target >= nums[i]) take = recur(i - 1, target - nums[i], nums);
+
+        return take + notTake;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n * k)
+     * SPACE: O(n * k) + O(n) stack
+     * --------------------------------------------------------------- */
+    int memo(int i, int target, vector<int>& nums, vector<vector<int>>& dp) {
+        if (i == 0) {
+            if (target == 0 && nums[0] == 0) return 2;
+            if (target == 0 || target == nums[0]) return 1;
+            return 0;
+        }
+
+        if (dp[i][target] != -1) return dp[i][target];
+
+        int notTake = memo(i - 1, target, nums, dp);
+        int take = 0;
+        if (target >= nums[i]) take = memo(i - 1, target - nums[i], nums, dp);
+
+        return dp[i][target] = take + notTake;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n * k)
+     * SPACE: O(n * k)
+     * --------------------------------------------------------------- */
+    int tabulation(vector<int>& nums, int target) {
+        int n = nums.size();
+        vector<vector<int>> dp(n, vector<int>(target + 1, 0));
+
+        // base case
+        if (nums[0] == 0) dp[0][0] = 2; // pick or not pick
+        else dp[0][0] = 1;
+
+        if (nums[0] != 0 && nums[0] <= target) dp[0][nums[0]] = 1;
+
+        for (int i = 1; i < n; i++) {
+            for (int t = 0; t <= target; t++) {
+                int notTake = dp[i - 1][t];
+                int take = 0;
+                if (t >= nums[i]) take = dp[i - 1][t - nums[i]];
+                dp[i][t] = take + notTake;
+            }
+        }
+
+        return dp[n - 1][target];
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Space Optimized (1D DP)
+     * TIME: O(n * k)
+     * SPACE: O(k)
+     * --------------------------------------------------------------- */
+    int countPartitions(int n, int d, vector<int>& nums) {
+        int total_sum = accumulate(nums.begin(), nums.end(), 0);
+        if ((total_sum + d) % 2 != 0 || total_sum < d) return 0;
+
+        int target = (total_sum + d) / 2;
+
+        vector<int> prev(target + 1, 0);
+
+        // base case
+        if (nums[0] == 0) prev[0] = 2;
+        else prev[0] = 1;
+
+        if (nums[0] != 0 && nums[0] <= target) prev[nums[0]] = 1;
+
+        for (int i = 1; i < n; i++) {
+            vector<int> curr(target + 1, 0);
+            for (int t = 0; t <= target; t++) {
+                int notTake = prev[t];
+                int take = 0;
+                if (t >= nums[i]) take = prev[t - nums[i]];
+                curr[t] = take + notTake;
+            }
+            prev = curr;
+        }
+
+        return prev[target];
+    }
+};
+
+/* ================================================================
+ * PARTITIONS WITH GIVEN DIFFERENCE
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given an array `nums` and a difference `d`, count the number
+ * of ways to partition the array into two subsets such that
+ * the absolute difference of their sums is exactly `d`.
+ *
+ * Observation:
+ * ------------
+ * Let total_sum = sum(nums)
+ * Let the two subset sums be s1 and s2 such that:
+ *   s1 - s2 = d  and  s1 + s2 = total_sum
+ *
+ * Solving:
+ * --------
+ *   s1 = (total_sum + d) / 2
+ *
+ * So, reduce to: Count number of subsets with sum = s1
+ *
+ * TIME COMPLEXITY: O(n * k)
+ * SPACE COMPLEXITY: O(n * k) → O(k) (if space optimized)
+ */
+
+class Solution
+{
+public:
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n)
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    int recur(int i, int target, vector<int> &nums)
+    {
+        if (i == 0)
+        {
+            if (target == 0 && nums[0] == 0)
+                return 2; // pick or not pick 0
+            if (target == 0 || target == nums[0])
+                return 1;
+            return 0;
+        }
+
+        int notTake = recur(i - 1, target, nums);
+        int take = 0;
+        if (target >= nums[i])
+            take = recur(i - 1, target - nums[i], nums);
+
+        return take + notTake;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n * k)
+     * SPACE: O(n * k) + O(n) stack
+     * --------------------------------------------------------------- */
+    int memo(int i, int target, vector<int> &nums, vector<vector<int>> &dp)
+    {
+        if (i == 0)
+        {
+            if (target == 0 && nums[0] == 0)
+                return 2;
+            if (target == 0 || target == nums[0])
+                return 1;
+            return 0;
+        }
+
+        if (dp[i][target] != -1)
+            return dp[i][target];
+
+        int notTake = memo(i - 1, target, nums, dp);
+        int take = 0;
+        if (target >= nums[i])
+            take = memo(i - 1, target - nums[i], nums, dp);
+
+        return dp[i][target] = take + notTake;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n * k)
+     * SPACE: O(n * k)
+     * --------------------------------------------------------------- */
+    int tabulation(vector<int> &nums, int target)
+    {
+        int n = nums.size();
+        vector<vector<int>> dp(n, vector<int>(target + 1, 0));
+
+        // base case
+        if (nums[0] == 0)
+            dp[0][0] = 2; // pick or not pick
+        else
+            dp[0][0] = 1;
+
+        if (nums[0] != 0 && nums[0] <= target)
+            dp[0][nums[0]] = 1;
+
+        for (int i = 1; i < n; i++)
+        {
+            for (int t = 0; t <= target; t++)
+            {
+                int notTake = dp[i - 1][t];
+                int take = 0;
+                if (t >= nums[i])
+                    take = dp[i - 1][t - nums[i]];
+                dp[i][t] = take + notTake;
+            }
+        }
+
+        return dp[n - 1][target];
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Space Optimized (1D DP)
+     * TIME: O(n * k)
+     * SPACE: O(k)
+     * --------------------------------------------------------------- */
+    int countPartitions(int n, int d, vector<int> &nums)
+    {
+        int total_sum = accumulate(nums.begin(), nums.end(), 0);
+        if ((total_sum + d) % 2 != 0 || total_sum < d)
+            return 0;
+
+        int target = (total_sum + d) / 2;
+
+        vector<int> prev(target + 1, 0);
+
+        // base case
+        if (nums[0] == 0)
+            prev[0] = 2;
+        else
+            prev[0] = 1;
+
+        if (nums[0] != 0 && nums[0] <= target)
+            prev[nums[0]] = 1;
+
+        for (int i = 1; i < n; i++)
+        {
+            vector<int> curr(target + 1, 0);
+            for (int t = 0; t <= target; t++)
+            {
+                int notTake = prev[t];
+                int take = 0;
+                if (t >= nums[i])
+                    take = prev[t - nums[i]];
+                curr[t] = take + notTake;
+            }
+            prev = curr;
+        }
+
+        return prev[target];
+    }
+};
