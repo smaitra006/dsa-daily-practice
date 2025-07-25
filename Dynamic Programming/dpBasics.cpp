@@ -450,29 +450,30 @@ public:
     bool tabulation(vector<int> &arr, int sum)
     {
         int n = arr.size();
-        vector<vector<bool>> dp(n, vector<bool>(sum + 1, false));
+        vector<vector<bool>> dp(n + 1, vector<bool>(sum + 1, false));
 
         // Base Case: sum == 0 is always possible
         for (int i = 0; i < n; ++i)
             dp[i][0] = true;
 
-        // Base Case: only arr[0] can be picked
-        if (arr[0] <= sum)
-            dp[0][arr[0]] = true;
+        // Base Case: if 0 elements can be picked then always false except sum == 0
+        for(int i = 1; i <= sum; i++) {
+            dp[0][i] = false;
+        }
 
-        for (int i = 1; i < n; ++i)
+        for (int i = 1; i <= n; ++i)
         {
             for (int target = 1; target <= sum; ++target)
             {
                 bool notPick = dp[i - 1][target];
                 bool pick = false;
-                if (target >= arr[i])
-                    pick = dp[i - 1][target - arr[i]];
+                if (target >= arr[i - 1])
+                    pick = dp[i - 1][target - arr[i - 1]];
                 dp[i][target] = pick || notPick;
             }
         }
 
-        return dp[n - 1][sum];
+        return dp[n][sum];
     }
 
     /* ---------------------------------------------------------------
@@ -773,29 +774,25 @@ public:
 };
 
 /* ================================================================
- * PARTITIONS WITH GIVEN DIFFERENCE
+ * MINIMUM SUBSET SUM DIFFERENCE
  * ================================================================
  *
  * Problem:
  * --------
- * Given an array `nums` and a difference `d`, count the number
- * of ways to partition the array into two subsets such that
- * the absolute difference of their sums is exactly `d`.
+ * Given an array `nums` of positive integers, partition it into
+ * two subsets such that the absolute difference between their sums
+ * is minimized.
  *
- * Observation:
- * ------------
- * Let total_sum = sum(nums)
- * Let the two subset sums be s1 and s2 such that:
- *   s1 - s2 = d  and  s1 + s2 = total_sum
+ * Return the minimum possible difference.
  *
- * Solving:
- * --------
- *   s1 = (total_sum + d) / 2
+ * Key Observation:
+ * ----------------
+ * Total sum = S
+ * Goal: Find subset with sum `s1` such that |S - 2*s1| is minimized.
+ * That is, find the largest `s1 ≤ S/2` such that a subset with sum s1 exists.
  *
- * So, reduce to: Count number of subsets with sum = s1
- *
- * TIME COMPLEXITY: O(n * k)
- * SPACE COMPLEXITY: O(n * k) → O(k) (if space optimized)
+ * TIME COMPLEXITY: O(n * sum)
+ * SPACE COMPLEXITY: O(n * sum) → O(sum) (if space optimized)
  */
 
 class Solution
@@ -806,124 +803,251 @@ public:
      * TIME: O(2^n)
      * SPACE: O(n) recursive stack
      * --------------------------------------------------------------- */
-    int recur(int i, int target, vector<int> &nums)
+    int recur(int i, int currSum, int total, vector<int> &nums)
     {
-        if (i == 0)
+        if (i == nums.size())
         {
-            if (target == 0 && nums[0] == 0)
-                return 2; // pick or not pick 0
-            if (target == 0 || target == nums[0])
-                return 1;
-            return 0;
+            int sum2 = total - currSum;
+            return abs(currSum - sum2);
         }
 
-        int notTake = recur(i - 1, target, nums);
-        int take = 0;
-        if (target >= nums[i])
-            take = recur(i - 1, target - nums[i], nums);
+        int take = recur(i + 1, currSum + nums[i], total, nums);
+        int notTake = recur(i + 1, currSum, total, nums);
 
-        return take + notTake;
+        return min(take, notTake);
     }
 
     /* ---------------------------------------------------------------
      * METHOD 2: Memoization (Top-Down DP)
-     * TIME: O(n * k)
-     * SPACE: O(n * k) + O(n) stack
+     * TIME: O(n * total)
+     * SPACE: O(n * total) + O(n) stack
      * --------------------------------------------------------------- */
-    int memo(int i, int target, vector<int> &nums, vector<vector<int>> &dp)
+    int memo(int i, int currSum, int total, vector<int> &nums, vector<vector<int>> &dp)
     {
-        if (i == 0)
+        if (i == nums.size())
         {
-            if (target == 0 && nums[0] == 0)
-                return 2;
-            if (target == 0 || target == nums[0])
-                return 1;
-            return 0;
+            int sum2 = total - currSum;
+            return abs(currSum - sum2);
         }
 
-        if (dp[i][target] != -1)
-            return dp[i][target];
+        if (dp[i][currSum] != -1)
+            return dp[i][currSum];
 
-        int notTake = memo(i - 1, target, nums, dp);
-        int take = 0;
-        if (target >= nums[i])
-            take = memo(i - 1, target - nums[i], nums, dp);
+        int take = memo(i + 1, currSum + nums[i], total, nums, dp);
+        int notTake = memo(i + 1, currSum, total, nums, dp);
 
-        return dp[i][target] = take + notTake;
+        return dp[i][currSum] = min(take, notTake);
     }
 
     /* ---------------------------------------------------------------
-     * METHOD 3: Tabulation (Bottom-Up DP)
-     * TIME: O(n * k)
-     * SPACE: O(n * k)
+     * METHOD 3: Tabulation (Subset Sum Table)
+     * TIME: O(n * total)
+     * SPACE: O(n * total)
      * --------------------------------------------------------------- */
-    int tabulation(vector<int> &nums, int target)
+    int tabulation(vector<int> &nums)
     {
         int n = nums.size();
-        vector<vector<int>> dp(n, vector<int>(target + 1, 0));
+        int total = accumulate(nums.begin(), nums.end(), 0);
+        vector<vector<bool>> dp(n + 1, vector<bool>(total + 1, false));
 
-        // base case
-        if (nums[0] == 0)
-            dp[0][0] = 2; // pick or not pick
-        else
-            dp[0][0] = 1;
+        for (int i = 0; i <= n; i++)
+            dp[i][0] = true;
 
-        if (nums[0] != 0 && nums[0] <= target)
-            dp[0][nums[0]] = 1;
-
-        for (int i = 1; i < n; i++)
+        for (int i = 1; i <= n; i++)
         {
-            for (int t = 0; t <= target; t++)
+            for (int j = 1; j <= total; j++)
             {
-                int notTake = dp[i - 1][t];
-                int take = 0;
-                if (t >= nums[i])
-                    take = dp[i - 1][t - nums[i]];
-                dp[i][t] = take + notTake;
+                bool notTake = dp[i - 1][j];
+                bool take = false;
+                if (nums[i - 1] <= j)
+                    take = dp[i - 1][j - nums[i - 1]];
+                dp[i][j] = take || notTake;
             }
         }
 
-        return dp[n - 1][target];
+        int minDiff = INT_MAX;
+        for (int s1 = 0; s1 <= total / 2; s1++)
+        {
+            if (dp[n][s1])
+            {
+                int s2 = total - s1;
+                minDiff = min(minDiff, abs(s2 - s1));
+            }
+        }
+
+        return minDiff;
     }
 
     /* ---------------------------------------------------------------
      * METHOD 4: Space Optimized (1D DP)
-     * TIME: O(n * k)
-     * SPACE: O(k)
+     * TIME: O(n * total)
+     * SPACE: O(total)
      * --------------------------------------------------------------- */
-    int countPartitions(int n, int d, vector<int> &nums)
+    int minimumDifference(vector<int> &nums)
     {
-        int total_sum = accumulate(nums.begin(), nums.end(), 0);
-        if ((total_sum + d) % 2 != 0 || total_sum < d)
-            return 0;
+        int total = accumulate(nums.begin(), nums.end(), 0);
+        int n = nums.size();
 
-        int target = (total_sum + d) / 2;
+        vector<bool> prev(total + 1, false);
+        prev[0] = true;
 
-        vector<int> prev(target + 1, 0);
-
-        // base case
-        if (nums[0] == 0)
-            prev[0] = 2;
-        else
-            prev[0] = 1;
-
-        if (nums[0] != 0 && nums[0] <= target)
-            prev[nums[0]] = 1;
+        if (nums[0] <= total)
+            prev[nums[0]] = true;
 
         for (int i = 1; i < n; i++)
         {
-            vector<int> curr(target + 1, 0);
-            for (int t = 0; t <= target; t++)
+            vector<bool> curr(total + 1, false);
+            curr[0] = true;
+            for (int j = 1; j <= total; j++)
             {
-                int notTake = prev[t];
-                int take = 0;
-                if (t >= nums[i])
-                    take = prev[t - nums[i]];
-                curr[t] = take + notTake;
+                bool notTake = prev[j];
+                bool take = (j >= nums[i]) ? prev[j - nums[i]] : false;
+                curr[j] = take || notTake;
             }
             prev = curr;
         }
 
-        return prev[target];
+        int minDiff = INT_MAX;
+        for (int s1 = 0; s1 <= total / 2; s1++)
+        {
+            if (prev[s1])
+            {
+                int s2 = total - s1;
+                minDiff = min(minDiff, abs(s2 - s1));
+            }
+        }
+
+        return minDiff;
+    }
+};
+
+/* ================================================================
+ * 0/1 KNAPSACK
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given weights[] and values[] of N items, and a capacity W,
+ * determine the maximum total value that can be obtained by
+ * selecting items such that their total weight does not exceed W.
+ *
+ * Each item can be picked at most once (0/1 constraint).
+ *
+ * Recurrence:
+ * -----------
+ * dp[i][w] = max(dp[i-1][w], val[i] + dp[i-1][w - wt[i]])
+ *
+ * TIME COMPLEXITY: O(n * W)
+ * SPACE COMPLEXITY: O(n * W) → O(W) (if space optimized)
+ */
+
+class Solution
+{
+public:
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n)
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    int recur(int i, int W, vector<int> &wt, vector<int> &val)
+    {
+        if (i == 0)
+        {
+            return (wt[0] <= W) ? val[0] : 0;
+        }
+
+        int notTake = recur(i - 1, W, wt, val);
+        int take = 0;
+        if (wt[i] <= W)
+            take = val[i] + recur(i - 1, W - wt[i], wt, val);
+
+        return max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n * W)
+     * SPACE: O(n * W) + O(n) stack
+     * --------------------------------------------------------------- */
+    int memo(int i, int W, vector<int> &wt, vector<int> &val, vector<vector<int>> &dp)
+    {
+        if (i == 0)
+        {
+            return (wt[0] <= W) ? val[0] : 0;
+        }
+
+        if (dp[i][W] != -1)
+            return dp[i][W];
+
+        int notTake = memo(i - 1, W, wt, val, dp);
+        int take = 0;
+        if (wt[i] <= W)
+            take = val[i] + memo(i - 1, W - wt[i], wt, val, dp);
+
+        return dp[i][W] = max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n * W)
+     * SPACE: O(n * W)
+     * --------------------------------------------------------------- */
+    int tabulation(int W, vector<int> &wt, vector<int> &val)
+    {
+        int n = wt.size();
+        vector<vector<int>> dp(n, vector<int>(W + 1, 0));
+
+        // Base case: i = 0
+        for (int w = wt[0]; w <= W; w++)
+        {
+            dp[0][w] = val[0];
+        }
+
+        for (int i = 1; i < n; i++)
+        {
+            for (int w = 0; w <= W; w++)
+            {
+                int notTake = dp[i - 1][w];
+                int take = 0;
+                if (wt[i] <= w)
+                    take = val[i] + dp[i - 1][w - wt[i]];
+                dp[i][w] = max(take, notTake);
+            }
+        }
+
+        return dp[n - 1][W];
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Space Optimized (1D DP)
+     * TIME: O(n * W)
+     * SPACE: O(W)
+     * --------------------------------------------------------------- */
+    int knapsack(int W, vector<int> &wt, vector<int> &val)
+    {
+        int n = wt.size();
+        vector<int> prev(W + 1, 0);
+
+        // Base case: only first item
+        for (int w = wt[0]; w <= W; w++)
+        {
+            prev[w] = val[0];
+        }
+
+        for (int i = 1; i < n; i++)
+        {
+            vector<int> curr(W + 1, 0);
+            for (int w = 0; w <= W; w++)
+            {
+                int notTake = prev[w];
+                int take = 0;
+                if (wt[i] <= w)
+                    take = val[i] + prev[w - wt[i]];
+                curr[w] = max(take, notTake);
+            }
+            prev = curr;
+        }
+
+        return prev[W];
     }
 };
