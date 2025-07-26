@@ -407,16 +407,22 @@ public:
     bool recur(int i, int target, vector<int> &arr)
     {
         if (target == 0)
-            return true;
+        {
+            return true; // We got the sum
+        }
         if (i == 0)
-            return (arr[0] == target);
+        {
+            return (arr[0] == target); // return if the last element is equal to the current required target
+        }
 
-        bool notPick = recur(i - 1, target, arr);
-        bool pick = false;
-        if (target >= arr[i])
-            pick = recur(i - 1, target - arr[i], arr);
+        bool not_take = recur(i - 1, target, arr); // Not take case
+        bool take = false;
+        if (arr[i] <= target)
+        {                                              // we will take only if its smaller than the current required target
+            take = recur(i - 1, target - arr[i], arr); // taking reduces the target
+        }
 
-        return pick || notPick;
+        return take || not_take;
     }
 
     /* ---------------------------------------------------------------
@@ -452,13 +458,11 @@ public:
         int n = arr.size();
         vector<vector<bool>> dp(n + 1, vector<bool>(sum + 1, false));
 
-        // Base Case: sum == 0 is always possible
-        for (int i = 0; i < n; ++i)
-            dp[i][0] = true;
+        // Already initialised all dp[0][*] false ,without any element any sum is not possible(expect dp[0][0])
 
-        // Base Case: if 0 elements can be picked then always false except sum == 0
-        for(int i = 1; i <= sum; i++) {
-            dp[0][i] = false;
+        // dp[*][0] is always true. Its always possible to form target 0
+        for(int i = 0; i <= n; i++) {
+            dp[i][0] = true;
         }
 
         for (int i = 1; i <= n; ++i)
@@ -486,18 +490,16 @@ public:
         int n = arr.size();
         vector<bool> prev(sum + 1, false), curr(sum + 1, false);
 
-        prev[0] = curr[0] = true;
-        if (arr[0] <= sum)
-            prev[arr[0]] = true;
+        prev[0] = curr[0] = true; // target 0 is always possible
 
-        for (int i = 1; i < n; ++i)
+        for (int i = 1; i <= n; ++i)
         {
             for (int target = 1; target <= sum; ++target)
             {
                 bool notPick = prev[target];
                 bool pick = false;
-                if (target >= arr[i])
-                    pick = prev[target - arr[i]];
+                if (target >= arr[i - 1])
+                    pick = prev[target - arr[i - 1]];
                 curr[target] = pick || notPick;
             }
             prev = curr;
@@ -589,27 +591,28 @@ public:
     int tabulation(vector<int> &nums, int k)
     {
         int n = nums.size();
-        vector<vector<int>> dp(n, vector<int>(k + 1, 0));
+        vector<vector<int>> dp(n + 1, vector<int>(k + 1, 0));
 
-        // base cases
-        dp[0][0] = (nums[0] == 0) ? 2 : 1; // if nums[0] == 0: {} and {0}, else only {}
-        if (nums[0] != 0 && nums[0] <= k)
-            dp[0][nums[0]] = 1;
+        // Base Case: 1 way to form sum 0 with 0 elements(empty subset)
+        dp[0][0] = 1;
 
-        for (int i = 1; i < n; ++i)
+        for (int i = 1; i <= n; i++)
         {
-            for (int target = 0; target <= k; ++target)
+            for (int target = 0; target <= k; target++)
             {
                 int notPick = dp[i - 1][target];
                 int pick = 0;
-                if (nums[i] <= target)
-                    pick = dp[i - 1][target - nums[i]];
-
-                dp[i][target] = pick + notPick;
+                if (nums[i - 1] <= target)
+                    pick = dp[i - 1][target - nums[i - 1]];
+                dp[i][target] = notPick + pick;
             }
         }
 
-        return dp[n - 1][k];
+        // Special fix: if nums[0] == 0, there are 2 subsets that make sum 0: {} and {0}
+        if (nums[0] == 0)
+            dp[1][0] = 2;
+
+        return dp[n][k];
     }
 
     /* ---------------------------------------------------------------
@@ -622,18 +625,16 @@ public:
         vector<int> prev(k + 1, 0), curr(k + 1, 0);
 
         prev[0] = (nums[0] == 0) ? 2 : 1;
-        if (nums[0] != 0 && nums[0] <= k)
-            prev[nums[0]] = 1;
 
-        for (int i = 1; i < n; ++i)
+        for (int i = 1; i <= n; ++i)
         {
-            curr[0] = (nums[i] == 0) ? 2 * prev[0] : prev[0]; // careful for zeros
+            curr[0] = (nums[i - 1] == 0) ? 2 * prev[0] : prev[0]; // careful for zeros -> 2 * prev[0] because if nums[i] == 0 , then we can have all subsets of prev[0] and also all those with a zero in it
             for (int target = 1; target <= k; ++target)
             {
                 int notPick = prev[target];
                 int pick = 0;
-                if (nums[i] <= target)
-                    pick = prev[target - nums[i]];
+                if (nums[i - 1] <= target)
+                    pick = prev[target - nums[i - 1]];
                 curr[target] = pick + notPick;
             }
             prev = curr;
@@ -669,24 +670,29 @@ public:
  * SPACE COMPLEXITY: O(n * k) → O(k) (if space optimized)
  */
 
-class Solution {
+class Solution
+{
 public:
-
     /* ---------------------------------------------------------------
      * METHOD 1: Recursion (TLE)
      * TIME: O(2^n)
      * SPACE: O(n) recursive stack
      * --------------------------------------------------------------- */
-    int recur(int i, int target, vector<int>& nums) {
-        if (i == 0) {
-            if (target == 0 && nums[0] == 0) return 2; // pick or not pick 0
-            if (target == 0 || target == nums[0]) return 1;
+    int recur(int i, int target, vector<int> &nums)
+    {
+        if (i == 0)
+        {
+            if (target == 0 && nums[0] == 0)
+                return 2; // pick or not pick 0
+            if (target == 0 || target == nums[0])
+                return 1;
             return 0;
         }
 
         int notTake = recur(i - 1, target, nums);
         int take = 0;
-        if (target >= nums[i]) take = recur(i - 1, target - nums[i], nums);
+        if (target >= nums[i])
+            take = recur(i - 1, target - nums[i], nums);
 
         return take + notTake;
     }
@@ -696,18 +702,24 @@ public:
      * TIME: O(n * k)
      * SPACE: O(n * k) + O(n) stack
      * --------------------------------------------------------------- */
-    int memo(int i, int target, vector<int>& nums, vector<vector<int>>& dp) {
-        if (i == 0) {
-            if (target == 0 && nums[0] == 0) return 2;
-            if (target == 0 || target == nums[0]) return 1;
+    int memo(int i, int target, vector<int> &nums, vector<vector<int>> &dp)
+    {
+        if (i == 0)
+        {
+            if (target == 0 && nums[0] == 0)
+                return 2;
+            if (target == 0 || target == nums[0])
+                return 1;
             return 0;
         }
 
-        if (dp[i][target] != -1) return dp[i][target];
+        if (dp[i][target] != -1)
+            return dp[i][target];
 
         int notTake = memo(i - 1, target, nums, dp);
         int take = 0;
-        if (target >= nums[i]) take = memo(i - 1, target - nums[i], nums, dp);
+        if (target >= nums[i])
+            take = memo(i - 1, target - nums[i], nums, dp);
 
         return dp[i][target] = take + notTake;
     }
@@ -717,26 +729,27 @@ public:
      * TIME: O(n * k)
      * SPACE: O(n * k)
      * --------------------------------------------------------------- */
-    int tabulation(vector<int>& nums, int target) {
+    int tabulation(vector<int> &nums, int target)
+    {
         int n = nums.size();
-        vector<vector<int>> dp(n, vector<int>(target + 1, 0));
+        vector<vector<int>> dp(n + 1, vector<int>(target + 1, 0));
 
         // base case
-        if (nums[0] == 0) dp[0][0] = 2; // pick or not pick
-        else dp[0][0] = 1;
+        dp[0][0] = 1;
 
-        if (nums[0] != 0 && nums[0] <= target) dp[0][nums[0]] = 1;
-
-        for (int i = 1; i < n; i++) {
-            for (int t = 0; t <= target; t++) {
+        for (int i = 1; i <= n; i++)
+        {
+            for (int t = 0; t <= target; t++)
+            {
                 int notTake = dp[i - 1][t];
                 int take = 0;
-                if (t >= nums[i]) take = dp[i - 1][t - nums[i]];
+                if (t >= nums[i - 1])
+                    take = dp[i - 1][t - nums[i - 1]];
                 dp[i][t] = take + notTake;
             }
         }
 
-        return dp[n - 1][target];
+        return dp[n][target];
     }
 
     /* ---------------------------------------------------------------
@@ -744,26 +757,28 @@ public:
      * TIME: O(n * k)
      * SPACE: O(k)
      * --------------------------------------------------------------- */
-    int countPartitions(int n, int d, vector<int>& nums) {
+    int countPartitions(int n, int d, vector<int> &nums)
+    {
         int total_sum = accumulate(nums.begin(), nums.end(), 0);
-        if ((total_sum + d) % 2 != 0 || total_sum < d) return 0;
+        if ((total_sum + d) % 2 != 0 || total_sum < d)
+            return 0;
 
         int target = (total_sum + d) / 2;
 
         vector<int> prev(target + 1, 0);
 
         // base case
-        if (nums[0] == 0) prev[0] = 2;
-        else prev[0] = 1;
+        prev[0] = 1;
 
-        if (nums[0] != 0 && nums[0] <= target) prev[nums[0]] = 1;
-
-        for (int i = 1; i < n; i++) {
+        for (int i = 1; i <= n; i++)
+        {
             vector<int> curr(target + 1, 0);
-            for (int t = 0; t <= target; t++) {
+            for (int t = 0; t <= target; t++)
+            {
                 int notTake = prev[t];
                 int take = 0;
-                if (t >= nums[i]) take = prev[t - nums[i]];
+                if (t >= nums[i - 1])
+                    take = prev[t - nums[i - 1]];
                 curr[t] = take + notTake;
             }
             prev = curr;
@@ -870,7 +885,7 @@ public:
         {
             if (dp[n][s1])
             {
-                int s2 = total - s1;
+                int s2 = total - s1; // as s1 + s2 = total
                 minDiff = min(minDiff, abs(s2 - s1));
             }
         }
@@ -891,17 +906,14 @@ public:
         vector<bool> prev(total + 1, false);
         prev[0] = true;
 
-        if (nums[0] <= total)
-            prev[nums[0]] = true;
-
-        for (int i = 1; i < n; i++)
+        for (int i = 1; i <= n; i++)
         {
             vector<bool> curr(total + 1, false);
             curr[0] = true;
             for (int j = 1; j <= total; j++)
             {
                 bool notTake = prev[j];
-                bool take = (j >= nums[i]) ? prev[j - nums[i]] : false;
+                bool take = (j >= nums[i - 1]) ? prev[j - nums[i - 1]] : false;
                 curr[j] = take || notTake;
             }
             prev = curr;
@@ -953,7 +965,7 @@ public:
     {
         if (i == 0)
         {
-            return (wt[0] <= W) ? val[0] : 0;
+            return (wt[0] <= W) ? val[0] : 0; // If we can fit the item then we take its val otherwise 0
         }
 
         int notTake = recur(i - 1, W, wt, val);
@@ -995,27 +1007,28 @@ public:
     int tabulation(int W, vector<int> &wt, vector<int> &val)
     {
         int n = wt.size();
-        vector<vector<int>> dp(n, vector<int>(W + 1, 0));
+        vector<vector<int>> dp(n + 1, vector<int>(W + 1, 0));
 
-        // Base case: i = 0
-        for (int w = wt[0]; w <= W; w++)
-        {
-            dp[0][w] = val[0];
-        }
+        // Base case already initialized to 0 (dp[0][*] = 0 and dp[*][0] = 0)
 
-        for (int i = 1; i < n; i++)
+        for (int i = 1; i <= n; i++)
         {
-            for (int w = 0; w <= W; w++)
+            for (int j = 0; j <= W; j++)
             {
-                int notTake = dp[i - 1][w];
+
+                int not_take = dp[i - 1][j]; // Not take case. If we can't take it then at its place we store the value we had while using (i-1)th element and same j capacity
+
                 int take = 0;
-                if (wt[i] <= w)
-                    take = val[i] + dp[i - 1][w - wt[i]];
-                dp[i][w] = max(take, notTake);
+                if (wt[i - 1] <= j)
+                {
+                    take = val[i - 1] + dp[i - 1][j - wt[i - 1]]; // Take case. We take the current one, so capacity reduces to j - wt[i - 1]
+                }
+
+                dp[i][j] = max(take, not_take);
             }
         }
 
-        return dp[n - 1][W];
+        return dp[n][W];
     }
 
     /* ---------------------------------------------------------------
@@ -1026,28 +1039,151 @@ public:
     int knapsack(int W, vector<int> &wt, vector<int> &val)
     {
         int n = wt.size();
-        vector<int> prev(W + 1, 0);
+        vector<int> prev(W + 1, 0); // We only need the previous row
 
-        // Base case: only first item
-        for (int w = wt[0]; w <= W; w++)
-        {
-            prev[w] = val[0];
-        }
-
-        for (int i = 1; i < n; i++)
+        for (int i = 1; i <= n; i++)
         {
             vector<int> curr(W + 1, 0);
-            for (int w = 0; w <= W; w++)
+            for (int j = 1; j <= W; j++)
             {
-                int notTake = prev[w];
+                int not_take = prev[j];
                 int take = 0;
-                if (wt[i] <= w)
-                    take = val[i] + prev[w - wt[i]];
-                curr[w] = max(take, notTake);
+                if (wt[i - 1] <= j)
+                {
+                    take = val[i - 1] + prev[j - wt[i - 1]];
+                }
+                curr[j] = max(take, not_take);
             }
             prev = curr;
         }
 
         return prev[W];
+    }
+};
+
+/* ================================================================
+ * ROD CUTTING PROBLEM (Unbounded Knapsack Variant)
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given a rod of length `n` and an array `prices` where prices[i]
+ * denotes the price of a rod of length `i+1`, find the maximum total
+ * value you can obtain by cutting the rod into pieces.
+ *
+ * You can make multiple cuts and reuse the same length multiple times.
+ *
+ * Observation:
+ * ------------
+ * This is a classic Unbounded Knapsack problem where:
+ * - 'n' is the total capacity (rod length)
+ * - You can pick the same piece (length) multiple times
+ *
+ * Recurrence:
+ * -----------
+ * dp[i][len] = max(dp[i-1][len], price[i] + dp[i][len - length[i]])
+ *
+ * TIME COMPLEXITY: O(n * n)
+ * SPACE COMPLEXITY: O(n * n) → O(n) (if space optimized)
+ */
+
+class Solution
+{
+public:
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n)
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    int recur(int i, int len, vector<int> &prices)
+    {
+        if (i == 0)
+            return len * prices[0]; // only length 1 rod available
+
+        int notCut = recur(i - 1, len, prices);
+        int cut = INT_MIN;
+        int rodLength = i + 1;
+        if (rodLength <= len)
+            cut = prices[i] + recur(i, len - rodLength, prices);
+
+        return max(cut, notCut);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n * n)
+     * SPACE: O(n * n) + O(n) stack
+     * --------------------------------------------------------------- */
+    int memo(int i, int len, vector<int> &prices, vector<vector<int>> &dp)
+    {
+        if (i == 0)
+            return len * prices[0];
+
+        if (dp[i][len] != -1)
+            return dp[i][len];
+
+        int notCut = memo(i - 1, len, prices, dp);
+        int cut = INT_MIN;
+        int rodLength = i + 1;
+        if (rodLength <= len)
+            cut = prices[i] + memo(i, len - rodLength, prices, dp);
+
+        return dp[i][len] = max(cut, notCut);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n * n)
+     * SPACE: O(n * n)
+     * --------------------------------------------------------------- */
+    int tabulation(vector<int> &prices, int n)
+    {
+        vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));
+
+        for (int len = 0; len <= n; len++) // We can make anything with rod length 1
+            dp[0][len] = len * prices[0];
+
+        for (int i = 1; i < n; i++)
+        {
+            for (int len = 0; len <= n; len++)
+            {
+                int notCut = dp[i - 1][len];
+                int cut = INT_MIN;
+                int rodLength = i + 1;
+                if (rodLength <= len)
+                    cut = prices[i] + dp[i][len - rodLength];
+                dp[i][len] = max(cut, notCut);
+            }
+        }
+
+        return dp[n][n];
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Space Optimized (1D DP)
+     * TIME: O(n * n)
+     * SPACE: O(n)
+     * --------------------------------------------------------------- */
+    int cutRod(vector<int> &prices, int n)
+    {
+        vector<int> dp(n + 1, 0);
+
+        for (int len = 0; len <= n; len++)
+            dp[len] = len * prices[0];
+
+        for (int i = 1; i < n; i++)
+        {
+            for (int len = 0; len <= n; len++)
+            {
+                int notCut = dp[len];
+                int cut = INT_MIN;
+                int rodLength = i + 1;
+                if (rodLength <= len)
+                    cut = prices[i] + dp[len - rodLength];
+                dp[len] = max(cut, notCut);
+            }
+        }
+
+        return dp[n];
     }
 };

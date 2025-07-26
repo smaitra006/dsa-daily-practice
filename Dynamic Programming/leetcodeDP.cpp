@@ -1189,19 +1189,19 @@ public:
         for (int i = 0; i <= n; i++)
             dp[i][0] = true;
 
-        for (int i = n - 1; i >= 0; i--)
+        for (int i = 1; i <= n; i++)
         {
-            for (int k = 0; k <= target; k++)
+            for (int k = 1; k <= target; k++)
             {
-                bool notTake = dp[i + 1][k];
+                bool notTake = dp[i - 1][k];
                 bool take = false;
-                if (k >= nums[i])
-                    take = dp[i + 1][k - nums[i]];
+                if (k >= nums[i - 1])
+                    take = dp[i - 1][k - nums[i - 1]];
                 dp[i][k] = take || notTake;
             }
         }
 
-        return dp[0][target];
+        return dp[n][target];
     }
 
     /* ---------------------------------------------------------------
@@ -1219,18 +1219,14 @@ public:
         int n = nums.size();
 
         vector<bool> prev(target + 1, false), curr(target + 1, false);
-        prev[0] = true;
+        prev[0] = true, curr[0] = true;
 
-        if (nums[0] <= target)
-            prev[nums[0]] = true;
-
-        for (int i = 1; i < n; i++)
+        for (int i = 1; i <= n; i++)
         {
-            curr[0] = true;
             for (int k = 1; k <= target; k++)
             {
                 bool notTake = prev[k];
-                bool take = (k >= nums[i]) ? prev[k - nums[i]] : false;
+                bool take = (k >= nums[i - 1]) ? prev[k - nums[i - 1]] : false;
                 curr[k] = take || notTake;
             }
             prev = curr;
@@ -1311,9 +1307,11 @@ public:
         int take = INT_MAX;
         if (coins[i] <= amount)
         {
-            int res = memo(i, amount - coins[i], coins, dp);
-            if (res != INT_MAX)
-                take = 1 + res;
+            take = memo(i, amount - coins[i], coins, dp);
+        }
+        if (take != INT_MAX)
+        {
+            take += 1;
         }
 
         return dp[i][amount] = min(take, notTake);
@@ -1327,27 +1325,25 @@ public:
     int tabulation(vector<int> &coins, int amount)
     {
         int n = coins.size();
-        vector<vector<int>> dp(n + 1, vector<int>(amount + 1, INT_MAX));
+        vector<vector<int>> dp(n + 1, vector<int>(amount + 1, amount + 1)); // Use amount+1 as "infinity"
 
-        // Base case: 0 amount requires 0 coins
-        for (int i = 0; i <= n; i++)
+        // Base Case: 0 amount can be formed using 0 coins
+        for (int i = 0; i <= n; ++i)
             dp[i][0] = 0;
 
-        for (int i = n - 1; i >= 0; i--)
+        for (int i = 1; i <= n; ++i)
         {
-            for (int amt = 1; amt <= amount; amt++)
+            for (int amt = 1; amt <= amount; ++amt)
             {
-                int notTake = dp[i + 1][amt];
-
-                int take = INT_MAX;
-                if (coins[i] <= amt && dp[i][amt - coins[i]] != INT_MAX)
-                    take = 1 + dp[i][amt - coins[i]];
-
+                int notTake = dp[i - 1][amt];
+                int take = amount + 1;
+                if (coins[i - 1] <= amt)
+                    take = 1 + dp[i][amt - coins[i - 1]]; // Use same row for unbounded pick
                 dp[i][amt] = min(take, notTake);
             }
         }
 
-        return (dp[0][amount] == INT_MAX) ? -1 : dp[0][amount];
+        return (dp[n][amount] == amount + 1) ? -1 : dp[n][amount];
     }
 
     /* ---------------------------------------------------------------
@@ -1358,20 +1354,27 @@ public:
     int coinChange(vector<int> &coins, int amount)
     {
         int n = coins.size();
-        vector<int> dp(amount + 1, INT_MAX);
+        vector<int> prev(amount + 1, amount + 1);
 
-        dp[0] = 0; // base case: 0 amount needs 0 coins
+        prev[0] = 0; // base case: 0 amount needs 0 coins
 
-        for (int i = 0; i < n; i++)
+        for (int i = 1; i <= n; i++)
         {
-            for (int amt = coins[i]; amt <= amount; amt++)
+            vector<int> curr(amount + 1, amount + 1);
+            curr[0] = 0;
+            for (int amt = 1; amt <= amount; amt++)
             {
-                if (dp[amt - coins[i]] != INT_MAX)
-                    dp[amt] = min(dp[amt], 1 + dp[amt - coins[i]]);
+                int not_take = prev[amt];
+                int take = amount + 1;
+                if(coins[i - 1] <= amt) {
+                    take = 1 + curr[amt - coins[i - 1]];
+                }
+                curr[amt] = min(take, not_take);
             }
+            prev = curr;
         }
 
-        return (dp[amount] == INT_MAX) ? -1 : dp[amount];
+        return (prev[amount] == amount + 1) ? -1 : prev[amount];
     }
 };
 
@@ -1605,28 +1608,22 @@ public:
             return 0;
         int k = (S + target) / 2;
 
-        vector<vector<int>> dp(n, vector<int>(k + 1, 0));
+        vector<vector<int>> dp(n + 1, vector<int>(k + 1, 0));
 
         // Base case: i == 0
-        if (nums[0] == 0)
-            dp[0][0] = 2; // +0, -0
-        else
-            dp[0][0] = 1;
+        dp[0][0] = 1;
 
-        if (nums[0] != 0 && nums[0] <= k)
-            dp[0][nums[0]] = 1;
-
-        for (int i = 1; i < n; i++)
+        for (int i = 1; i <= n; i++)
         {
             for (int t = 0; t <= k; t++)
             {
                 int notTake = dp[i - 1][t];
-                int take = (nums[i] <= t) ? dp[i - 1][t - nums[i]] : 0;
+                int take = (nums[i - 1] <= t) ? dp[i - 1][t - nums[i - 1]] : 0;
                 dp[i][t] = take + notTake;
             }
         }
 
-        return dp[n - 1][k];
+        return dp[n][k];
     }
 
     /* ---------------------------------------------------------------
@@ -1643,29 +1640,23 @@ public:
 
         int k = (S + target) / 2;
 
-        vector<int> dp(k + 1, 0);
+        vector<int> prev(k + 1, 0);
 
         // Base case
-        if (nums[0] == 0)
-            dp[0] = 2;
-        else
-            dp[0] = 1;
+        prev[0] = 1;
 
-        if (nums[0] != 0 && nums[0] <= k)
-            dp[nums[0]] = 1;
-
-        for (int i = 1; i < n; i++)
+        for (int i = 1; i <= n; i++)
         {
-            vector<int> next(k + 1, 0);
+            vector<int> curr(k + 1, 0);
             for (int t = 0; t <= k; t++)
             {
-                int notTake = dp[t];
-                int take = (nums[i] <= t) ? dp[t - nums[i]] : 0;
-                next[t] = take + notTake;
+                int notTake = prev[t];
+                int take = (nums[i - 1] <= t) ? prev[t - nums[i - 1]] : 0;
+                curr[t] = take + notTake;
             }
-            dp = next;
+            prev = curr;
         }
 
-        return dp[k];
+        return prev[k];
     }
 };
