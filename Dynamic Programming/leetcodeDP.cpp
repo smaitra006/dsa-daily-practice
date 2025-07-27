@@ -1660,3 +1660,723 @@ public:
         return prev[k];
     }
 };
+
+/* ================================================================
+ * MAXIMUM ALTERNATING SUBSEQUENCE SUM (Leetcode 1911)
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given an array `nums`, find the maximum alternating sum of any
+ * subsequence. Alternating sum is defined as:
+ *   sum = a1 - a2 + a3 - a4 + ...
+ *
+ * We must choose a subsequence and apply alternating signs starting
+ * with a '+'. Return the maximum possible value.
+ *
+ * State:
+ * ------
+ * dp[i][j] = max alternating sum starting from index i,
+ * where:
+ *    j = 1 → we expect a '+' at index i
+ *    j = 0 → we expect a '-' at index i
+ *
+ * Recurrence:
+ * -----------
+ * dp[i][j] = max(
+ *     +nums[i] (or -nums[i]) + dp[i+1][!j],   // take
+ *     dp[i+1][j]                              // skip
+ * )
+ *
+ * TIME COMPLEXITY: O(n)
+ * SPACE COMPLEXITY: O(n) → O(1) if optimized
+ */
+
+class Solution {
+public:
+
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n)
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    long long recur(int i, int sign, vector<int>& nums) {
+        if (i == nums.size()) return 0;
+
+        long long notTake = recur(i + 1, sign, nums);
+        long long take = (sign ? nums[i] : -nums[i]) + recur(i + 1, !sign, nums);
+
+        return max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n * 2) = O(n)
+     * SPACE: O(n * 2) + O(n) stack
+     * --------------------------------------------------------------- */
+    long long memo(int i, int sign, vector<int>& nums, vector<vector<long long>>& dp) {
+        if (i == nums.size()) return 0;
+        if (dp[i][sign] != -1) return dp[i][sign];
+
+        long long notTake = memo(i + 1, sign, nums, dp);
+        long long take = (sign ? nums[i] : -nums[i]) + memo(i + 1, !sign, nums, dp);
+
+        return dp[i][sign] = max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n)
+     * SPACE: O(n * 2)
+     * --------------------------------------------------------------- */
+    long long tabulation(vector<int>& nums) {
+        int n = nums.size();
+        vector<vector<long long>> dp(n + 1, vector<long long>(2, 0));
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int sign = 0; sign <= 1; sign++) {
+                long long notTake = dp[i + 1][sign];
+                long long take = (sign ? nums[i] : -nums[i]) + dp[i + 1][!sign];
+                dp[i][sign] = max(take, notTake);
+            }
+        }
+
+        return dp[0][1]; // start with '+'
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Space Optimized (1D DP)
+     * TIME: O(n)
+     * SPACE: O(1)
+     * --------------------------------------------------------------- */
+    long long maxAlternatingSum(vector<int>& nums) {
+        long long even = 0, odd = 0; // even → '+' turn, odd → '-' turn
+
+        for (int i = nums.size() - 1; i >= 0; i--) {
+            long long takeEven = nums[i] + odd;
+            long long takeOdd = -nums[i] + even;
+
+            even = max(takeEven, even);
+            odd = max(takeOdd, odd);
+        }
+
+        return even; // final answer must start with '+'
+    }
+};
+
+/* ================================================================
+ * LONGEST INCREASING SUBSEQUENCE (Leetcode 300)
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given an integer array `nums`, return the length of the longest
+ * strictly increasing subsequence (not necessarily contiguous).
+ *
+ * Recurrence:
+ * -----------
+ * For index `i` and previous index `prev`, we try:
+ *  - Take nums[i] if nums[i] > nums[prev]
+ *  - Don't take nums[i]
+ *
+ * TIME COMPLEXITY:
+ * - Recursion: O(2^n)
+ * - Memoization: O(n^2)
+ * - Tabulation: O(n^2)
+ * - Binary Search Optimization: O(n log n)
+ *
+ * SPACE COMPLEXITY:
+ * - O(n^2) for DP table or O(n) with optimization
+ */
+
+class Solution
+{
+public:
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n)
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    int recur(int i, int prev, vector<int> &nums)
+    {
+        if (i == nums.size())
+            return 0;
+
+        int notTake = recur(i + 1, prev, nums);
+        int take = 0;
+        if (prev == -1 || nums[i] > nums[prev])
+            take = 1 + recur(i + 1, i, nums);
+
+        return max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n^2)
+     * SPACE: O(n^2) + O(n) stack
+     * --------------------------------------------------------------- */
+    int memo(int i, int prev, vector<int> &nums, vector<vector<int>> &dp)
+    {
+        if (i == nums.size())
+            return 0;
+        if (dp[i][prev + 1] != -1)
+            return dp[i][prev + 1];
+
+        int notTake = memo(i + 1, prev, nums, dp);
+        int take = 0;
+        if (prev == -1 || nums[i] > nums[prev])
+            take = 1 + memo(i + 1, i, nums, dp);
+
+        return dp[i][prev + 1] = max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n^2)
+     * SPACE: O(n)
+     * --------------------------------------------------------------- */
+    int tabulation(vector<int> &nums)
+    {
+        int n = nums.size();
+        vector<int> dp(n, 1); // dp[i] = LIS ending at index i
+        int maxLIS = 1;
+
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < i; j++)
+            {
+                if (nums[j] < nums[i])
+                {
+                    dp[i] = max(dp[i], dp[j] + 1);
+                }
+            }
+            maxLIS = max(maxLIS, dp[i]);
+        }
+
+        return maxLIS;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Space Optimized using Binary Search (Patience Sort)
+     * TIME: O(n log n)
+     * SPACE: O(n)
+     * --------------------------------------------------------------- */
+    int lengthOfLIS(vector<int> &nums)
+    {
+        vector<int> lis;
+
+        for (int num : nums)
+        {
+            auto it = lower_bound(lis.begin(), lis.end(), num); // gives me just >= num
+            if (it == lis.end())
+            {
+                // not found any such item, so insert it
+                lis.push_back(num); // extends LIS
+            }
+            else
+            {
+                *it = num; // replace to maintain smaller values
+            }
+        }
+
+        return lis.size();
+    }
+};
+
+/* ================================================================
+ * LONGEST CHAIN OF PAIRS (Leetcode 646)
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * You are given `n` pairs where each pair[i] = [a, b].
+ * A pair [c, d] can follow [a, b] if b < c.
+ * Return the length of the longest chain you can form.
+ *
+ * Observation:
+ * ------------
+ * This is similar to Longest Increasing Subsequence.
+ * Sort the pairs by first element, and use DP or Greedy to find
+ * the maximum chain length where each next pair starts after the
+ * current pair ends.
+ *
+ * Recurrence:
+ * -----------
+ * dp[i] = max over all j < i such that pairs[j][1] < pairs[i][0]
+ *
+ * TIME COMPLEXITY:
+ * - Recursion/Memoization: O(n^2)
+ * - Tabulation: O(n^2)
+ * - Greedy: O(n log n)
+ *
+ * SPACE COMPLEXITY:
+ * - O(n^2) or O(n)
+ */
+
+class Solution {
+public:
+
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n)
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    int recur(int i, int prev, vector<vector<int>>& pairs)
+    {
+        if (i == pairs.size()) return 0;
+
+        int notTake = recur(i + 1, prev, pairs);
+        int take = 0;
+        if (prev == -1 || pairs[i][0] > pairs[prev][1])
+            take = 1 + recur(i + 1, i, pairs);
+
+        return max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n^2)
+     * SPACE: O(n^2) + O(n) stack
+     * --------------------------------------------------------------- */
+    int memo(int i, int prev, vector<vector<int>>& pairs, vector<vector<int>>& dp)
+    {
+        if (i == pairs.size()) return 0;
+        if (dp[i][prev + 1] != -1) return dp[i][prev + 1];
+
+        int notTake = memo(i + 1, prev, pairs, dp);
+        int take = 0;
+        if (prev == -1 || pairs[i][0] > pairs[prev][1])
+            take = 1 + memo(i + 1, i, pairs, dp);
+
+        return dp[i][prev + 1] = max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n^2)
+     * SPACE: O(n)
+     * --------------------------------------------------------------- */
+    int tabulation(vector<vector<int>>& pairs)
+    {
+        int n = pairs.size();
+        sort(pairs.begin(), pairs.end());
+        vector<int> dp(n, 1);
+        int maxChain = 1;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (pairs[i][0] > pairs[j][1]) {
+                    dp[i] = max(dp[i], dp[j] + 1);
+                }
+            }
+            maxChain = max(maxChain, dp[i]);
+        }
+
+        return maxChain;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Greedy (Optimized)
+     * TIME: O(n log n)
+     * SPACE: O(1)
+     * --------------------------------------------------------------- */
+    int findLongestChain(vector<vector<int>>& pairs)
+    {
+        sort(pairs.begin(), pairs.end(), [](auto& a, auto& b) {
+            return a[1] < b[1];  // sort by ending time (greedy)
+            });
+
+        int chainLength = 0;
+        int currEnd = INT_MIN;
+
+        for (auto& p : pairs) {
+            if (p[0] > currEnd) {
+                chainLength++;
+                currEnd = p[1];
+            }
+        }
+
+        return chainLength;
+    }
+};
+
+/* ================================================================
+ * LONGEST STRING CHAIN (Leetcode 1048)
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * You are given a list of words. A word A is a predecessor of word B
+ * if you can add **exactly one character** anywhere in A to make B.
+ * Find the length of the longest possible chain.
+ *
+ * Observation:
+ * ------------
+ * This is a variation of Longest Increasing Subsequence, where
+ * instead of numeric comparisons, we check if word1 is a valid
+ * predecessor of word2.
+ *
+ * Recurrence:
+ * -----------
+ * If word[j] is a predecessor of word[i], then:
+ *   dp[i] = max(dp[i], 1 + dp[j])
+ *
+ * TIME COMPLEXITY: O(n^2 * k) where k is avg word length
+ * SPACE COMPLEXITY: O(n)
+ */
+
+class Solution {
+public:
+
+    /* ---------------------------------------------------------------
+     * isPred(): Check if word1 is a valid predecessor of word2
+     * --------------------------------------------------------------- */
+    bool isPred(const string& word1, const string& word2)
+    {
+        int m = word1.length(), n = word2.length();
+        if (n - m != 1) return false;
+
+        int i = 0, j = 0;
+        while (i < m && j < n) {
+            if (word1[i] == word2[j]) i++;
+            j++;
+        }
+
+        return i == m;
+    }
+
+    static bool lambda(const string& a, const string& b)
+    {
+        return a.length() < b.length();
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n * k)
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    int recur(int i, int prev, vector<string>& words)
+    {
+        if (i == words.size()) return 0;
+
+        int notTake = recur(i + 1, prev, words);
+        int take = 0;
+        if (prev == -1 || isPred(words[prev], words[i]))
+            take = 1 + recur(i + 1, i, words);
+
+        return max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n^2 * k)
+     * SPACE: O(n^2) + O(n) stack
+     * --------------------------------------------------------------- */
+    int memo(int i, int prev, vector<string>& words, vector<vector<int>>& dp)
+    {
+        if (i == words.size()) return 0;
+        if (dp[i][prev + 1] != -1) return dp[i][prev + 1];
+
+        int notTake = memo(i + 1, prev, words, dp);
+        int take = 0;
+        if (prev == -1 || isPred(words[prev], words[i]))
+            take = 1 + memo(i + 1, i, words, dp);
+
+        return dp[i][prev + 1] = max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n^2 * k)
+     * SPACE: O(n)
+     * --------------------------------------------------------------- */
+    int tabulation(vector<string>& words)
+    {
+        int n = words.size();
+        sort(words.begin(), words.end(), lambda);
+        vector<int> dp(n, 1);
+        int maxLen = 1;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (isPred(words[j], words[i])) {
+                    dp[i] = max(dp[i], 1 + dp[j]);
+                }
+            }
+            maxLen = max(maxLen, dp[i]);
+        }
+
+        return maxLen;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Optimized Tabulation (Final version)
+     * TIME: O(n^2 * k)
+     * SPACE: O(n)
+     * --------------------------------------------------------------- */
+    int longestStrChain(vector<string>& words)
+    {
+        int n = words.size();
+        sort(words.begin(), words.end(), lambda);
+
+        vector<int> dp(n, 1);
+        int maxLen = 1;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (isPred(words[j], words[i])) {
+                    dp[i] = max(dp[i], 1 + dp[j]);
+                }
+            }
+            maxLen = max(maxLen, dp[i]);
+        }
+
+        return maxLen;
+    }
+};
+
+/* ================================================================
+ * MAX BALANCED SUBSEQUENCE SUM (Leetcode 2866)
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given an array `nums`, find the maximum sum of a **subsequence**
+ * such that for each selected index `i`, the condition:
+ *     nums[i] - i >= nums[j] - j (for all previous selected j)
+ * holds true.
+ *
+ * This is similar to Longest Increasing Subsequence but with a
+ * custom comparator: nums[i] - i ≥ nums[j] - j.
+ *
+ * Observation:
+ * ------------
+ * Let val[i] = nums[i] - i
+ * We need to find the max sum subsequence where val[i] ≥ val[j]
+ *
+ * Recurrence:
+ * -----------
+ * dp[i] = max over all j < i where val[i] ≥ val[j]:
+ *         dp[i] = max(dp[i], dp[j] + nums[i])
+ *
+ * TIME COMPLEXITY: O(n^2)
+ * SPACE COMPLEXITY: O(n)
+ */
+
+class Solution {
+public:
+
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n)
+     * SPACE: O(n) recursive stack
+     * --------------------------------------------------------------- */
+    long long recur(int i, int prev, vector<int>& nums, vector<long long>& val)
+    {
+        if (i == nums.size()) return 0;
+
+        long long notTake = recur(i + 1, prev, nums, val);
+        long long take = LLONG_MIN;
+
+        if (prev == -1 || val[i] >= val[prev])
+            take = nums[i] + recur(i + 1, i, nums, val);
+
+        return max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n^2)
+     * SPACE: O(n^2) + O(n) stack
+     * --------------------------------------------------------------- */
+    long long memo(int i, int prev, vector<int>& nums, vector<long long>& val, vector<vector<long long>>& dp)
+    {
+        if (i == nums.size()) return 0;
+        if (dp[i][prev + 1] != -1) return dp[i][prev + 1];
+
+        long long notTake = memo(i + 1, prev, nums, val, dp);
+        long long take = LLONG_MIN;
+
+        if (prev == -1 || val[i] >= val[prev])
+            take = nums[i] + memo(i + 1, i, nums, val, dp);
+
+        return dp[i][prev + 1] = max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n^2)
+     * SPACE: O(n)
+     * --------------------------------------------------------------- */
+    long long tabulation(vector<int>& nums)
+    {
+        int n = nums.size();
+        vector<long long> val(n), dp(n);
+        for (int i = 0; i < n; i++) val[i] = (long long)nums[i] - i;
+
+        long long maxSum = nums[0];
+        for (int i = 0; i < n; i++) {
+            dp[i] = nums[i];
+            for (int j = 0; j < i; j++) {
+                if (val[i] >= val[j]) {
+                    dp[i] = max(dp[i], dp[j] + (long long)nums[i]);
+                }
+            }
+            maxSum = max(maxSum, dp[i]);
+        }
+
+        return maxSum;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Optimized DP (Final Submission)
+     * TIME: O(n^2)
+     * SPACE: O(n)
+     * --------------------------------------------------------------- */
+    long long maxBalancedSubsequenceSum(vector<int>& nums)
+    {
+        int n = nums.size();
+        vector<long long> val(n), dp(n, LLONG_MIN);
+        for (int i = 0; i < n; i++) val[i] = (long long)nums[i] - i;
+
+        long long maxSum = LLONG_MIN;
+
+        for (int i = 0; i < n; i++) {
+            dp[i] = nums[i];
+            for (int j = 0; j < i; j++) {
+                if (val[i] >= val[j]) {
+                    dp[i] = max(dp[i], dp[j] + nums[i]);
+                }
+            }
+            maxSum = max(maxSum, dp[i]);
+        }
+
+        return maxSum;
+    }
+};
+
+/* ================================================================
+ * LARGEST DIVISIBLE SUBSET (Leetcode 368)
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given a set of distinct positive integers, find the largest subset such that:
+ *     For every pair (Si, Sj) in subset:
+ *         Si % Sj == 0 or Sj % Si == 0
+ *
+ * Return the subset in any order.
+ *
+ * Approach:
+ * ---------
+ * 1. Sort the array.
+ * 2. Use a variation of Longest Increasing Subsequence.
+ * 3. Track maximum length and predecessors to reconstruct the subset.
+ *
+ * TIME COMPLEXITY: O(n^2)
+ * SPACE COMPLEXITY: O(n)
+ */
+
+class Solution {
+public:
+
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (TLE)
+     * TIME: O(2^n)
+     * SPACE: O(n) recursion stack
+     * --------------------------------------------------------------- */
+    int recur(int i, int prevIdx, vector<int>& nums)
+    {
+        if (i == nums.size()) return 0;
+
+        int notTake = recur(i + 1, prevIdx, nums);
+        int take = 0;
+        if (prevIdx == -1 || nums[i] % nums[prevIdx] == 0)
+            take = 1 + recur(i + 1, i, nums);
+
+        return max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP)
+     * TIME: O(n^2)
+     * SPACE: O(n^2)
+     * --------------------------------------------------------------- */
+    int memo(int i, int prevIdx, vector<int>& nums, vector<vector<int>>& dp)
+    {
+        if (i == nums.size()) return 0;
+        if (dp[i][prevIdx + 1] != -1) return dp[i][prevIdx + 1];
+
+        int notTake = memo(i + 1, prevIdx, nums, dp);
+        int take = 0;
+        if (prevIdx == -1 || nums[i] % nums[prevIdx] == 0)
+            take = 1 + memo(i + 1, i, nums, dp);
+
+        return dp[i][prevIdx + 1] = max(take, notTake);
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP without subset recovery)
+     * TIME: O(n^2)
+     * SPACE: O(n)
+     * --------------------------------------------------------------- */
+    int tabulation(vector<int>& nums)
+    {
+        int n = nums.size();
+        sort(nums.begin(), nums.end());
+
+        vector<int> dp(n, 1);
+        int maxLen = 1;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (nums[i] % nums[j] == 0) {
+                    dp[i] = max(dp[i], 1 + dp[j]);
+                    maxLen = max(maxLen, dp[i]);
+                }
+            }
+        }
+        return maxLen;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Tabulation with Path Recovery (Final Submission)
+     * TIME: O(n^2)
+     * SPACE: O(n)
+     * --------------------------------------------------------------- */
+    vector<int> largestDivisibleSubset(vector<int>& nums)
+    {
+        int n = nums.size();
+        sort(nums.begin(), nums.end());
+
+        vector<int> dp(n, 1);      // Length of largest subset ending at i
+        vector<int> prev(n, -1);   // To trace back the path
+        int maxLIS = 1;
+        int maxIdx = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (nums[i] % nums[j] == 0) {
+                    if (dp[i] < dp[j] + 1) {
+                        dp[i] = dp[j] + 1;
+                        prev[i] = j;
+                    }
+                }
+            }
+            if (dp[i] > maxLIS) {
+                maxLIS = dp[i];
+                maxIdx = i;
+            }
+        }
+
+        // Reconstruct the subset
+        vector<int> ans;
+        int i = maxIdx;
+        while (i != -1) {
+            ans.push_back(nums[i]);
+            i = prev[i];
+        }
+
+        return ans;  // Can reverse(ans.begin(), ans.end()) if needed
+    }
+};
