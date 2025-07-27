@@ -1906,3 +1906,40 @@ public:
         return total - totalOccupied + maxGain;
     }
 };
+
+/* ==============================================================================
+ * LeetCode 2210: Count Hills and Valleys in an Array
+ * ==============================================================================
+ * Problem:
+ * A hill is defined as an element that is strictly greater than its closest non-equal
+ * neighbors. A valley is defined as an element that is strictly smaller than its
+ * closest non-equal neighbors. Return the number of hills and valleys in `nums`.
+ *
+ * Approach: Skip Equal Neighbors + Compare with Previous
+ * - Traverse the array while skipping equal consecutive elements.
+ * - Compare current element with last valid distinct number (`j`) and the next.
+ * - Count hills (peak) and valleys (dip) based on inequality patterns.
+ *
+ * Time Complexity: O(n)
+ * Space Complexity: O(1)
+ * ============================================================================== */
+
+class Solution {
+public:
+    int countHillValley(vector<int>& nums)
+    {
+        int cnt = 0;
+        int j = 0;
+        int n = nums.size();
+
+        for (int i = 1; i < n - 1; ++i) {
+            if ((nums[j] < nums[i] && nums[i] > nums[i + 1]) ||  // Hill
+                (nums[j] > nums[i] && nums[i] < nums[i + 1])) {  // Valley
+                cnt++;
+                j = i;
+            }
+        }
+
+        return cnt;
+    }
+};
