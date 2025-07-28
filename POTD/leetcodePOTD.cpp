@@ -1943,3 +1943,111 @@ public:
         return cnt;
     }
 };
+
+/* ================================================================
+ * COUNT MAXIMUM OR SUBSETS (Leetcode 2044)
+ * ================================================================
+ *
+ * Problem:
+ * --------
+ * Given an integer array nums, return the number of non-empty subsets whose bitwise OR is equal to the maximum possible bitwise OR of nums.
+ *
+ * Approach:
+ * ---------
+ * 1. First, compute the maximum OR possible of the full array.
+ * 2. Explore all subsets using recursion or DP.
+ * 3. Count those with OR value equal to the maximum.
+ *
+ * TIME COMPLEXITY: O(2^n)
+ * SPACE COMPLEXITY: O(n) recursion depth (for backtracking)
+ */
+
+class Solution {
+public:
+
+    /* ---------------------------------------------------------------
+     * METHOD 1: Recursion (Brute-force all subsets)
+     * TIME: O(2^n)
+     * SPACE: O(n) recursion stack
+     * --------------------------------------------------------------- */
+    int recur(vector<int>& nums, int i, int currOR, int maxOR)
+    {
+        if (i == nums.size())
+            return currOR == maxOR ? 1 : 0;
+
+        int not_take = recur(nums, i + 1, currOR, maxOR);
+        int take = recur(nums, i + 1, currOR | nums[i], maxOR);
+
+        return not_take + take;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 2: Memoization (Top-Down DP with OR compression)
+     * TIME: O(n * 2^13)   [since max OR value for constraints is <= 2^13]
+     * SPACE: O(n * 2^13)
+     * --------------------------------------------------------------- */
+    int memo(int i, int currOR, vector<int>& nums, int maxOR, vector<vector<int>>& dp)
+    {
+        if (i == nums.size())
+            return currOR == maxOR ? 1 : 0;
+
+        if (dp[i][currOR] != -1)
+            return dp[i][currOR];
+
+        int not_take = memo(i + 1, currOR, nums, maxOR, dp);
+        int take = memo(i + 1, currOR | nums[i], nums, maxOR, dp);
+
+        return dp[i][currOR] = not_take + take;
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 3: Tabulation (Bottom-Up DP)
+     * TIME: O(n * 2^13)
+     * SPACE: O(n * 2^13)
+     * --------------------------------------------------------------- */
+    int tabulation(vector<int>& nums)
+    {
+        int n = nums.size();
+        int maxOR = 0;
+        for (int num : nums) maxOR |= num;
+
+        vector<vector<int>> dp(n + 1, vector<int>(1 << 13, 0));
+        dp[0][0] = 1;
+
+        for (int i = 0; i < n; i++) {
+            for (int or_val = 0; or_val < (1 << 13); or_val++) {
+                if (dp[i][or_val]) {
+                    dp[i + 1][or_val] += dp[i][or_val];                        // not take
+                    dp[i + 1][or_val | nums[i]] += dp[i][or_val];             // take
+                }
+            }
+        }
+
+        return dp[n][maxOR];
+    }
+
+    /* ---------------------------------------------------------------
+     * METHOD 4: Optimized DFS (Final Submission)
+     * TIME: O(2^n)
+     * SPACE: O(n)
+     * --------------------------------------------------------------- */
+    int solve(vector<int>& nums, int i, int currOR, int maxOR)
+    {
+        if (i == nums.size())
+            return currOR == maxOR ? 1 : 0;
+
+        int not_take = solve(nums, i + 1, currOR, maxOR);
+        int take = solve(nums, i + 1, currOR | nums[i], maxOR);
+
+        return not_take + take;
+    }
+
+    int countMaxOrSubsets(vector<int>& nums)
+    {
+        int maxOR = 0;
+        for (int val : nums)
+            maxOR |= val;
+
+        return solve(nums, 0, 0, maxOR);
+    }
+};
