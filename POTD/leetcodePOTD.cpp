@@ -2051,3 +2051,44 @@ public:
         return solve(nums, 0, 0, maxOR);
     }
 };
+
+/* ==============================================================================
+ * LeetCode 2411: Smallest Subarrays With Maximum Bitwise OR
+ * ==============================================================================
+ * Problem:
+ * You are given an array `nums`. For every index `i`, find the length of the smallest
+ * subarray starting at `i` such that the bitwise OR of the subarray equals the
+ * maximum possible bitwise OR from that starting index.
+ *
+ * Approach: Bit Tracking + Backward Scan
+ * - Traverse from right to left to maintain the last seen position of each bit.
+ * - For each index, determine how far to extend the subarray to include all 1s
+ *   required to match the max OR from that index.
+ *
+ * Time Complexity: O(n * 30)
+ * Space Complexity: O(30) = O(1)
+ * ============================================================================== */
+
+class Solution {
+public:
+    vector<int> smallestSubarrays(vector<int>& nums)
+    {
+        int n = nums.size();
+        vector<int> lastSeen(30, 0);    // Last seen index for each bit (0 to 29)
+        vector<int> res(n, 1);          // Result: length of smallest subarray for each index
+
+        // Traverse from end to start
+        for (int i = n - 1; i >= 0; --i) {
+            for (int bit = 0; bit < 30; ++bit) {
+                if ((nums[i] & (1 << bit)) > 0) {
+                    lastSeen[bit] = i;
+                }
+
+                // Update subarray length to include this bit's last occurrence
+                res[i] = max(res[i], lastSeen[bit] - i + 1);
+            }
+        }
+
+        return res;
+    }
+};
