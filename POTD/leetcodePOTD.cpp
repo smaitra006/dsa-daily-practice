@@ -2092,3 +2092,41 @@ public:
         return res;
     }
 };
+
+/* ==============================================================================
+ * LeetCode 2419: Longest Subarray With Maximum Bitwise AND
+ * ==============================================================================
+ * Problem:
+ * You are given an array `nums`. Find the length of the longest subarray where
+ * every element is equal to the maximum element of the array.
+ *
+ * Approach: Linear Scan
+ * - First, find the maximum value in the array.
+ * - Then scan the array and count the longest contiguous sequence of elements
+ *   equal to that maximum.
+ *
+ * Time Complexity: O(n)
+ * Space Complexity: O(1)
+ * ============================================================================= */
+
+class Solution {
+public:
+    int longestSubarray(vector<int>& nums)
+    {
+        int maxx = *max_element(nums.begin(), nums.end());  // Find maximum element
+        int y = 0, maxy = 0;                                // y: current streak, maxy: longest streak
+
+        // Traverse the array
+        for (int num : nums) {
+            if (num == maxx) {
+                y++;
+                maxy = max(maxy, y);  // Update longest streak if needed
+            }
+            else {
+                y = 0;                // Reset streak
+            }
+        }
+
+        return maxy;
+    }
+};
