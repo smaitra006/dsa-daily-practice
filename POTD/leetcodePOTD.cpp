@@ -2130,3 +2130,46 @@ public:
         return maxy;
     }
 };
+
+/* ==============================================================================
+ * LeetCode 898: Bitwise ORs of Subarrays
+ * ==============================================================================
+ * Problem:
+ * Given an integer array `arr`, return the number of distinct values in the
+ * bitwise OR of all subarrays.
+ *
+ * Approach: Sliding OR Window + Set Tracking
+ * - Maintain a running set `curr` of all possible ORs ending at the current index.
+ * - For each element:
+ *     - Start a new set `next` with the current number.
+ *     - For each value in `curr`, OR it with the current number and store it in `next`.
+ *     - Replace `curr` with `next` and merge into the global answer set.
+ *
+ * Time Complexity: O(n * 30)  -- At most 30 distinct OR values per position
+ * Space Complexity: O(n * 30)
+ * ============================================================================= */
+
+class Solution {
+public:
+    int subarrayBitwiseORs(vector<int>& arr)
+    {
+        unordered_set<int> ans, curr;
+
+        for (int num : arr) {
+            unordered_set<int> next;
+            next.insert(num);
+
+            for (int i : curr) {
+                next.insert(i | num);  // OR with previous subarray values
+            }
+
+            curr = next;
+
+            for (int i : curr) {
+                ans.insert(i);         // Add all OR results to answer set
+            }
+        }
+
+        return ans.size();
+    }
+};
