@@ -2173,3 +2173,37 @@ public:
         return ans.size();
     }
 };
+
+/* ==============================================================================
+ * LeetCode 118: Pascal's Triangle
+ * ==============================================================================
+ * Problem:
+ * Given an integer `numRows`, generate the first `numRows` of Pascal's Triangle.
+ *
+ * Approach: Dynamic Programming (Bottom-Up Construction)
+ * - Initialize a 2D vector of size `numRows`.
+ * - Each row starts and ends with 1.
+ * - Every inner element is the sum of the two elements directly above it.
+ *
+ * Time Complexity: O(numRows^2)
+ * Space Complexity: O(numRows^2)
+ * ============================================================================= */
+
+class Solution {
+public:
+    vector<vector<int>> generate(int numRows)
+    {
+        vector<vector<int>> result(numRows);
+
+        for (int i = 0; i < numRows; ++i) {
+            result[i] = vector<int>(i + 1, 1);  // Initialize row with 1s
+
+            // Compute inner values using previous row
+            for (int j = 1; j < i; ++j) {
+                result[i][j] = result[i - 1][j - 1] + result[i - 1][j];
+            }
+        }
+
+        return result;
+    }
+};
