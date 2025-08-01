@@ -31,14 +31,15 @@ public:
      * --------------------------------------------------------------- */
     int recur(int i, int W, vector<int>& wt, vector<int>& val)
     {
-        if (i == 0) {
-            return (wt[0] <= W) ? val[0] : 0; // If we can fit the item then we take its val otherwise 0
+        // If i can take 0 elements , or my capacity is 0 then profit is 0
+        if (i == 0 || W == 0) {
+            return 0;
         }
 
         int notTake = recur(i - 1, W, wt, val);
         int take = 0;
-        if (wt[i] <= W)
-            take = val[i] + recur(i - 1, W - wt[i], wt, val);
+        if (wt[i - 1] <= W)
+            take = val[i - 1] + recur(i - 1, W - wt[i - 1], wt, val);
 
         return max(take, notTake);
     }
@@ -50,17 +51,17 @@ public:
      * --------------------------------------------------------------- */
     int memo(int i, int W, vector<int>& wt, vector<int>& val, vector<vector<int>>& dp)
     {
-        if (i == 0) {
-            return (wt[0] <= W) ? val[0] : 0;
+        // If i can take 0 elements , or my capacity is 0 then profit is 0
+        if (i == 0 || W == 0) {
+            return 0;
         }
 
-        if (dp[i][W] != -1)
-            return dp[i][W];
+        if (dp[i][W] != -1) return dp[i][W];
 
         int notTake = memo(i - 1, W, wt, val, dp);
         int take = 0;
-        if (wt[i] <= W)
-            take = val[i] + memo(i - 1, W - wt[i], wt, val, dp);
+        if (wt[i - 1] <= W)
+            take = val[i - 1] + memo(i - 1, W - wt[i - 1], wt, val, dp);
 
         return dp[i][W] = max(take, notTake);
     }
@@ -70,27 +71,20 @@ public:
      * TIME: O(n * W)
      * SPACE: O(n * W)
      * --------------------------------------------------------------- */
-    int tabulation(int W, vector<int>& wt, vector<int>& val)
-    {
-        int n = wt.size();
-        vector<vector<int>> dp(n + 1, vector<int>(W + 1, 0));
+    int tabulation(int W, vector<int> &val, vector<int> &wt) {
+        int n = val.size();
+        // 0 elements and 0 capacity will give profit 0, So initialization is with 0
+        vector<vector<int>> dp(n + 1, vector<int> (W + 1, 0));
 
-        // Base case already initialized to 0 (dp[0][*] = 0 and dp[*][0] = 0)
-
-        for (int i = 1; i <= n; i++) {
-            for (int j = 0; j <= W; j++) {
-
-                int not_take = dp[i - 1][j]; // Not take case. If we can't take it then at its place we store the value we had while using (i-1)th element and same j capacity
-
+        for(int i = 1; i <= n; i++) {
+            for(int j = 1; j <= W; j++) {
+                int notTake = dp[i - 1][j];
                 int take = 0;
-                if (wt[i - 1] <= j) {
-                    take = val[i - 1] + dp[i - 1][j - wt[i - 1]]; // Take case. We take the current one, so capacity reduces to j - wt[i - 1]
-                }
-
-                dp[i][j] = max(take, not_take);
+                if (wt[i - 1] <= j)
+                    take = val[i - 1] + dp[i - 1][j - wt[i - 1]];
+                dp[i][j] = max(take, notTake);
             }
         }
-
         return dp[n][W];
     }
 
