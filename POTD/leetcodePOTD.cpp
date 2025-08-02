@@ -2207,3 +2207,59 @@ public:
         return result;
     }
 };
+
+/* ==============================================================================
+ * LeetCode 2563: Count the Minimum Cost of Rearranging Two Baskets
+ * ==============================================================================
+ * Problem:
+ * You are given two integer arrays `basket1` and `basket2` of the same length.
+ * In one move, you can swap elements between the arrays. Find the **minimum total cost**
+ * to make both baskets equal, where the cost of a swap is the minimum of the two swapped values.
+ * If it's not possible, return -1.
+ *
+ * Approach: Frequency Mapping + Greedy Swap Cost
+ * - Count the net frequency of each element across both baskets.
+ * - If any element has an odd frequency, it's impossible to make them equal → return -1.
+ * - Store half of the excess elements in a temp array.
+ * - Sort the temp array and greedily compute the cost of pairing smallest values,
+ *   considering whether it's cheaper to double-swap the globally smallest element.
+ *
+ * Time Complexity: O(n log n)
+ * Space Complexity: O(n)
+ * ============================================================================= */
+
+class Solution {
+public:
+    long long minCost(vector<int>& basket1, vector<int>& basket2)
+    {
+        unordered_map<int, int> mpp;
+
+        // Frequency difference between baskets
+        for (int b : basket1) mpp[b]++;
+        for (int b : basket2) mpp[b]--;
+
+        int minEle = INT_MAX;
+        vector<int> temp;
+
+        // Collect excess elements (half of net imbalance)
+        for (auto& [val, freq] : mpp) {
+            if (freq % 2 != 0) return -1;  // Impossible to balance
+
+            for (int i = 0; i < abs(freq) / 2; ++i) {
+                temp.push_back(val);
+            }
+
+            minEle = min(minEle, val);     // Track minimum element overall
+        }
+
+        sort(temp.begin(), temp.end());
+        long long ans = 0;
+
+        // Greedily choose the minimum cost: direct swap vs double swap via minEle
+        for (int i = 0; i < temp.size() / 2; ++i) {
+            ans += min(temp[i], 2 * minEle);
+        }
+
+        return ans;
+    }
+};
