@@ -3751,3 +3751,52 @@ public:
         return result;
     }
 };
+
+/* ==============================================================================
+ * LeetCode 2106: Maximum Fruits Harvested After at Most K Steps
+ * ==============================================================================
+ * Problem:
+ * You are given a list of `fruits`, where `fruits[i] = [position, amount]`, a starting
+ * position `startPos`, and an integer `k`. You can move at most `k` steps and pick all
+ * fruits at each visited position. Return the **maximum total fruits** you can harvest.
+ *
+ * Approach: Sliding Window + Min Steps Calculation
+ * - Use a sliding window [left, right] over sorted fruit positions.
+ * - Expand the right boundary and accumulate fruits.
+ * - Shrink from the left if the minimal steps needed to collect [left, right]
+ *   from startPos exceeds `k`.
+ * - `minSteps()` calculates the fewest moves to cover [left, right] range from startPos.
+ *
+ * Time Complexity: O(n)
+ * Space Complexity: O(1)
+ * ============================================================================= */
+
+class Solution {
+public:
+    int maxTotalFruits(vector<vector<int>>& fruits, int startPos, int k)
+    {
+        int left = 0, sum = 0, maxFruits = 0;
+
+        for (int right = 0; right < fruits.size(); ++right) {
+            sum += fruits[right][1];  // Add current fruit amount
+
+            // Shrink window if out of allowed step range
+            while (left <= right && minSteps(fruits[left][0], fruits[right][0], startPos) > k) {
+                sum -= fruits[left][1];
+                left++;
+            }
+
+            maxFruits = max(maxFruits, sum);  // Update result
+        }
+
+        return maxFruits;
+    }
+
+private:
+    // Compute minimal steps to collect fruits from [left, right] range starting at start
+    int minSteps(int left, int right, int start)
+    {
+        return min(abs(start - left) + (right - left),
+            abs(start - right) + (right - left));
+    }
+};
