@@ -2263,3 +2263,51 @@ public:
         return ans;
     }
 };
+
+/* ==============================================================================
+ * LeetCode 904: Fruit Into Baskets
+ * ==============================================================================
+ * Problem:
+ * You are given an array `fruits` where each element is a type of fruit.
+ * Starting from any index, you can pick fruits moving only to the right, and you can
+ * carry at most **two types** of fruits. Return the **length of the longest subarray**
+ * containing at most two types of fruits.
+ *
+ * Approach: Sliding Window + Hash Map
+ * - Use a sliding window to maintain a range with at most 2 distinct fruit types.
+ * - Expand the window by moving the right pointer.
+ * - Shrink the window from the left whenever we have more than two types.
+ * - Update the maximum length found at each step.
+ *
+ * Time Complexity: O(n)
+ * Space Complexity: O(1) — since map size is bounded (max 3 entries)
+ * ============================================================================= */
+
+class Solution {
+public:
+    int totalFruit(vector<int>& fruits)
+    {
+        int n = fruits.size();
+        int l = 0, r = 0;
+        int maxLen = 0;
+        unordered_map<int, int> mp;
+
+        while (r < n) {
+            mp[fruits[r]]++;  // Add current fruit type to the basket
+
+            // Shrink window if we exceed two types
+            while (mp.size() > 2) {
+                mp[fruits[l]]--;
+                if (mp[fruits[l]] == 0) {
+                    mp.erase(fruits[l]);
+                }
+                l++;
+            }
+
+            maxLen = max(maxLen, r - l + 1);  // Update max length
+            r++;
+        }
+
+        return maxLen;
+    }
+};
