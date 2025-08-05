@@ -2311,3 +2311,48 @@ public:
         return maxLen;
     }
 };
+
+/* ==============================================================================
+ * Problem: Count Unplaced Fruits
+ * ==============================================================================
+ * Given two arrays `fruits` and `baskets`, each of size `n`, determine how many
+ * fruits could not be placed in baskets. Each fruit can only go into a basket
+ * that has a capacity >= size of the fruit. Each basket can hold only one fruit.
+ *
+ * Approach:
+ * - For each fruit, try to find the first unvisited basket that can accommodate it.
+ * - Mark that basket as used (`visited[j] = 1`).
+ * - Count baskets that remain unvisited (i.e., no fruit could be placed).
+ *
+ * Time Complexity: O(n^2)
+ * Space Complexity: O(n)
+ * ============================================================================== */
+
+class Solution {
+public:
+    int numOfUnplacedFruits(vector<int>& fruits, vector<int>& baskets)
+    {
+        int n = baskets.size();
+        vector<int> visited(n, -1);  // -1: unused basket
+
+        // Try to place each fruit
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (visited[j] == -1 && baskets[j] >= fruits[i]) {
+                    visited[j] = 1;  // Mark basket as used
+                    break;
+                }
+            }
+        }
+
+        // Count unvisited (unused) baskets
+        int cnt = 0;
+        for (int i = 0; i < n; i++) {
+            if (visited[i] == -1) {
+                cnt++;
+            }
+        }
+
+        return cnt;
+    }
+};
