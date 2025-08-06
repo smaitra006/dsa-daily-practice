@@ -2356,3 +2356,103 @@ public:
         return cnt;
     }
 };
+
+/* ==============================================================================
+ * Problem: Number of Unplaced Fruits
+ *
+ * Task:
+ * - You are given two arrays: `fruits` and `baskets`.
+ * - Each fruit has a size, and each basket has a capacity.
+ * - Assign each fruit to a basket such that:
+ *     → A fruit can only be placed in a basket if its size ≤ basket capacity.
+ *     → A basket can hold at most one fruit.
+ * - Count how many fruits cannot be placed in any basket.
+ *
+ * Optimized Approach:
+ * - Use a Segment Tree to store the current max capacity of each basket.
+ * - For each fruit:
+ *     → Find the leftmost basket with capacity ≥ fruit size.
+ *     → If found, assign it (set capacity to 0 in tree).
+ *     → Else, increment unplaced fruit count.
+ *
+ * Time Complexity  : O(n log n)
+ * Space Complexity : O(4n)
+ * ============================================================================== */
+
+class Solution {
+    int n;
+    vector<int> seg; // Segment tree array
+
+    // Utility: Update current node from its children
+    void Update(int p)
+    {
+        seg[p] = max(seg[p << 1], seg[p << 1 | 1]);
+    }
+
+    // Build segment tree from baskets array
+    void Build(int p, int l, int r, vector<int>& baskets)
+    {
+        if (l == r) {
+            seg[p] = baskets[l];
+            return;
+        }
+        int mid = (l + r) >> 1;
+        Build(p << 1, l, mid, baskets);
+        Build(p << 1 | 1, mid + 1, r, baskets);
+        Update(p);
+    }
+
+    // Assign a value `v` to basket at position `x`
+    void Assign(int x, int v, int p, int l, int r)
+    {
+        if (x < l || x > r) return;
+
+        if (l == r) {
+            seg[p] = v;
+            return;
+        }
+
+        int mid = (l + r) >> 1;
+        Assign(x, v, p << 1, l, mid);
+        Assign(x, v, p << 1 | 1, mid + 1, r);
+        Update(p);
+    }
+
+    // Query: Find leftmost basket index with capacity ≥ v
+    int FirstLarger(int v, int p, int l, int r)
+    {
+        if (seg[p] < v) return r + 1; // No such basket
+
+        if (l == r) return r;
+
+        int mid = (l + r) >> 1;
+        int lf = FirstLarger(v, p << 1, l, mid);
+        if (lf <= mid) return lf;
+
+        return FirstLarger(v, p << 1 | 1, mid + 1, r);
+    }
+
+public:
+    int numOfUnplacedFruits(vector<int>& fruits, vector<int>& baskets)
+    {
+        n = fruits.size();
+        seg.assign(4 * n + 1, 0); // Initialize segment tree
+
+        Build(1, 0, n - 1, baskets); // Build tree from basket capacities
+
+        int res = 0; // Counter for unplaced fruits
+
+        for (const auto& x : fruits) {
+            int pos = FirstLarger(x, 1, 0, n - 1);
+            if (pos == n) {
+                res++; // No valid basket
+            }
+            else {
+                Assign(pos, 0, 1, 0, n - 1); // Use the basket
+            }
+        }
+
+        return res;
+    }
+};
+
