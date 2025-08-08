@@ -2456,3 +2456,69 @@ public:
     }
 };
 
+/* ==============================================================================
+ * Problem: 808. Soup Servings (Leetcode)
+ *
+ * Description:
+ * - There are two soups A and B, initially with n ml each.
+ * - Four types of operations are chosen with equal probability:
+ *      1. Serve 100 ml of A, 0 ml of B
+ *      2. Serve 75 ml of A, 25 ml of B
+ *      3. Serve 50 ml of A, 50 ml of B
+ *      4. Serve 25 ml of A, 75 ml of B
+ * - The process stops when either soup is empty.
+ * - Return the probability that soup A will be empty first, plus half the probability
+ *   that both become empty at the same time.
+ *
+ * Key Observations:
+ * 1. Since servings are multiples of 25 ml, we can normalize n to "units" of 25 ml.
+ * 2. If n is very large (> 4450 ml), the probability approaches 1 and we can directly return 1.
+ * 3. Use DP where dp[i][j] = probability result with i units of A and j units of B left.
+ *
+ * Approach:
+ * - Normalize: N = ceil(n / 25)
+ * - Bottom-up DP:
+ *      Base cases:
+ *        - dp[0][0] = 0.5   (both empty simultaneously)
+ *        - dp[0][j] = 1.0   (A empty first)
+ *        - dp[i][0] = 0.0   (B empty first)
+ *      Transition:
+ *        dp[i][j] = average of 4 serving scenarios.
+ *
+ * Time Complexity  : O(N^2)
+ * Space Complexity : O(N^2)
+ * ============================================================================== */
+
+class Solution {
+public:
+    double soupServings(int n)
+    {
+        // Optimization: for large n, probability is ~1
+        if (n > 4450) return 1;
+
+        // Convert ml to units of 25 ml (ceiling division)
+        int N = (n + 24) / 25;
+
+        // DP table: dp[i][j] → probability with i units of A, j units of B
+        vector<vector<double>> dp(N + 1, vector<double>(N + 1, 0.0));
+
+        // Base cases
+        dp[0][0] = 0.5;  // Both empty at same time
+        for (int j = 1; j <= N; ++j) dp[0][j] = 1.0; // A empty first
+        for (int i = 1; i <= N; ++i) dp[i][0] = 0.0; // B empty first
+
+        // Fill table bottom-up
+        for (int i = 1; i <= N; ++i) {
+            for (int j = 1; j <= N; ++j) {
+                dp[i][j] = 0.25 * (
+                    dp[max(0, i - 4)][j] +
+                    dp[max(0, i - 3)][max(0, j - 1)] +
+                    dp[max(0, i - 2)][max(0, j - 2)] +
+                    dp[max(0, i - 1)][max(0, j - 3)]
+                    );
+            }
+        }
+
+        return dp[N][N];
+    }
+};
