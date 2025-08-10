@@ -2522,3 +2522,75 @@ public:
         return dp[N][N];
     }
 };
+
+/* ==============================================================================
+ * Problem: Reordered Power of 2
+ *
+ * Task:
+ * - Given a positive integer `N`, check if its digits can be rearranged
+ *   to form a power of 2.
+ *
+ * Approach:
+ * 1. **Digit Frequency Counting**:
+ *    - Count the occurrences of each digit in `N`.
+ * 2. **Power of 2 Generation**:
+ *    - For all powers of 2 up to 2^30 (since 2^30 < 10^9), count digit frequencies.
+ * 3. **Comparison**:
+ *    - If the frequency matches with any power of 2, return `true`.
+ *
+ * Time Complexity  : O(30 * log10(N)) — At most 31 frequency comparisons.
+ * Space Complexity : O(1) — Constant extra storage for frequency arrays.
+ * ============================================================================== */
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+private:
+    // Count digit frequency of an integer
+    vector<int> digitFreq(int n)
+    {
+        vector<int> freq(10, 0);
+        while (n > 0) {
+            freq[n % 10]++;
+            n /= 10;
+        }
+        return freq;
+    }
+
+    // Compare two digit frequency arrays
+    bool equalFreq(const vector<int>& a, const vector<int>& b)
+    {
+        for (int i = 0; i < 10; ++i) {
+            if (a[i] != b[i]) return false;
+        }
+        return true;
+    }
+
+public:
+    bool reorderedPowerOf2(int N)
+    {
+        vector<int> target = digitFreq(N);
+
+        // Check all powers of 2 up to 2^30
+        for (int i = 0; i <= 30; ++i) {
+            int powerOf2 = (int)pow(2, i);
+            if (equalFreq(target, digitFreq(powerOf2))) {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+/* ==============================================================================
+ * Example Usage:
+ *
+ * int main() {
+ *     Solution sol;
+ *     cout << boolalpha << sol.reorderedPowerOf2(46) << endl; // Output: true (46 → 64)
+ *     cout << boolalpha << sol.reorderedPowerOf2(10) << endl; // Output: false
+ *
+ *     return 0;
+ * }
+ * ============================================================================== */
