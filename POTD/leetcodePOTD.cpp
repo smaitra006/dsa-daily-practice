@@ -2594,3 +2594,45 @@ public:
  *     return 0;
  * }
  * ============================================================================== */
+
+ // ============================================================================
+// Problem: Product Queries of Powers
+// Approach:
+//   1. Extract all powers of 2 present in n's binary representation.
+//   2. For each query [l, r], compute the product of powers in that range.
+//   3. Use modulo 1e9+7 to avoid overflow.
+// Complexity:
+//   Time: O(log n + q * log n) — log n to extract powers, each query up to log n multiplications.
+//   Space: O(log n) — storing extracted powers of 2.
+// ============================================================================
+
+class Solution {
+public:
+    vector<int> productQueries(int n, vector<vector<int>>& queries)
+    {
+        const int MOD = 1e9 + 7;
+        vector<long> powers;   // Store the powers of 2 from n's binary form
+        vector<int> result;
+
+        // Extract all powers of 2 present in n
+        int bitIndex = 0;
+        while (n > 0) {
+            if (n & 1) {
+                powers.push_back(1L << bitIndex);
+            }
+            n >>= 1;
+            bitIndex++;
+        }
+
+        // Process each query
+        for (auto& q : queries) {
+            long long product = 1;
+            for (int j = q[0]; j <= q[1]; j++) {
+                product = (product * powers[j]) % MOD;
+            }
+            result.push_back(static_cast<int>(product));
+        }
+
+        return result;
+    }
+};
