@@ -16,13 +16,14 @@ using namespace std;
 //* Solution :
 class Solution {
 public:
-  int fib(int n) {
-    if (n == 1)
-      return 1;
-    if (n == 0)
-      return 0;
-    return (fib(n - 1) + fib(n - 2));
-  }
+    int fib(int n)
+    {
+        if (n == 1)
+            return 1;
+        if (n == 0)
+            return 0;
+        return (fib(n - 1) + fib(n - 2));
+    }
 };
 
 //* TC: O(2^n)
@@ -42,25 +43,27 @@ public:
 //* Solution :
 class Solution {
 private:
-  void solve(int idx, vector<int> &arr, vector<int> &curr,
-             vector<vector<int>> &result) {
-    if (idx == arr.size()) {
-      result.push_back(curr);
-      return;
+    void solve(int idx, vector<int>& arr, vector<int>& curr,
+        vector<vector<int>>& result)
+    {
+        if (idx == arr.size()) {
+            result.push_back(curr);
+            return;
+        }
+        solve(idx + 1, arr, curr, result);
+        curr.push_back(arr[idx]);
+        solve(idx + 1, arr, curr, result);
+        curr.pop_back();
     }
-    solve(idx + 1, arr, curr, result);
-    curr.push_back(arr[idx]);
-    solve(idx + 1, arr, curr, result);
-    curr.pop_back();
-  }
 
 public:
-  vector<vector<int>> subsets(vector<int> &nums) {
-    vector<vector<int>> result;
-    vector<int> curr;
-    solve(0, nums, curr, result);
-    return result;
-  }
+    vector<vector<int>> subsets(vector<int>& nums)
+    {
+        vector<vector<int>> result;
+        vector<int> curr;
+        solve(0, nums, curr, result);
+        return result;
+    }
 };
 
 //* TC: O((2^n) * n)
@@ -86,38 +89,40 @@ public:
 //* Solution :
 class Solution {
 public:
-  void subsetFinder(vector<int> nums, vector<int> &currAns,
-                    vector<vector<int>> &result, int i) {
-    // Base case
-    if (i == nums.size()) {
-      result.push_back(currAns);
-      return;
-    }
-    // If we want to include the current element
-    currAns.push_back(nums[i]);
-    // Recursive call when included
-    subsetFinder(nums, currAns, result, i + 1);
+    void subsetFinder(vector<int> nums, vector<int>& currAns,
+        vector<vector<int>>& result, int i)
+    {
+        // Base case
+        if (i == nums.size()) {
+            result.push_back(currAns);
+            return;
+        }
+        // If we want to include the current element
+        currAns.push_back(nums[i]);
+        // Recursive call when included
+        subsetFinder(nums, currAns, result, i + 1);
 
-    // If we want to exclude the element
-    currAns.pop_back();
-    // general remove duplicate template
-    i++;
-    while (i < nums.size() && nums[i] == nums[i - 1]) {
-      i++;
+        // If we want to exclude the element
+        currAns.pop_back();
+        // general remove duplicate template
+        i++;
+        while (i < nums.size() && nums[i] == nums[i - 1]) {
+            i++;
+        }
+        // Recursive call when excluded
+        subsetFinder(nums, currAns, result, i);
     }
-    // Recursive call when excluded
-    subsetFinder(nums, currAns, result, i);
-  }
 
-  vector<vector<int>> subsetsWithDup(vector<int> &nums) {
-    // Lets sort the array so that all similar elemets come one after another,
-    // then we can remove duplicates
-    sort(nums.begin(), nums.end());
-    vector<vector<int>> result;
-    vector<int> currAns;
-    subsetFinder(nums, currAns, result, 0);
-    return result;
-  }
+    vector<vector<int>> subsetsWithDup(vector<int>& nums)
+    {
+        // Lets sort the array so that all similar elemets come one after another,
+        // then we can remove duplicates
+        sort(nums.begin(), nums.end());
+        vector<vector<int>> result;
+        vector<int> currAns;
+        subsetFinder(nums, currAns, result, 0);
+        return result;
+    }
 };
 
 //* TC: O(n(logn) + ((2^n) * n)) -> O((2^n) * n)
@@ -136,38 +141,40 @@ public:
 //* Solution :
 class Solution {
 public:
-  int n;
-  vector<vector<int>> result;
-  unordered_set<int> st;
+    int n;
+    vector<vector<int>> result;
+    unordered_set<int> st;
 
-  void solve(vector<int> &nums, vector<int> &temp) {
-    // Base case
-    if (temp.size() == n) {
-      result.push_back(temp);
-      return;
+    void solve(vector<int>& nums, vector<int>& temp)
+    {
+        // Base case
+        if (temp.size() == n) {
+            result.push_back(temp);
+            return;
+        }
+        // We will always loop through all elements and keep on checking in set
+        for (int i = 0; i < n; i++) {
+            // Let us include only if its not present in temp
+            if (st.find(nums[i]) == st.end()) {
+                temp.push_back(nums[i]);
+                st.insert(nums[i]);
+                // Recursively call
+                solve(nums, temp);
+                // Let us now exclude during backtracking
+                temp.pop_back();
+                st.erase(nums[i]);
+            }
+        }
     }
-    // We will always loop through all elements and keep on checking in set
-    for (int i = 0; i < n; i++) {
-      // Let us include only if its not present in temp
-      if (st.find(nums[i]) == st.end()) {
-        temp.push_back(nums[i]);
-        st.insert(nums[i]);
-        // Recursively call
+
+    vector<vector<int>> permute(vector<int>& nums)
+    {
+        n = nums.size();
+        vector<int> temp;
         solve(nums, temp);
-        // Let us now exclude during backtracking
-        temp.pop_back();
-        st.erase(nums[i]);
-      }
+
+        return result;
     }
-  }
-
-  vector<vector<int>> permute(vector<int> &nums) {
-    n = nums.size();
-    vector<int> temp;
-    solve(nums, temp);
-
-    return result;
-  }
 };
 
 //* TC: O(n * n!)
@@ -196,62 +203,65 @@ public:
 //* Solution :
 class Solution {
 public:
-  vector<vector<string>> result;
+    vector<vector<string>> result;
 
-  bool isSafe(vector<string> &board, int row, int col) {
-    int n = board.size();
-    // Upward check
-    for (int i = 0; i < row; i++) {
-      if (board[i][col] == 'Q') {
-        return false;
-      }
+    bool isSafe(vector<string>& board, int row, int col)
+    {
+        int n = board.size();
+        // Upward check
+        for (int i = 0; i < row; i++) {
+            if (board[i][col] == 'Q') {
+                return false;
+            }
+        }
+        // Left diagonal check
+        int i = row, j = col;
+        while (j >= 0 && i >= 0) {
+            if (board[i][j] == 'Q') {
+                return false;
+            }
+            i--;
+            j--;
+        }
+        // Right diagonal check
+        i = row, j = col;
+        while (i >= 0 && col < n) {
+            if (board[i][j] == 'Q') {
+                return false;
+            }
+            i--;
+            j++;
+        }
+        return true;
     }
-    // Left diagonal check
-    int i = row, j = col;
-    while (j >= 0 && i >= 0) {
-      if (board[i][j] == 'Q') {
-        return false;
-      }
-      i--;
-      j--;
-    }
-    // Right diagonal check
-    i = row, j = col;
-    while (i >= 0 && col < n) {
-      if (board[i][j] == 'Q') {
-        return false;
-      }
-      i--;
-      j++;
-    }
-    return true;
-  }
 
-  void solve(vector<vector<string>> &result, vector<string> &board, int row,
-             int n) {
-    // Base case
-    if (row >= n) {
-      result.push_back(board);
-      return;
+    void solve(vector<vector<string>>& result, vector<string>& board, int row,
+        int n)
+    {
+        // Base case
+        if (row >= n) {
+            result.push_back(board);
+            return;
+        }
+        // We will try to place in every coloumn of each row
+        for (int col = 0; col < n; col++) {
+            // We will place only if the square is safe
+            if (isSafe(board, row, col)) {
+                board[row][col] = 'Q';
+                // Recursive call
+                solve(result, board, row + 1, n);
+                // To continue further checks we will redo our action (backtrack)
+                board[row][col] = '.';
+            }
+        }
     }
-    // We will try to place in every coloumn of each row
-    for (int col = 0; col < n; col++) {
-      // We will place only if the square is safe
-      if (isSafe(board, row, col)) {
-        board[row][col] = 'Q';
-        // Recursive call
-        solve(result, board, row + 1, n);
-        // To continue further checks we will redo our action (backtrack)
-        board[row][col] = '.';
-      }
-    }
-  }
 
-  vector<vector<string>> solveNQueens(int n) {
-    vector<string> board(n, string(n, '.'));
-    solve(result, board, 0, n);
-    return result;
-  }
+    vector<vector<string>> solveNQueens(int n)
+    {
+        vector<string> board(n, string(n, '.'));
+        solve(result, board, 0, n);
+        return result;
+    }
 };
 
 //* TC: O(n!)
@@ -288,28 +298,30 @@ This allows us to recursively find the parent and determine the child value.
 //* Solution :
 class Solution {
 public:
-  int kthGrammar(int n, int k) {
-    // Base case: First row always contains just "0"
-    if (n == 1)
-      return 0;
+    int kthGrammar(int n, int k)
+    {
+        // Base case: First row always contains just "0"
+        if (n == 1)
+            return 0;
 
-    // Find the parent position in the previous row
-    // For position k, the parent is at position ⌈k/2⌉ -> ceiling
-    // This can be calculated as: (k + 1) / 2 or k/2 + k%2
-    int parent = kthGrammar(n - 1, (k + 1) / 2);
+        // Find the parent position in the previous row
+        // For position k, the parent is at position ⌈k/2⌉ -> ceiling
+        // This can be calculated as: (k + 1) / 2 or k/2 + k%2
+        int parent = kthGrammar(n - 1, (k + 1) / 2);
 
-    // Determine if current position is odd (1st child) or even (2nd child)
-    bool isOdd = (k % 2 == 1);
+        // Determine if current position is odd (1st child) or even (2nd child)
+        bool isOdd = (k % 2 == 1);
 
-    // Apply transformation rules based on parent value and child position:
-    // Parent = 0: generates "01" → 1st child = 0, 2nd child = 1
-    // Parent = 1: generates "10" → 1st child = 1, 2nd child = 0
-    if (parent == 0) {
-      return isOdd ? 0 : 1; // 0 → "01"
-    } else {
-      return isOdd ? 1 : 0; // 1 → "10"
+        // Apply transformation rules based on parent value and child position:
+        // Parent = 0: generates "01" → 1st child = 0, 2nd child = 1
+        // Parent = 1: generates "10" → 1st child = 1, 2nd child = 0
+        if (parent == 0) {
+            return isOdd ? 0 : 1; // 0 → "01"
+        }
+        else {
+            return isOdd ? 1 : 0; // 1 → "10"
+        }
     }
-  }
 };
 
 //* TC: O(n * log(k))
@@ -334,64 +346,66 @@ to the last decision point and try a different path.
 //* Solution :
 class Solution {
 public:
-  bool isValid(vector<vector<char>> &board, int row, int col, char digit) {
-    // Horizontal check - check if digit exists in current row
-    for (int i = 0; i < 9; i++) {
-      if (board[row][i] == digit)
-        return false;
-    }
-
-    // Vertical check - check if digit exists in current column
-    for (int i = 0; i < 9; i++) {
-      if (board[i][col] == digit)
-        return false;
-    }
-
-    // 3x3 box check - check if digit exists in current 3x3 subgrid
-    int startRow = (row / 3) * 3; // starting row of the 3x3 box
-    int startCol = (col / 3) * 3; // starting col of the 3x3 box
-    for (int i = startRow; i < startRow + 3; i++) {
-      for (int j = startCol; j < startCol + 3; j++) {
-        if (board[i][j] == digit)
-          return false;
-      }
-    }
-
-    return true; // digit can be placed safely
-  }
-
-  bool solve(vector<vector<char>> &board) {
-    // Find the next empty cell
-    for (int row = 0; row < 9; row++) {
-      for (int col = 0; col < 9; col++) {
-        // If we find an empty cell ('.')
-        if (board[row][col] == '.') {
-          // Try digits 1-9
-          for (char digit = '1'; digit <= '9'; digit++) {
-            // Check if this digit can be placed here
-            if (isValid(board, row, col, digit)) {
-              // Place the digit
-              board[row][col] = digit;
-
-              // Recursively solve the rest of the board
-              if (solve(board)) {
-                return true; // Solution found
-              }
-
-              // Backtrack: remove the digit if it doesn't lead to solution
-              board[row][col] = '.';
-            }
-          }
-          // If no digit works for this cell, return false
-          return false;
+    bool isValid(vector<vector<char>>& board, int row, int col, char digit)
+    {
+        // Horizontal check - check if digit exists in current row
+        for (int i = 0; i < 9; i++) {
+            if (board[row][i] == digit)
+                return false;
         }
-      }
-    }
-    // If no empty cells found, puzzle is solved
-    return true;
-  }
 
-  void solveSudoku(vector<vector<char>> &board) { solve(board); }
+        // Vertical check - check if digit exists in current column
+        for (int i = 0; i < 9; i++) {
+            if (board[i][col] == digit)
+                return false;
+        }
+
+        // 3x3 box check - check if digit exists in current 3x3 subgrid
+        int startRow = (row / 3) * 3; // starting row of the 3x3 box
+        int startCol = (col / 3) * 3; // starting col of the 3x3 box
+        for (int i = startRow; i < startRow + 3; i++) {
+            for (int j = startCol; j < startCol + 3; j++) {
+                if (board[i][j] == digit)
+                    return false;
+            }
+        }
+
+        return true; // digit can be placed safely
+    }
+
+    bool solve(vector<vector<char>>& board)
+    {
+        // Find the next empty cell
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                // If we find an empty cell ('.')
+                if (board[row][col] == '.') {
+                    // Try digits 1-9
+                    for (char digit = '1'; digit <= '9'; digit++) {
+                        // Check if this digit can be placed here
+                        if (isValid(board, row, col, digit)) {
+                            // Place the digit
+                            board[row][col] = digit;
+
+                            // Recursively solve the rest of the board
+                            if (solve(board)) {
+                                return true; // Solution found
+                            }
+
+                            // Backtrack: remove the digit if it doesn't lead to solution
+                            board[row][col] = '.';
+                        }
+                    }
+                    // If no digit works for this cell, return false
+                    return false;
+                }
+            }
+        }
+        // If no empty cells found, puzzle is solved
+        return true;
+    }
+
+    void solveSudoku(vector<vector<char>>& board) { solve(board); }
 };
 
 //* TC: O(n ^ (no. of empty spaces))
@@ -419,34 +433,36 @@ public:
 //* Solution :
 class Solution {
 public:
-  vector<vector<int>> result;
-  vector<int> temp;
-
-  void solve(vector<int> &candidates, int idx, int sum, int target) {
-    // Base case
-    if (sum > target)
-      return; // If sum becomes bigger then we dont need to check anymore
-    if (sum == target) {      // If we get the target
-      result.push_back(temp); // We put this set into the result
-      return;                 // Return back to try other combinations
-    }
-    for (int i = idx; i < candidates.size();
-         i++) { // Starting from the current location loop should continue
-      sum += candidates[i];          // Update the sum
-      temp.push_back(candidates[i]); // Push the element
-      solve(candidates, i, sum,
-            target); // Explore again starting from the current element
-      // Backtrack
-      sum -= candidates[i]; // Undo the sum to check other possibility
-      temp.pop_back();      // Pop the element to check other possibility
-    }
-  }
-
-  vector<vector<int>> combinationSum(vector<int> &candidates, int target) {
+    vector<vector<int>> result;
     vector<int> temp;
-    solve(candidates, 0, 0, target);
-    return result;
-  }
+
+    void solve(vector<int>& candidates, int idx, int sum, int target)
+    {
+        // Base case
+        if (sum > target)
+            return; // If sum becomes bigger then we dont need to check anymore
+        if (sum == target) {      // If we get the target
+            result.push_back(temp); // We put this set into the result
+            return;                 // Return back to try other combinations
+        }
+        for (int i = idx; i < candidates.size();
+            i++) { // Starting from the current location loop should continue
+            sum += candidates[i];          // Update the sum
+            temp.push_back(candidates[i]); // Push the element
+            solve(candidates, i, sum,
+                target); // Explore again starting from the current element
+            // Backtrack
+            sum -= candidates[i]; // Undo the sum to check other possibility
+            temp.pop_back();      // Pop the element to check other possibility
+        }
+    }
+
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target)
+    {
+        vector<int> temp;
+        solve(candidates, 0, 0, target);
+        return result;
+    }
 };
 
 //* TC: O(N^(T/M)) where N = array size, T = target, M = minimal value in
@@ -467,41 +483,43 @@ public:
 //* Solution :
 class Solution {
 public:
-  vector<vector<int>> result;
-  vector<int> temp;
+    vector<vector<int>> result;
+    vector<int> temp;
 
-  void solve(vector<int> &candidates, int idx, int sum, int target) {
-    // Base case
-    if (sum == target) {      // If we get the target
-      result.push_back(temp); // We put this set into the result
-      return;                 // Return back to try other combinations
+    void solve(vector<int>& candidates, int idx, int sum, int target)
+    {
+        // Base case
+        if (sum == target) {      // If we get the target
+            result.push_back(temp); // We put this set into the result
+            return;                 // Return back to try other combinations
+        }
+
+        for (int i = idx; i < candidates.size(); i++) {
+            // Skip if sum would exceed target (optimization)
+            if (sum + candidates[i] > target)
+                break;
+
+            // Skip duplicates: if current element is same as previous and i > idx
+            if (i > idx && candidates[i] == candidates[i - 1])
+                continue;
+
+            sum += candidates[i];          // Update the sum
+            temp.push_back(candidates[i]); // Push the element
+
+            solve(candidates, i + 1, sum, target); // Next element (i+1, not i)
+
+            // Backtrack
+            sum -= candidates[i]; // Undo the sum to check other possibility
+            temp.pop_back();      // Pop the element to check other possibility
+        }
     }
 
-    for (int i = idx; i < candidates.size(); i++) {
-      // Skip if sum would exceed target (optimization)
-      if (sum + candidates[i] > target)
-        break;
-
-      // Skip duplicates: if current element is same as previous and i > idx
-      if (i > idx && candidates[i] == candidates[i - 1])
-        continue;
-
-      sum += candidates[i];          // Update the sum
-      temp.push_back(candidates[i]); // Push the element
-
-      solve(candidates, i + 1, sum, target); // Next element (i+1, not i)
-
-      // Backtrack
-      sum -= candidates[i]; // Undo the sum to check other possibility
-      temp.pop_back();      // Pop the element to check other possibility
+    vector<vector<int>> combinationSum2(vector<int>& candidates, int target)
+    {
+        sort(candidates.begin(), candidates.end()); // Sort to handle duplicates
+        solve(candidates, 0, 0, target);
+        return result;
     }
-  }
-
-  vector<vector<int>> combinationSum2(vector<int> &candidates, int target) {
-    sort(candidates.begin(), candidates.end()); // Sort to handle duplicates
-    solve(candidates, 0, 0, target);
-    return result;
-  }
 };
 
 //* TC: O(2^n) -> Two choices for each element, take or not take
@@ -520,43 +538,46 @@ public:
 //* Solution :
 class Solution {
 public:
-  void backtrack(const string &s, int start, vector<string> &path,
-                 vector<vector<string>> &result) {
-    // If we've reached the end of the string, add the current partition to the
-    // result list
-    if (start == s.length()) {
-      result.push_back(path);
-      return;
+    void backtrack(const string& s, int start, vector<string>& path,
+        vector<vector<string>>& result)
+    {
+        // If we've reached the end of the string, add the current partition to the
+        // result list
+        if (start == s.length()) {
+            result.push_back(path);
+            return;
+        }
+        // Explore all possible partitions
+        for (int end = start + 1; end <= s.length(); ++end) {
+            // If the current substring is a palindrome, add it to the current path
+            if (isPalindrome(s, start, end - 1)) {
+                path.push_back(s.substr(start, end - start));
+                // Recur to find other partitions
+                backtrack(s, end, path, result);
+                // Backtrack to explore other partitions
+                path.pop_back();
+            }
+        }
     }
-    // Explore all possible partitions
-    for (int end = start + 1; end <= s.length(); ++end) {
-      // If the current substring is a palindrome, add it to the current path
-      if (isPalindrome(s, start, end - 1)) {
-        path.push_back(s.substr(start, end - start));
-        // Recur to find other partitions
-        backtrack(s, end, path, result);
-        // Backtrack to explore other partitions
-        path.pop_back();
-      }
-    }
-  }
 
-  bool isPalindrome(const string &s, int left, int right) {
-    // Check if the substring s[left:right+1] is a palindrome
-    while (left < right) {
-      if (s[left++] != s[right--]) {
-        return false;
-      }
+    bool isPalindrome(const string& s, int left, int right)
+    {
+        // Check if the substring s[left:right+1] is a palindrome
+        while (left < right) {
+            if (s[left++] != s[right--]) {
+                return false;
+            }
+        }
+        return true;
     }
-    return true;
-  }
 
-  vector<vector<string>> partition(string s) {
-    vector<vector<string>> result;
-    vector<string> path;
-    backtrack(s, 0, path, result);
-    return result;
-  }
+    vector<vector<string>> partition(string s)
+    {
+        vector<vector<string>> result;
+        vector<string> path;
+        backtrack(s, 0, path, result);
+        return result;
+    }
 };
 
 //* TC: O(n * (2^n)) -> n to check if palindrome and 2^n combinations
@@ -574,35 +595,37 @@ public:
 //* Solution :
 class Solution {
 public:
-  // Check if current position has expected value and try all 8 knight moves
-  bool isVaild(vector<vector<int>> &grid, int r, int c, int n, int expVal) {
-    // Base case: out of bounds or wrong value
-    if (r < 0 || c < 0 || r >= n || c >= n || grid[r][c] != expVal) {
-      return false;
+    // Check if current position has expected value and try all 8 knight moves
+    bool isVaild(vector<vector<int>>& grid, int r, int c, int n, int expVal)
+    {
+        // Base case: out of bounds or wrong value
+        if (r < 0 || c < 0 || r >= n || c >= n || grid[r][c] != expVal) {
+            return false;
+        }
+
+        // Base case: reached last number in sequence
+        if (expVal == n * n - 1) {
+            return true;
+        }
+
+        // Try all 8 possible knight moves
+        int ans1 = isVaild(grid, r - 2, c + 1, n, expVal + 1); // Up-Up-Right
+        int ans2 = isVaild(grid, r - 1, c + 2, n, expVal + 1); // Up-Right-Right
+        int ans3 = isVaild(grid, r + 1, c + 2, n, expVal + 1); // Down-Right-Right
+        int ans4 = isVaild(grid, r + 2, c + 1, n, expVal + 1); // Down-Down-Right
+        int ans5 = isVaild(grid, r + 2, c - 1, n, expVal + 1); // Down-Down-Left
+        int ans6 = isVaild(grid, r + 1, c - 2, n, expVal + 1); // Down-Left-Left
+        int ans7 = isVaild(grid, r - 1, c - 2, n, expVal + 1); // Up-Left-Left
+        int ans8 = isVaild(grid, r - 2, c - 1, n, expVal + 1); // Up-Up-Left
+
+        // Return true if any path leads to valid solution
+        return ans1 || ans2 || ans3 || ans4 || ans5 || ans6 || ans7 || ans8;
     }
 
-    // Base case: reached last number in sequence
-    if (expVal == n * n - 1) {
-      return true;
+    bool checkValidGrid(vector<vector<int>>& grid)
+    {
+        return isVaild(grid, 0, 0, grid.size(), 0); // Start at (0,0) with value 0
     }
-
-    // Try all 8 possible knight moves
-    int ans1 = isVaild(grid, r - 2, c + 1, n, expVal + 1); // Up-Up-Right
-    int ans2 = isVaild(grid, r - 1, c + 2, n, expVal + 1); // Up-Right-Right
-    int ans3 = isVaild(grid, r + 1, c + 2, n, expVal + 1); // Down-Right-Right
-    int ans4 = isVaild(grid, r + 2, c + 1, n, expVal + 1); // Down-Down-Right
-    int ans5 = isVaild(grid, r + 2, c - 1, n, expVal + 1); // Down-Down-Left
-    int ans6 = isVaild(grid, r + 1, c - 2, n, expVal + 1); // Down-Left-Left
-    int ans7 = isVaild(grid, r - 1, c - 2, n, expVal + 1); // Up-Left-Left
-    int ans8 = isVaild(grid, r - 2, c - 1, n, expVal + 1); // Up-Up-Left
-
-    // Return true if any path leads to valid solution
-    return ans1 || ans2 || ans3 || ans4 || ans5 || ans6 || ans7 || ans8;
-  }
-
-  bool checkValidGrid(vector<vector<int>> &grid) {
-    return isVaild(grid, 0, 0, grid.size(), 0); // Start at (0,0) with value 0
-  }
 };
 
 //* TC: O(8^(n²)) - worst case explores all 8 moves for each cell
