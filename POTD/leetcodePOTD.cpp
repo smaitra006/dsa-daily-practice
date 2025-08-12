@@ -2636,3 +2636,102 @@ public:
         return result;
     }
 };
+
+/*
+================================================================================
+Problem:
+    Given two integers n and x, return the number of ways n can be expressed
+    as the sum of the x-th powers of unique natural numbers.
+
+Approach:
+    1. Precompute the maximum base whose x-th power is <= n.
+    2. Use recursion with memoization to explore:
+        - "Take" the current base (subtract its x-th power from n)
+        - "Not take" the current base
+    3. Use modulo to prevent overflow.
+
+Key Points:
+    - Memoization ensures optimal subproblem reuse.
+    - Binary search to find max base to avoid unnecessary recursion.
+    - Power computation is done with an integer exponentiation helper.
+
+Complexity:
+    Let m = maxBaseInt(n, x)
+    Time Complexity: O(n * m)
+    Space Complexity: O(n * m)  (due to memoization table)
+================================================================================
+*/
+
+class Solution {
+public:
+    const int MOD = 1e9 + 7;
+
+    //--------------------------------------------------------------------------
+    // Helper: Compute integer power (base^exp)
+    //--------------------------------------------------------------------------
+    long long intPow(int base, int exp)
+    {
+        long long result = 1;
+        while (exp--) {
+            result *= base;
+        }
+        return result;
+    }
+
+    //--------------------------------------------------------------------------
+    // Recursive function with memoization
+    // n     -> remaining sum
+    // x     -> power to be used
+    // i     -> current base to consider
+    // memo  -> DP cache
+    //--------------------------------------------------------------------------
+    int recur(int n, int x, int i, vector<vector<int>>& memo)
+    {
+        if (n == 0) return 1;               // Exact sum found
+        if (n < 0 || i <= 0) return 0;      // Invalid path
+
+        if (memo[n][i] != -1) return memo[n][i];
+
+        // Option 1: Do not take current base
+        int not_take = recur(n, x, i - 1, memo) % MOD;
+
+        // Option 2: Take current base (if possible)
+        int take = 0;
+        long long power = intPow(i, x);
+        if (n - power >= 0) {
+            take = recur(n - power, x, i - 1, memo) % MOD;
+        }
+
+        return memo[n][i] = (take + not_take) % MOD;
+    }
+
+    //--------------------------------------------------------------------------
+    // Helper: Find max integer base whose x-th power <= n
+    //--------------------------------------------------------------------------
+    int maxBaseInt(int n, int x)
+    {
+        int lo = 1, hi = n;
+        while (lo <= hi) {
+            int mid = (lo + hi) / 2;
+            long long p = 1;
+            for (int i = 0; i < x; i++) {
+                p *= mid;
+                if (p > n) break;
+            }
+            if (p == n) return mid;
+            if (p < n) lo = mid + 1;
+            else hi = mid - 1;
+        }
+        return hi;
+    }
+
+    //--------------------------------------------------------------------------
+    // Main Function
+    //--------------------------------------------------------------------------
+    int numberOfWays(int n, int x)
+    {
+        vector<vector<int>> memo(n + 1, vector<int>(n + 1, -1));
+        int maxBase = maxBaseInt(n, x);
+        return recur(n, x, maxBase, memo);
+    }
+};
