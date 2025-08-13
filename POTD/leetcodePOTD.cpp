@@ -2542,9 +2542,6 @@ public:
  * Space Complexity : O(1) — Constant extra storage for frequency arrays.
  * ============================================================================== */
 
-#include <bits/stdc++.h>
-using namespace std;
-
 class Solution {
 private:
     // Count digit frequency of an integer
@@ -2735,3 +2732,55 @@ public:
         return recur(n, x, maxBase, memo);
     }
 };
+
+/*
+================================================================================
+Problem: Power of Three (LeetCode 326)
+================================================================================
+Task:
+    Given an integer n, return true if it is a power of three. Otherwise, return false.
+
+    A power of three is a number of the form 3^x where x is an integer and x >= 0.
+
+--------------------------------------------------------------------------------
+Approach:
+    1. If n <= 0, it cannot be a power of three → return false.
+    2. Repeatedly divide n by 3 as long as it is divisible by 3.
+    3. If the final result is 1, then n was a power of three; otherwise, it wasn’t.
+
+--------------------------------------------------------------------------------
+Complexity Analysis:
+    Time Complexity:  O(log₃ n)
+        - Each division by 3 reduces n by a factor of 3.
+
+    Space Complexity: O(1)
+        - No extra space used.
+================================================================================
+*/
+
+class Solution {
+public:
+    bool isPowerOfThree(int n)
+    {
+        if (n <= 0) return false;  // Negative numbers & zero can't be powers of 3
+
+        while (n % 3 == 0) {
+            n /= 3; // Keep dividing by 3
+        }
+
+        return n == 1; // If reduced to 1 → it's a power of 3
+    }
+};
+
+/*
+================================================================================
+Example Usage:
+--------------------------------------------------------------------------------
+Input:
+    n = 27
+Output:
+    true
+Explanation:
+    27 = 3³ → power of three
+================================================================================
+*/
