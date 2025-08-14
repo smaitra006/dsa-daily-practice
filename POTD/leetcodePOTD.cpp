@@ -2784,3 +2784,63 @@ Explanation:
     27 = 3³ → power of three
 ================================================================================
 */
+
+/*
+================================================================================
+Problem: Largest 3-Same-Digit Number in String (LeetCode 2264)
+================================================================================
+Task:
+    Given a string num representing a large integer, return the largest good 
+    integer as a string.
+
+    A "good integer" is a substring of length 3 that consists of the same digit.
+    If no such substring exists, return "".
+
+--------------------------------------------------------------------------------
+Approach:
+    1. Iterate through the string from index 1 to length-2.
+    2. Check if current digit and its previous & next digits are equal.
+    3. Keep track of the largest digit seen that forms a good integer.
+    4. Return the string of that digit repeated 3 times, or "" if none found.
+
+--------------------------------------------------------------------------------
+Complexity Analysis:
+    Time Complexity:  O(n) 
+        - We scan the string once.
+    Space Complexity: O(1) 
+        - Only a few variables are used.
+================================================================================
+*/
+
+class Solution {
+public:
+    string largestGoodInteger(string num) {
+        int largest = INT_MIN; // Track largest digit found
+        string result = "";
+
+        for (int i = 1; i < (int)num.length() - 1; i++) {
+            if (num[i - 1] == num[i] && num[i] == num[i + 1]) {
+                if (num[i] - '0' > largest) {
+                    largest = num[i] - '0';
+                    result = string(3, num[i]); // Create "xxx"
+                }
+            }
+        }
+
+        return (largest == INT_MIN) ? "" : result;
+    }
+};
+
+/*
+================================================================================
+Example Usage:
+--------------------------------------------------------------------------------
+Input:
+    num = "6777133339"
+Output:
+    "777"
+Explanation:
+    Good integers: "777", "333"
+    Largest is "777"
+================================================================================
+*/
