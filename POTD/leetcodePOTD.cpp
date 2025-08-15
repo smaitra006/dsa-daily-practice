@@ -2790,7 +2790,7 @@ Explanation:
 Problem: Largest 3-Same-Digit Number in String (LeetCode 2264)
 ================================================================================
 Task:
-    Given a string num representing a large integer, return the largest good 
+    Given a string num representing a large integer, return the largest good
     integer as a string.
 
     A "good integer" is a substring of length 3 that consists of the same digit.
@@ -2805,9 +2805,9 @@ Approach:
 
 --------------------------------------------------------------------------------
 Complexity Analysis:
-    Time Complexity:  O(n) 
+    Time Complexity:  O(n)
         - We scan the string once.
-    Space Complexity: O(1) 
+    Space Complexity: O(1)
         - Only a few variables are used.
 ================================================================================
 */
@@ -2842,5 +2842,67 @@ Output:
 Explanation:
     Good integers: "777", "333"
     Largest is "777"
+================================================================================
+*/
+
+/*
+================================================================================
+Problem: Power of Four (LeetCode 342)
+================================================================================
+Task:
+    Given an integer n, return true if it is a power of four.
+    Otherwise, return false.
+
+    An integer n is a power of four if there exists an integer x such that:
+        n == 4^x
+
+--------------------------------------------------------------------------------
+Approach:
+    1. Handle base cases:
+        - If n == 1 → true (4^0 = 1)
+        - If n < 4 → false
+    2. While n is divisible by 4, keep dividing by 4.
+    3. If after all divisions, n becomes 1 → return true.
+    4. Else → return false.
+
+--------------------------------------------------------------------------------
+Complexity Analysis:
+    Time Complexity:  O(log₄(n))  // Each division reduces n by factor of 4
+    Space Complexity: O(1)        // Constant space used
+================================================================================
+*/
+
+class Solution {
+public:
+    bool isPowerOfFour(int n) {
+        if (n == 1) return true;  // 4^0 = 1
+        if (n < 4) return false;  // Cannot be a power of 4
+
+        while (n % 4 == 0) {      // Keep dividing by 4
+            n /= 4;
+        }
+
+        return n == 1;
+    }
+};
+
+/*
+================================================================================
+Example Usage:
+--------------------------------------------------------------------------------
+Input:
+    n = 16
+Output:
+    true
+Explanation:
+    16 = 4^2 → power of four.
+
+--------------------------------------------------------------------------------
+Input:
+    n = 8
+Output:
+    false
+Explanation:
+    8 is not a power of four.
 ================================================================================
 */
