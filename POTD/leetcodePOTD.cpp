@@ -2906,3 +2906,80 @@ Explanation:
     8 is not a power of four.
 ================================================================================
 */
+
+/*
+================================================================================
+Problem: Maximum 69 Number (LeetCode 1323)
+================================================================================
+Task:
+    You are given a positive integer num consisting only of digits 6 and 9.
+    Return the maximum number you can get by changing at most one digit (6 → 9).
+
+--------------------------------------------------------------------------------
+Approach:
+    1. Extract all digits from num and store them in a vector.
+    2. Reverse to restore correct digit order.
+    3. Traverse digits from left to right:
+        - Change the first occurrence of 6 → 9 (to maximize the number).
+        - Break after the first change.
+    4. Reconstruct the number from the updated digits.
+    5. Return the new number.
+
+--------------------------------------------------------------------------------
+Complexity Analysis:
+    Time Complexity:  O(d)  // d = number of digits in num
+    Space Complexity: O(d)  // for storing digits in a vector
+================================================================================
+*/
+
+class Solution {
+public:
+    int maximum69Number(int num) {
+        vector<int> digits;
+
+        // Extract digits from num
+        while (num != 0) {
+            digits.push_back(num % 10);
+            num /= 10;
+        }
+
+        // Restore correct digit order
+        reverse(digits.begin(), digits.end());
+
+        // Change the first 6 → 9
+        for (int i = 0; i < digits.size(); i++) {
+            if (digits[i] == 6) {
+                digits[i] = 9;
+                break;
+            }
+        }
+
+        // Reconstruct the number
+        for (int i = 0; i < digits.size(); i++) {
+            num = num * 10 + digits[i];
+        }
+
+        return num;
+    }
+};
+
+/*
+================================================================================
+Example Usage:
+--------------------------------------------------------------------------------
+Input:
+    num = 9669
+Output:
+    9969
+Explanation:
+    Change the first '6' to '9' → maximum number.
+
+--------------------------------------------------------------------------------
+Input:
+    num = 9999
+Output:
+    9999
+Explanation:
+    No '6' found → number remains unchanged.
+================================================================================
+*/
