@@ -2983,3 +2983,110 @@ Explanation:
     No '6' found → number remains unchanged.
 ================================================================================
 */
+
+/*
+================================================================================
+Problem: 24 Game (LeetCode 679)
+================================================================================
+Task:
+    You are given an integer array cards of length 4.
+    You have four numbers and you need to return true if you can get 24 by
+    applying the operations (+, -, *, /) and using each number exactly once.
+
+    Operations can be performed in any order and at any depth of parentheses.
+
+--------------------------------------------------------------------------------
+Approach (Backtracking + Floating Point Precision):
+    1. Convert integers to doubles (to handle division results).
+    2. Recursively reduce the problem:
+        - Pick any two numbers (i, j).
+        - Combine them with all possible operations.
+        - Recurse with the reduced set of numbers.
+    3. Base case:
+        - If only one number remains, check if it's close enough to 24.
+    4. Use small epsilon (1e-6) for floating point comparison.
+
+--------------------------------------------------------------------------------
+Complexity Analysis:
+    Time Complexity:  O(N! * N) ≈ O(4! * 4) = O(96)
+        - For each pair of numbers, we try all 6 operations.
+        - Search space is small (at most 4! permutations).
+    Space Complexity: O(N) recursion depth + O(N) auxiliary storage
+================================================================================
+*/
+
+class Solution {
+public:
+    bool judgePoint24(vector<int>& cards)
+    {
+        vector<double> nums(cards.begin(), cards.end());
+        return backtrack(nums);
+    }
+
+private:
+    // Recursive helper
+    bool backtrack(vector<double> nums)
+    {
+        // Base case: check if the last number is close to 24
+        if (nums.size() == 1) {
+            return fabs(nums[0] - 24.0) < 1e-6;
+        }
+
+        int n = nums.size();
+        // Try all pairs of numbers
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                vector<double> newNums;
+
+                // Keep all numbers except i and j
+                for (int k = 0; k < n; k++) {
+                    if (k != i && k != j) newNums.push_back(nums[k]);
+                }
+
+                // Try all combinations of nums[i] and nums[j]
+                for (double x : combine(nums[i], nums[j])) {
+                    newNums.push_back(x);
+                    if (backtrack(newNums)) return true;
+                    newNums.pop_back(); // backtrack
+                }
+            }
+        }
+        return false;
+    }
+
+    // Generate all possible results of combining a and b
+    unordered_set<double> combine(double a, double b)
+    {
+        unordered_set<double> res;
+        res.insert(a + b);
+        res.insert(a - b);
+        res.insert(b - a);
+        res.insert(a * b);
+
+        if (fabs(a) > 1e-6) res.insert(b / a);
+        if (fabs(b) > 1e-6) res.insert(a / b);
+
+        return res;
+    }
+};
+
+/*
+================================================================================
+Example Usage:
+--------------------------------------------------------------------------------
+Input:
+    cards = [4, 1, 8, 7]
+Output:
+    true
+Explanation:
+    (8 - 4) * (7 - 1) = 24
+
+--------------------------------------------------------------------------------
+Input:
+    cards = [1, 2, 1, 2]
+Output:
+    false
+Explanation:
+    No sequence of operations yields 24.
+================================================================================
+*/
