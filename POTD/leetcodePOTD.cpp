@@ -3090,3 +3090,72 @@ Explanation:
     No sequence of operations yields 24.
 ================================================================================
 */
+
+/*
+================================================================================
+Problem: Zero-Filled Subarrays (LeetCode 2348)
+================================================================================
+Task:
+    Given an integer array nums, return the number of subarrays filled with 0.
+
+    A subarray is a contiguous non-empty sequence of elements within an array.
+
+--------------------------------------------------------------------------------
+Approach (Streak Counting):
+    1. Traverse the array and maintain a running count `streak` of consecutive 0s.
+    2. Each time we encounter a 0:
+        - Increase `streak`.
+        - Add `streak` to the total count `cnt` (since every new 0 extends
+          all previous zero subarrays by 1, plus itself).
+    3. Reset `streak` when a non-zero element is encountered.
+    4. The accumulated `cnt` is the result.
+
+--------------------------------------------------------------------------------
+Complexity Analysis:
+    Time Complexity:  O(N)
+        - Single pass through nums.
+    Space Complexity: O(1)
+        - Constant extra space used.
+================================================================================
+*/
+
+class Solution {
+public:
+    long long zeroFilledSubarray(vector<int>& nums) {
+        long long cnt = 0;     // Total count of zero-filled subarrays
+        long long streak = 0;  // Length of current consecutive zero streak
+
+        for (int num : nums) {
+            if (num == 0) {
+                streak++;       // Extend streak
+                cnt += streak;  // Add all new subarrays ending here
+            } else {
+                streak = 0;     // Reset streak
+            }
+        }
+        return cnt;
+    }
+};
+
+/*
+================================================================================
+Example Usage:
+--------------------------------------------------------------------------------
+Input:
+    nums = [1, 3, 0, 0, 2, 0, 0, 4]
+Output:
+    6
+Explanation:
+    Subarrays with all zeros:
+    [0], [0], [0,0], [0], [0], [0,0]
+
+--------------------------------------------------------------------------------
+Input:
+    nums = [0, 0, 0, 2, 0, 0]
+Output:
+    9
+Explanation:
+    Subarrays with all zeros:
+    [0], [0], [0], [0,0], [0,0], [0], [0], [0,0], [0,0,0]
+================================================================================
+*/
