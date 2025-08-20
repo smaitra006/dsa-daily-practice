@@ -3159,3 +3159,99 @@ Explanation:
     [0], [0], [0], [0,0], [0,0], [0], [0], [0,0], [0,0,0]
 ================================================================================
 */
+
+/*
+================================================================================
+Problem: Count Square Submatrices with All Ones (LeetCode 1277)
+================================================================================
+Task:
+    Given a m x n binary matrix (0s and 1s), return the total number of square
+    submatrices with all ones.
+
+--------------------------------------------------------------------------------
+Approach (Dynamic Programming with In-Place Update):
+    1. Each cell (i, j) in the matrix represents the maximum size of a square
+       submatrix with all ones that ends at (i, j).
+    2. Transition:
+       If matrix[i][j] == 1 and i > 0 and j > 0:
+            matrix[i][j] = min(
+                                matrix[i-1][j],     // Top
+                                matrix[i][j-1],     // Left
+                                matrix[i-1][j-1]    // Top-left
+                              ) + 1;
+       Otherwise, it remains 1 (if it's already 1).
+    3. Accumulate these values in `res` since each size-k square contributes to
+       exactly one valid square ending at (i, j).
+    4. Return the total count.
+
+--------------------------------------------------------------------------------
+Complexity Analysis:
+    Time Complexity:  O(m * n)
+        - We process each cell once.
+    Space Complexity: O(1)
+        - DP is done in-place by modifying the input matrix.
+================================================================================
+*/
+
+class Solution {
+public:
+    int countSquares(vector<vector<int>>& matrix)
+    {
+        int m = matrix.size();
+        if (m == 0) return 0;
+
+        int n = matrix[0].size();
+        int res = 0;  // Total count of square submatrices
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (matrix[i][j] == 1 && i > 0 && j > 0) {
+                    // Update current cell with max square size ending here
+                    matrix[i][j] = min({
+                        matrix[i - 1][j],     // Top
+                        matrix[i][j - 1],     // Left
+                        matrix[i - 1][j - 1]    // Top-left
+                        }) + 1;
+                }
+                res += matrix[i][j]; // Add all squares ending at (i, j)
+            }
+        }
+        return res;
+    }
+};
+
+/*
+================================================================================
+Example Usage:
+--------------------------------------------------------------------------------
+Input:
+    matrix = [
+        [0,1,1,1],
+        [1,1,1,1],
+        [0,1,1,1]
+    ]
+Output:
+    15
+Explanation:
+    Squares are counted as:
+    - 10 squares of size 1
+    - 4 squares of size 2
+    - 1 square of size 3
+    Total = 15
+
+--------------------------------------------------------------------------------
+Input:
+    matrix = [
+        [1,0,1],
+        [1,1,0],
+        [1,1,0]
+    ]
+Output:
+    7
+Explanation:
+    Squares are counted as:
+    - 6 squares of size 1
+    - 1 square of size 2
+    Total = 7
+================================================================================
+*/
