@@ -3255,3 +3255,86 @@ Explanation:
     Total = 7
 ================================================================================
 */
+
+/*
+================================================================================
+Problem: Count Submatrices With All Ones (LeetCode 1504)
+================================================================================
+Task:
+    Given a binary matrix `mat`, return the number of submatrices
+    that contain all ones.
+
+--------------------------------------------------------------------------------
+Approach:
+    1. Use histogram technique:
+        - For each row, build heights array `h[j]` representing
+          consecutive `1`s up to that row for each column.
+    2. For each position `(i, j)`:
+        - Consider `h[j]` as the minimum height of rectangle ending at column j.
+        - Extend leftwards (columns k = j → 0),
+          maintaining the minimum height so far.
+        - Accumulate the number of rectangles possible at each step.
+    3. Sum across all rows.
+
+--------------------------------------------------------------------------------
+Complexity Analysis:
+    Let m = rows, n = columns.
+
+    Time Complexity:  O(m * n^2)
+        - For each row, we process n columns and for each column,
+          we may look leftwards up to n.
+    Space Complexity: O(n)
+        - For maintaining histogram heights.
+================================================================================
+*/
+
+class Solution {
+public:
+    int numSubmat(vector<vector<int>>& mat)
+    {
+        int m = mat.size(), n = mat[0].size();
+        vector<int> h(n, 0);   // histogram heights
+        int cnt = 0;           // total submatrices
+
+        for (int i = 0; i < m; i++) {
+            // Step 1: update histogram heights for row i
+            for (int j = 0; j < n; j++) {
+                h[j] = mat[i][j] ? h[j] + 1 : 0;
+            }
+
+            // Step 2: count rectangles ending at row i
+            for (int j = 0; j < n; j++) {
+                int mn = h[j];
+                for (int k = j; k >= 0 && mn > 0; k--) {
+                    mn = min(mn, h[k]);   // minimum height across window
+                    cnt += mn;            // add possible submatrices
+                }
+            }
+        }
+        return cnt;
+    }
+};
+
+/*
+================================================================================
+Example Usage:
+--------------------------------------------------------------------------------
+Input:
+    mat = [
+        [1,0,1],
+        [1,1,0],
+        [1,1,0]
+    ]
+
+Output:
+    13
+
+Explanation:
+    Possible submatrices with all ones are counted row by row using histogram.
+--------------------------------------------------------------------------------
+Notes:
+    - Histogram trick converts the problem into rectangle counting.
+    - Optimized stack-based solution exists with O(m * n),
+      but this O(m * n^2) approach is acceptable for constraints.
+================================================================================
+*/
