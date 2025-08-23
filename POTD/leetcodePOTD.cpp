@@ -3338,3 +3338,150 @@ Notes:
       but this O(m * n^2) approach is acceptable for constraints.
 ================================================================================
 */
+
+/*
+==============================================================================
+Problem: Minimum Sum of Three Non-Overlapping Rectangles Covering All Ones
+==============================================================================
+You are given a binary grid (matrix) consisting of 0s and 1s.
+The task is to cover all cells containing 1s using at most three
+non-overlapping rectangles. Each rectangle must cover only cells of the grid
+(submatrix) and their total area is minimized.
+
+Return the minimum possible sum of the areas of such rectangles.
+
+------------------------------------------------------------------------------
+Approach:
+1. Precompute a prefix sum `pre` to quickly count 1s in any submatrix.
+2. Define helper functions:
+   - `countOnes(r1, r2, c1, c2)`: counts number of 1s in the submatrix.
+   - `boundingArea(r1, r2, c1, c2)`: computes bounding rectangle area
+     that covers all 1s inside the given submatrix.
+3. Use 4D DP:
+   - dp1[r1][r2][c1][c2] → minimum area to cover 1s with 1 rectangle.
+   - dp2[r1][r2][c1][c2] → minimum area with 2 rectangles.
+   - dp3[r1][r2][c1][c2] → minimum area with 3 rectangles.
+4. Iterate over all submatrices by height and width.
+5. For each submatrix:
+   - Base case: cover with 1 rectangle.
+   - Try vertical & horizontal splits to divide into smaller submatrices
+     for dp2 and dp3.
+6. Answer is `dp3[0][n-1][0][m-1]`.
+
+------------------------------------------------------------------------------
+Complexity:
+- Time:  O(n^2 * m^2 * (n + m)) due to iterating all submatrices and
+         splitting in both directions.
+- Space: O(n^2 * m^2) for the 4D DP arrays.
+
+==============================================================================
+*/
+
+class Solution {
+public:
+    int minimumSum(vector<vector<int>>& grid)
+    {
+        int n = grid.size(), m = grid[0].size();
+
+        // ---------------------------------------------------------------------
+        // Prefix sum for fast submatrix sum
+        // ---------------------------------------------------------------------
+        vector<vector<int>> pre(n + 1, vector<int>(m + 1, 0));
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < m; ++j)
+                pre[i + 1][j + 1] = pre[i + 1][j] + pre[i][j + 1] - pre[i][j] + grid[i][j];
+
+        // Count number of 1s in submatrix [r1..r2][c1..c2]
+        auto countOnes = [&](int r1, int r2, int c1, int c2) -> int {
+            if (r1 > r2 || c1 > c2) return 0;
+            return pre[r2 + 1][c2 + 1] - pre[r1][c2 + 1] - pre[r2 + 1][c1] + pre[r1][c1];
+            };
+
+        // Bounding rectangle area covering all 1s in submatrix
+        auto boundingArea = [&](int r1, int r2, int c1, int c2) -> int {
+            int cnt = countOnes(r1, r2, c1, c2);
+            if (cnt == 0) return 0;
+
+            int top = r1, bottom = r2, left = c1, right = c2;
+            while (top <= r2 && countOnes(top, top, c1, c2) == 0) ++top;
+            while (bottom >= r1 && countOnes(bottom, bottom, c1, c2) == 0) --bottom;
+            while (left <= c2 && countOnes(r1, r2, left, left) == 0) ++left;
+            while (right >= c1 && countOnes(r1, r2, right, right) == 0) --right;
+
+            return (bottom - top + 1) * (right - left + 1);
+            };
+
+        // ---------------------------------------------------------------------
+        // Initialize 4D DP arrays: dp1, dp2, dp3
+        // ---------------------------------------------------------------------
+        auto make4D = [&](int init) {
+            return vector(n, vector(n, vector(m, vector<int>(m, init))));
+            };
+        auto dp1 = make4D(0), dp2 = make4D(0), dp3 = make4D(0);
+
+        // ---------------------------------------------------------------------
+        // Iterate over all submatrices by height & width
+        // ---------------------------------------------------------------------
+        for (int h = 1; h <= n; ++h) {
+            for (int r1 = 0; r1 + h - 1 < n; ++r1) {
+                int r2 = r1 + h - 1;
+                for (int w = 1; w <= m; ++w) {
+                    for (int c1 = 0; c1 + w - 1 < m; ++c1) {
+                        int c2 = c1 + w - 1;
+
+                        int cnt = countOnes(r1, r2, c1, c2);
+                        if (cnt == 0) {
+                            dp1[r1][r2][c1][c2] = dp2[r1][r2][c1][c2] = dp3[r1][r2][c1][c2] = 0;
+                            continue;
+                        }
+
+                        // Base: one rectangle
+                        int one = boundingArea(r1, r2, c1, c2);
+                        int best2 = one, best3 = one;
+
+                        // -----------------------------------------------------
+                        // Vertical splits
+                        // -----------------------------------------------------
+                        for (int mid = c1; mid < c2; ++mid) {
+                            int lcnt = countOnes(r1, r2, c1, mid);
+                            int rcnt = cnt - lcnt;
+
+                            best2 = min(best2, dp1[r1][r2][c1][mid] + dp1[r1][r2][mid + 1][c2]);
+                            if (rcnt == 0) best2 = min(best2, dp2[r1][r2][c1][mid]);
+                            if (lcnt == 0) best2 = min(best2, dp2[r1][r2][mid + 1][c2]);
+
+                            best3 = min(best3, dp2[r1][r2][c1][mid] + dp1[r1][r2][mid + 1][c2]);
+                            best3 = min(best3, dp1[r1][r2][c1][mid] + dp2[r1][r2][mid + 1][c2]);
+                            if (rcnt == 0) best3 = min(best3, dp3[r1][r2][c1][mid]);
+                            if (lcnt == 0) best3 = min(best3, dp3[r1][r2][mid + 1][c2]);
+                        }
+
+                        // -----------------------------------------------------
+                        // Horizontal splits
+                        // -----------------------------------------------------
+                        for (int mid = r1; mid < r2; ++mid) {
+                            int tcnt = countOnes(r1, mid, c1, c2);
+                            int bcnt = cnt - tcnt;
+
+                            best2 = min(best2, dp1[r1][mid][c1][c2] + dp1[mid + 1][r2][c1][c2]);
+                            if (bcnt == 0) best2 = min(best2, dp2[r1][mid][c1][c2]);
+                            if (tcnt == 0) best2 = min(best2, dp2[mid + 1][r2][c1][c2]);
+
+                            best3 = min(best3, dp2[r1][mid][c1][c2] + dp1[mid + 1][r2][c1][c2]);
+                            best3 = min(best3, dp1[r1][mid][c1][c2] + dp2[mid + 1][r2][c1][c2]);
+                            if (bcnt == 0) best3 = min(best3, dp3[r1][mid][c1][c2]);
+                            if (tcnt == 0) best3 = min(best3, dp3[mid + 1][r2][c1][c2]);
+                        }
+
+                        dp1[r1][r2][c1][c2] = one;
+                        dp2[r1][r2][c1][c2] = best2;
+                        dp3[r1][r2][c1][c2] = best3;
+                    }
+                }
+            }
+        }
+
+        // Final result: minimum sum using up to 3 rectangles
+        return dp3[0][n - 1][0][m - 1];
+    }
+};
