@@ -7,42 +7,42 @@ using namespace std;
  * PROBLEM 3330: FIND THE ORIGINAL TYPED STRING I (LeetCode)
  * =================================================================== */
 
-/**
- * @brief Return the total number of possible original strings
- *
- * PROBLEM STATEMENT:
- * Alice typed a string `word` on her keyboard. She may have pressed at most
- * one key for **too long**, causing a character to repeat one or more times.
- *
- * You are given the final string `word`. Determine how many **possible original
- * strings** Alice could have intended to type.
- *
- * A character group of repeated characters could be reduced to just one character
- * (only one group can be reduced in total).
- *
- * EXAMPLE:
- * Input:  word = "aaab"
- * Output: 3
- * Explanation: Alice may have intended to type "aab", "ab", or "aaab".
- *
- * APPROACH:
- * - Traverse the string and identify groups of consecutive identical characters.
- * - Each such group (of length > 1) is a candidate for being the *long press* group.
- * - Only one group can be reduced — total possible original strings = number of such groups + 1
- *   (1 for the case where Alice didn't long press at all).
- *
- * STRATEGY:
- * - Initialize `possible = 1` for the no-long-press case.
- * - For each index `i`, if word[i] == word[i-1], it is part of a long-press group.
- *   Increment `possible` for each group (counted only once per group).
- *
- * @param word The final typed string shown on screen
- * @return int Total number of possible original strings
- *
- * @complexity
- * Time: O(N) — single traversal of the string
- * Space: O(1) — constant extra space
- */
+ /**
+  * @brief Return the total number of possible original strings
+  *
+  * PROBLEM STATEMENT:
+  * Alice typed a string `word` on her keyboard. She may have pressed at most
+  * one key for **too long**, causing a character to repeat one or more times.
+  *
+  * You are given the final string `word`. Determine how many **possible original
+  * strings** Alice could have intended to type.
+  *
+  * A character group of repeated characters could be reduced to just one character
+  * (only one group can be reduced in total).
+  *
+  * EXAMPLE:
+  * Input:  word = "aaab"
+  * Output: 3
+  * Explanation: Alice may have intended to type "aab", "ab", or "aaab".
+  *
+  * APPROACH:
+  * - Traverse the string and identify groups of consecutive identical characters.
+  * - Each such group (of length > 1) is a candidate for being the *long press* group.
+  * - Only one group can be reduced — total possible original strings = number of such groups + 1
+  *   (1 for the case where Alice didn't long press at all).
+  *
+  * STRATEGY:
+  * - Initialize `possible = 1` for the no-long-press case.
+  * - For each index `i`, if word[i] == word[i-1], it is part of a long-press group.
+  *   Increment `possible` for each group (counted only once per group).
+  *
+  * @param word The final typed string shown on screen
+  * @return int Total number of possible original strings
+  *
+  * @complexity
+  * Time: O(N) — single traversal of the string
+  * Space: O(1) — constant extra space
+  */
 
 class Solution
 {
@@ -51,11 +51,9 @@ public:
     {
         int possible = 1; // No long-press case is always valid
 
-        for (int i = 1; i < word.size(); i++)
-        {
+        for (int i = 1; i < word.size(); i++) {
             // If a new long-press group starts
-            if (word[i] == word[i - 1])
-            {
+            if (word[i] == word[i - 1]) {
                 possible++;
             }
         }
@@ -68,46 +66,46 @@ public:
  * PROBLEM 3333: FIND THE ORIGINAL TYPED STRING II (LeetCode)
  * =================================================================== */
 
-/**
- * @brief Count total possible original strings given final string and length constraint
- *
- * PROBLEM STATEMENT:
- * Alice was trying to type a string, but she may have pressed a key for too long,
- * causing some characters to repeat. She did this clumsily at most once per character group.
- *
- * You're given:
- * - `word`: the final typed string (may contain long presses)
- * - `k`: the minimum length of the original string
- *
- * Return the number of possible original strings Alice could have intended to type
- * that are of length at least `k`. Since the result may be large, return it modulo 1e9+7.
- *
- * EXAMPLE:
- * Input:  word = "aaabb", k = 2
- * Output: 5
- * Explanation: All possible compressed combinations of length ≥ 2 are counted.
- *
- * APPROACH:
- * - First, break `word` into consecutive character groups (e.g., "aaabb" → [3,2]).
- * - For each group of length `g`, we can choose to reduce it to size `1` through `g`.
- * - So, total possible combinations = product of sizes of all groups.
- *
- * - However, we must subtract those combinations where the final compressed string
- *   has length less than `k`.
- *
- * STRATEGY:
- * - Use DP to count the number of ways to compress groups such that resulting length < k.
- * - Use prefix sum technique within DP for efficiency.
- * - Subtract invalid counts from total.
- *
- * @param word The final typed string (after clumsy typing)
- * @param k Minimum required length of original string
- * @return int Total number of valid original strings modulo 1e9+7
- *
- * @complexity
- * Time:  O(N * k) — where N = number of character groups in `word`
- * Space: O(k) — dynamic programming with space optimization
- */
+ /**
+  * @brief Count total possible original strings given final string and length constraint
+  *
+  * PROBLEM STATEMENT:
+  * Alice was trying to type a string, but she may have pressed a key for too long,
+  * causing some characters to repeat. She did this clumsily at most once per character group.
+  *
+  * You're given:
+  * - `word`: the final typed string (may contain long presses)
+  * - `k`: the minimum length of the original string
+  *
+  * Return the number of possible original strings Alice could have intended to type
+  * that are of length at least `k`. Since the result may be large, return it modulo 1e9+7.
+  *
+  * EXAMPLE:
+  * Input:  word = "aaabb", k = 2
+  * Output: 5
+  * Explanation: All possible compressed combinations of length ≥ 2 are counted.
+  *
+  * APPROACH:
+  * - First, break `word` into consecutive character groups (e.g., "aaabb" → [3,2]).
+  * - For each group of length `g`, we can choose to reduce it to size `1` through `g`.
+  * - So, total possible combinations = product of sizes of all groups.
+  *
+  * - However, we must subtract those combinations where the final compressed string
+  *   has length less than `k`.
+  *
+  * STRATEGY:
+  * - Use DP to count the number of ways to compress groups such that resulting length < k.
+  * - Use prefix sum technique within DP for efficiency.
+  * - Subtract invalid counts from total.
+  *
+  * @param word The final typed string (after clumsy typing)
+  * @param k Minimum required length of original string
+  * @return int Total number of valid original strings modulo 1e9+7
+  *
+  * @complexity
+  * Time:  O(N * k) — where N = number of character groups in `word`
+  * Space: O(k) — dynamic programming with space optimization
+  */
 
 class Solution
 {
@@ -123,12 +121,10 @@ public:
         vector<int> groups;
         int count = 1;
 
-        for (int i = 1; i < word.size(); i++)
-        {
+        for (int i = 1; i < word.size(); i++) {
             if (word[i] == word[i - 1])
                 count++;
-            else
-            {
+            else {
                 groups.push_back(count);
                 count = 1;
             }
@@ -137,25 +133,21 @@ public:
 
         // Step 2: Calculate total possible combinations
         long total = 1;
-        for (int g : groups)
-        {
+        for (int g : groups) {
             total = (total * g) % MOD;
         }
 
         // Step 3: If k is more than max possible original string length, it's invalid
-        if (k > groups.size())
-        {
+        if (k > groups.size()) {
             // DP[s]: Number of ways to get a compressed string of length s
             vector<int> dp(k, 0);
             dp[0] = 1;
 
-            for (int g : groups)
-            {
+            for (int g : groups) {
                 vector<int> new_dp(k, 0);
                 long sum = 0;
 
-                for (int s = 0; s < k; s++)
-                {
+                for (int s = 0; s < k; s++) {
                     if (s > 0)
                         sum = (sum + dp[s - 1]) % MOD;
                     if (s > g)
@@ -169,8 +161,7 @@ public:
 
             // Step 4: Sum all invalid cases with length < k
             long invalid = 0;
-            for (int s = groups.size(); s < k; s++)
-            {
+            for (int s = groups.size(); s < k; s++) {
                 invalid = (invalid + dp[s]) % MOD;
             }
 
@@ -186,37 +177,37 @@ public:
  * PROBLEM 3304: FIND THE K-TH CHARACTER IN STRING GAME I (LeetCode)
  * ================================================================ */
 
-/**
- * @brief Return the k-th character in a growing string generated by simulation
- *
- * GAME RULE:
- * - Start with word = "a"
- * - Each operation:
- *     → For every character c in word, compute its next character
- *       (i.e., 'a' → 'b', ..., 'z' → 'a')
- *     → Append the new characters to the original word
- *
- * For example:
- * "a" → "ab"
- * "ab" → "abbc"
- * "abbc" → "abbcbccd"
- *
- * We are to return the k-th character (1-indexed) after enough operations such
- * that the word length is ≥ k.
- *
- * SOLUTION:
- * - Simulate the process until the word has at least k characters
- * - At each step:
- *     → Generate "next characters" and append to the original word
- * - Return word[k - 1]
- *
- * @param k The 1-based position of the desired character
- * @return char The k-th character after simulation
- *
- * @complexity
- * Time: O(k) — in the worst case, we may simulate until string length reaches k
- * Space: O(k) — storing the expanded string
- */
+ /**
+  * @brief Return the k-th character in a growing string generated by simulation
+  *
+  * GAME RULE:
+  * - Start with word = "a"
+  * - Each operation:
+  *     → For every character c in word, compute its next character
+  *       (i.e., 'a' → 'b', ..., 'z' → 'a')
+  *     → Append the new characters to the original word
+  *
+  * For example:
+  * "a" → "ab"
+  * "ab" → "abbc"
+  * "abbc" → "abbcbccd"
+  *
+  * We are to return the k-th character (1-indexed) after enough operations such
+  * that the word length is ≥ k.
+  *
+  * SOLUTION:
+  * - Simulate the process until the word has at least k characters
+  * - At each step:
+  *     → Generate "next characters" and append to the original word
+  * - Return word[k - 1]
+  *
+  * @param k The 1-based position of the desired character
+  * @return char The k-th character after simulation
+  *
+  * @complexity
+  * Time: O(k) — in the worst case, we may simulate until string length reaches k
+  * Space: O(k) — storing the expanded string
+  */
 
 class Solution
 {
@@ -225,8 +216,7 @@ public:
     string solve(string word)
     {
         string next = "";
-        for (char c : word)
-        {
+        for (char c : word) {
             // 'z' should wrap around to 'a'
             next += (c == 'z') ? 'a' : (c + 1);
         }
@@ -239,8 +229,7 @@ public:
         string word = "a";
 
         // Keep growing the word until it has at least k characters
-        while (word.size() < k)
-        {
+        while (word.size() < k) {
             word += solve(word);
         }
 
@@ -252,36 +241,36 @@ public:
  * PROBLEM 3307: FIND THE K-TH CHARACTER IN STRING GAME II (LeetCode Hard)
  * ===================================================================================== */
 
-/**
- * @brief Simulate string operations without building the full string, and return the k-th character.
- *
- * PROBLEM STATEMENT:
- * Initially, Alice has a string `word = "a"`.
- * You're given an array `operations` and a number `k`.
- *
- * For each operation in `operations[i]`:
- * - If `operations[i] == 0`: word = word + word
- * - If `operations[i] == 1`: word = word + shift(word) → where each character moves to the next (z→a)
- *
- * Return the character at the `k-th` position (1-indexed) after all operations.
- * Note: String grows exponentially, so building it directly is not feasible.
- *
- * EXAMPLE:
- * Input: k = 4, operations = [0, 1]
- * Output: 'c'
- *
- * STRATEGY:
- * - Instead of constructing the full string, calculate the number of characters added by each operation.
- * - Work backwards from the last operation using recursion.
- * - At each step:
- *   → If `pows[i] < k`, then the character at `k` lies in the appended portion → reduce k and update answer.
- *   → If not, continue to earlier operations.
- * - Use modulo 26 to determine character value from index.
- *
- * @complexity
- * Time: O(n) where n = operations.size() (up to 55 due to 2^55 > 10^16)
- * Space: O(n) recursion stack + O(n) for power array
- */
+ /**
+  * @brief Simulate string operations without building the full string, and return the k-th character.
+  *
+  * PROBLEM STATEMENT:
+  * Initially, Alice has a string `word = "a"`.
+  * You're given an array `operations` and a number `k`.
+  *
+  * For each operation in `operations[i]`:
+  * - If `operations[i] == 0`: word = word + word
+  * - If `operations[i] == 1`: word = word + shift(word) → where each character moves to the next (z→a)
+  *
+  * Return the character at the `k-th` position (1-indexed) after all operations.
+  * Note: String grows exponentially, so building it directly is not feasible.
+  *
+  * EXAMPLE:
+  * Input: k = 4, operations = [0, 1]
+  * Output: 'c'
+  *
+  * STRATEGY:
+  * - Instead of constructing the full string, calculate the number of characters added by each operation.
+  * - Work backwards from the last operation using recursion.
+  * - At each step:
+  *   → If `pows[i] < k`, then the character at `k` lies in the appended portion → reduce k and update answer.
+  *   → If not, continue to earlier operations.
+  * - Use modulo 26 to determine character value from index.
+  *
+  * @complexity
+  * Time: O(n) where n = operations.size() (up to 55 due to 2^55 > 10^16)
+  * Space: O(n) recursion stack + O(n) for power array
+  */
 
 class Solution
 {
@@ -290,7 +279,7 @@ public:
     vector<ll> pows;
 
     // Helper function to recursively find how many +1 shifts were applied to get to the kth character
-    int f(int index, ll k, vector<int> &operations)
+    int f(int index, ll k, vector<int>& operations)
     {
         if (index < 0)
             return 0; // base case: we're at the original 'a'
@@ -299,8 +288,7 @@ public:
             return f(index - 1, k, operations); // beyond limit (2^55 > 10^16)
 
         // If kth character is in the added portion of this operation
-        if (pows[index] < k)
-        {
+        if (pows[index] < k) {
             return operations[index] + f(index - 1, k - pows[index], operations);
         }
 
@@ -308,14 +296,13 @@ public:
         return f(index - 1, k, operations);
     }
 
-    char kthCharacter(long long k, vector<int> &operations)
+    char kthCharacter(long long k, vector<int>& operations)
     {
         pows.resize(55, 1);
         pows[0] = 1;
 
         // Precompute powers: pows[i] = total size of string after i operations
-        for (int i = 1; i < 55; i++)
-        {
+        for (int i = 1; i < 55; i++) {
             pows[i] = 2 * pows[i - 1];
         }
 
@@ -329,57 +316,54 @@ public:
  * LEETCODE 1394: FIND LUCKY INTEGER IN AN ARRAY
  * =================================================================== */
 
-/**
- * @brief Return the largest lucky integer in the array
- *
- * PROBLEM STATEMENT:
- * Given an array of integers `arr`, a **lucky integer** is an integer
- * whose value is equal to its frequency in the array.
- *
- * You are to return the **largest lucky integer**. If no lucky integer exists, return -1.
- *
- * Input:
- * - vector<int> arr: Array of integers (1 <= arr.length <= 500)
- *
- * Output:
- * - Integer representing the largest lucky number, or -1 if none exists
- *
- * EXAMPLE:
- * Input: arr = [2,2,3,4]
- * Output: 2
- * (Explanation: The number 2 appears exactly 2 times)
- *
- * ALGORITHM:
- * - Use a hash map to count frequency of each element
- * - Traverse the map and check if any key has key == frequency
- * - Track the maximum such key (lucky number)
- *
- * COMPLEXITY:
- * - Time: O(N) where N is the size of the array
- * - Space: O(N) for the hash map
- */
+ /**
+  * @brief Return the largest lucky integer in the array
+  *
+  * PROBLEM STATEMENT:
+  * Given an array of integers `arr`, a **lucky integer** is an integer
+  * whose value is equal to its frequency in the array.
+  *
+  * You are to return the **largest lucky integer**. If no lucky integer exists, return -1.
+  *
+  * Input:
+  * - vector<int> arr: Array of integers (1 <= arr.length <= 500)
+  *
+  * Output:
+  * - Integer representing the largest lucky number, or -1 if none exists
+  *
+  * EXAMPLE:
+  * Input: arr = [2,2,3,4]
+  * Output: 2
+  * (Explanation: The number 2 appears exactly 2 times)
+  *
+  * ALGORITHM:
+  * - Use a hash map to count frequency of each element
+  * - Traverse the map and check if any key has key == frequency
+  * - Track the maximum such key (lucky number)
+  *
+  * COMPLEXITY:
+  * - Time: O(N) where N is the size of the array
+  * - Space: O(N) for the hash map
+  */
 
 class Solution
 {
 public:
-    int findLucky(vector<int> &arr)
+    int findLucky(vector<int>& arr)
     {
         int n = arr.size();
         unordered_map<int, int> freq;
 
         // Count frequency of each number
-        for (int i = 0; i < n; i++)
-        {
+        for (int i = 0; i < n; i++) {
             freq[arr[i]]++;
         }
 
         int luckyInt = -1;
 
         // Check for lucky numbers
-        for (auto it : freq)
-        {
-            if (it.first == it.second)
-            {
+        for (auto it : freq) {
+            if (it.first == it.second) {
                 luckyInt = max(luckyInt, it.first);
             }
         }
@@ -392,39 +376,39 @@ public:
  * LEETCODE 1865: FINDING PAIRS WITH A CERTAIN SUM
  * =================================================================== */
 
-/**
- * @brief Implement a data structure to support dynamic sum pair queries
- *
- * PROBLEM STATEMENT:
- * You are given two integer arrays `nums1` and `nums2`.
- * Implement a class `FindSumPairs` with the following operations:
- *
- * 1. `add(index, val)` → Adds `val` to `nums2[index]`
- * 2. `count(tot)` → Returns the number of pairs `(i, j)` such that:
- *                   nums1[i] + nums2[j] == tot
- *
- * INPUT:
- * - vector<int> nums1, nums2
- * - Queries: add(index, val), count(tot)
- *
- * OUTPUT:
- * - Integer: Count of valid (i, j) pairs for given `tot`
- *
- * EXAMPLE:
- * Input:
- * FindSumPairs([[1,1,2,2,2,3], [1,4,5,2,5,4]])
- * add(3, 2)
- * count(7) → Count pairs (i, j) such that nums1[i] + nums2[j] == 7
- *
- * ALGORITHM:
- * - Use a frequency map for nums2 to quickly count complements in `count(tot)`
- * - Update the map dynamically when `add()` is called
- *
- * COMPLEXITY:
- * - Constructor: O(n) for nums2 frequency map
- * - add(): O(1)
- * - count(): O(n1), where n1 = size of nums1
- */
+ /**
+  * @brief Implement a data structure to support dynamic sum pair queries
+  *
+  * PROBLEM STATEMENT:
+  * You are given two integer arrays `nums1` and `nums2`.
+  * Implement a class `FindSumPairs` with the following operations:
+  *
+  * 1. `add(index, val)` → Adds `val` to `nums2[index]`
+  * 2. `count(tot)` → Returns the number of pairs `(i, j)` such that:
+  *                   nums1[i] + nums2[j] == tot
+  *
+  * INPUT:
+  * - vector<int> nums1, nums2
+  * - Queries: add(index, val), count(tot)
+  *
+  * OUTPUT:
+  * - Integer: Count of valid (i, j) pairs for given `tot`
+  *
+  * EXAMPLE:
+  * Input:
+  * FindSumPairs([[1,1,2,2,2,3], [1,4,5,2,5,4]])
+  * add(3, 2)
+  * count(7) → Count pairs (i, j) such that nums1[i] + nums2[j] == 7
+  *
+  * ALGORITHM:
+  * - Use a frequency map for nums2 to quickly count complements in `count(tot)`
+  * - Update the map dynamically when `add()` is called
+  *
+  * COMPLEXITY:
+  * - Constructor: O(n) for nums2 frequency map
+  * - add(): O(1)
+  * - count(): O(n1), where n1 = size of nums1
+  */
 
 class FindSumPairs
 {
@@ -435,14 +419,13 @@ public:
     /**
      * @brief Initialize the object with two arrays
      */
-    FindSumPairs(vector<int> &nums1, vector<int> &nums2)
+    FindSumPairs(vector<int>& nums1, vector<int>& nums2)
     {
         n1 = nums1;
         n2 = nums2;
 
         // Create frequency map for nums2
-        for (int x : n2)
-        {
+        for (int x : n2) {
             m[x]++;
         }
     }
@@ -464,8 +447,7 @@ public:
     {
         int c = 0;
 
-        for (int x : n1)
-        {
+        for (int x : n1) {
             int complement = tot - x;
             c += m[complement]; // Look up how many times complement exists in nums2
         }
@@ -481,49 +463,48 @@ public:
  * int result = obj->count(tot);
  */
 
-/* ===================================================================
- * LEETCODE 1353: MAXIMUM NUMBER OF EVENTS THAT CAN BE ATTENDED
- * =================================================================== */
+ /* ===================================================================
+  * LEETCODE 1353: MAXIMUM NUMBER OF EVENTS THAT CAN BE ATTENDED
+  * =================================================================== */
 
-/**
- * @brief Attend the maximum number of non-overlapping events
- *
- * PROBLEM STATEMENT:
- * You are given an array of `events` where events[i] = [startDay_i, endDay_i].
- * You can attend only one event per day, and can choose any day `d` such that:
- *     startDay_i <= d <= endDay_i
- *
- * Return the maximum number of events that can be attended.
- *
- * INPUT:
- * - vector<vector<int>> events: list of events as [startDay, endDay]
- *
- * OUTPUT:
- * - int: maximum number of events that can be attended
- *
- * EXAMPLE:
- * Input: events = [[1,2],[2,3],[3,4]]
- * Output: 3
- *
- * ALGORITHM (Greedy + DSU with Path Compression):
- * - Sort events by their end day (to attend earlier-finishing events first)
- * - Use a Disjoint Set (nextDay[i]) to find the earliest free day for an event
- * - Once a day is taken, update it to point to the next available day
- *
- * COMPLEXITY:
- * - Time: O(N log N + M α(N)), where N = number of events, M = max end day
- * - Space: O(M), where M = maximum end day
- */
+  /**
+   * @brief Attend the maximum number of non-overlapping events
+   *
+   * PROBLEM STATEMENT:
+   * You are given an array of `events` where events[i] = [startDay_i, endDay_i].
+   * You can attend only one event per day, and can choose any day `d` such that:
+   *     startDay_i <= d <= endDay_i
+   *
+   * Return the maximum number of events that can be attended.
+   *
+   * INPUT:
+   * - vector<vector<int>> events: list of events as [startDay, endDay]
+   *
+   * OUTPUT:
+   * - int: maximum number of events that can be attended
+   *
+   * EXAMPLE:
+   * Input: events = [[1,2],[2,3],[3,4]]
+   * Output: 3
+   *
+   * ALGORITHM (Greedy + DSU with Path Compression):
+   * - Sort events by their end day (to attend earlier-finishing events first)
+   * - Use a Disjoint Set (nextDay[i]) to find the earliest free day for an event
+   * - Once a day is taken, update it to point to the next available day
+   *
+   * COMPLEXITY:
+   * - Time: O(N log N + M α(N)), where N = number of events, M = max end day
+   * - Space: O(M), where M = maximum end day
+   */
 
 class Solution
 {
     /**
      * @brief DSU find function with path compression to get the next free day
      */
-    int findNext(vector<int> &nextDay, int day)
+    int findNext(vector<int>& nextDay, int day)
     {
-        if (nextDay[day] != day)
-        {
+        if (nextDay[day] != day) {
             nextDay[day] = findNext(nextDay, nextDay[day]); // Path compression
         }
         return nextDay[day];
@@ -533,39 +514,35 @@ public:
     /**
      * @brief Main function to return the max number of events that can be attended
      */
-    int maxEvents(vector<vector<int>> &events)
+    int maxEvents(vector<vector<int>>& events)
     {
         // Step 1: Sort events based on their ending day (greedy strategy)
-        sort(events.begin(), events.end(), [](const vector<int> &a, const vector<int> &b)
-             { return a[1] < b[1]; });
+        sort(events.begin(), events.end(), [](const vector<int>& a, const vector<int>& b)
+            { return a[1] < b[1]; });
 
         // Step 2: Find the latest day among all events to size DSU array
         int maxDay = 0;
-        for (const auto &evt : events)
-        {
+        for (const auto& evt : events) {
             maxDay = max(maxDay, evt[1]);
         }
 
         // Step 3: Initialize DSU (each day points to itself)
         vector<int> nextDay(maxDay + 2); // +2 to handle boundary case
-        for (int d = 0; d <= maxDay + 1; ++d)
-        {
+        for (int d = 0; d <= maxDay + 1; ++d) {
             nextDay[d] = d;
         }
 
         int count = 0;
 
         // Step 4: Process each event
-        for (const auto &evt : events)
-        {
+        for (const auto& evt : events) {
             int start = evt[0];
             int end = evt[1];
 
             // Find the earliest available day to attend this event
             int day = findNext(nextDay, start);
 
-            if (day <= end)
-            {
+            if (day <= end) {
                 ++count;                                   // Attend this event
                 nextDay[day] = findNext(nextDay, day + 1); // Mark the day as used
             }
@@ -579,29 +556,29 @@ public:
  * LEETCODE 3439: RESCHEDULE MEETINGS FOR MAXIMUM FREE TIME I
  * =================================================================== */
 
-/**
- * @brief Given non-overlapping meetings and event duration,
- *        you can shift at most k meetings earlier (preserving order and duration)
- *        to **maximize the longest free time** during the event.
- *
- * CONSTRAINTS:
- * - Meetings must remain non-overlapping
- * - At most k meetings can be rescheduled
- * - Rescheduling means moving the start earlier, duration stays the same
- * - All meetings must fit in [0, eventTime]
- *
- * GOAL: Maximize the longest continuous **free period**
- *       within [0, eventTime] after at most `k` reschedules.
- *
- * ALGORITHM (Binary Search + Greedy Simulation):
- * - Binary search on answer: longest possible free time F
- * - For each candidate F:
- *     → Simulate scheduling the meetings greedily
- *     → Shift up to k meetings to ensure each free gap ≥ F
- * - If possible → try larger F, else try smaller
- *
- * TIME COMPLEXITY: O(n log eventTime)
- */
+ /**
+  * @brief Given non-overlapping meetings and event duration,
+  *        you can shift at most k meetings earlier (preserving order and duration)
+  *        to **maximize the longest free time** during the event.
+  *
+  * CONSTRAINTS:
+  * - Meetings must remain non-overlapping
+  * - At most k meetings can be rescheduled
+  * - Rescheduling means moving the start earlier, duration stays the same
+  * - All meetings must fit in [0, eventTime]
+  *
+  * GOAL: Maximize the longest continuous **free period**
+  *       within [0, eventTime] after at most `k` reschedules.
+  *
+  * ALGORITHM (Binary Search + Greedy Simulation):
+  * - Binary search on answer: longest possible free time F
+  * - For each candidate F:
+  *     → Simulate scheduling the meetings greedily
+  *     → Shift up to k meetings to ensure each free gap ≥ F
+  * - If possible → try larger F, else try smaller
+  *
+  * TIME COMPLEXITY: O(n log eventTime)
+  */
 
 class Solution
 {
@@ -616,27 +593,24 @@ public:
      * @param gap        Target free time gap to validate
      * @return           true if gap is achievable, false otherwise
      */
-    bool isPossible(vector<int> &start, vector<int> &end, int k, int eventTime, int gap)
+    bool isPossible(vector<int>& start, vector<int>& end, int k, int eventTime, int gap)
     {
         int n = start.size();
         int rescheduled = 0;
         int currentTime = 0;
 
-        for (int i = 0; i < n; i++)
-        {
+        for (int i = 0; i < n; i++) {
             int duration = end[i] - start[i];
             // Required earliest start to maintain `gap` before this meeting
             int minStart = currentTime + gap;
 
-            if (start[i] < minStart)
-            {
+            if (start[i] < minStart) {
                 // Must reschedule this meeting to start at minStart
                 if (++rescheduled > k)
                     return false;
                 currentTime = minStart + duration;
             }
-            else
-            {
+            else {
                 // No reschedule needed, take original position
                 currentTime = start[i] + duration;
             }
@@ -658,21 +632,18 @@ public:
      * @param k          Max reschedules allowed
      * @return           Longest continuous free time after adjustments
      */
-    int maxFreeTime(int eventTime, vector<int> &startTime, vector<int> &endTime, int k)
+    int maxFreeTime(int eventTime, vector<int>& startTime, vector<int>& endTime, int k)
     {
         int low = 0, high = eventTime, ans = 0;
 
-        while (low <= high)
-        {
+        while (low <= high) {
             int mid = low + (high - low) / 2;
 
-            if (isPossible(startTime, endTime, k, eventTime, mid))
-            {
+            if (isPossible(startTime, endTime, k, eventTime, mid)) {
                 ans = mid; // valid gap found, try larger
                 low = mid + 1;
             }
-            else
-            {
+            else {
                 high = mid - 1; // too large gap, reduce
             }
         }
@@ -685,27 +656,27 @@ public:
  * LEETCODE 3439: MAXIMUM FREE TIME AFTER ONE RESCHEDULE II
  * =================================================================== */
 
-/**
- * @brief Given meetings scheduled in an event timeline, compute the maximum
- *        continuous free time possible if you are allowed to reschedule exactly
- *        one meeting (shift earlier without overlapping, maintaining order).
- *
- * STRATEGY:
- * - Compute all free gaps:
- *     → gap[0] = before first meeting
- *     → gap[i] = between end of meeting i-1 and start of meeting i
- *     → gap[n] = after last meeting till end of event
- *
- * - Precompute:
- *     → largest gap to the **right** of each index (suffix max)
- *
- * - Then, iterate through each potential reschedule point:
- *     → Try combining adjacent gaps with the shifted meeting duration
- *     → Maintain maximum merged gap found
- *
- * TIME COMPLEXITY: O(n)
- * SPACE COMPLEXITY: O(n)
- */
+ /**
+  * @brief Given meetings scheduled in an event timeline, compute the maximum
+  *        continuous free time possible if you are allowed to reschedule exactly
+  *        one meeting (shift earlier without overlapping, maintaining order).
+  *
+  * STRATEGY:
+  * - Compute all free gaps:
+  *     → gap[0] = before first meeting
+  *     → gap[i] = between end of meeting i-1 and start of meeting i
+  *     → gap[n] = after last meeting till end of event
+  *
+  * - Precompute:
+  *     → largest gap to the **right** of each index (suffix max)
+  *
+  * - Then, iterate through each potential reschedule point:
+  *     → Try combining adjacent gaps with the shifted meeting duration
+  *     → Maintain maximum merged gap found
+  *
+  * TIME COMPLEXITY: O(n)
+  * SPACE COMPLEXITY: O(n)
+  */
 
 class Solution
 {
@@ -718,15 +689,14 @@ public:
      * @param endTime     End times of the meetings
      * @return            Maximum continuous free time possible
      */
-    int maxFreeTime(int eventTime, vector<int> &startTime, vector<int> &endTime)
+    int maxFreeTime(int eventTime, vector<int>& startTime, vector<int>& endTime)
     {
         int n = startTime.size();
 
         // Step 1: Calculate free gaps before, between, and after meetings
         vector<int> gap;
         gap.push_back(startTime[0]); // before first meeting
-        for (int i = 1; i < n; ++i)
-        {
+        for (int i = 1; i < n; ++i) {
             gap.push_back(startTime[i] - endTime[i - 1]); // between meetings
         }
         gap.push_back(eventTime - endTime.back()); // after last meeting
@@ -735,22 +705,19 @@ public:
 
         // Step 2: Precompute largest gap to the right (suffix max)
         vector<int> largestRight(m, 0);
-        for (int i = m - 2; i >= 0; --i)
-        {
+        for (int i = m - 2; i >= 0; --i) {
             largestRight[i] = max(largestRight[i + 1], gap[i + 1]);
         }
 
         // Step 3: Iterate and evaluate max possible merged free time
         int ans = 0, largestLeft = 0;
 
-        for (int i = 1; i < m; ++i)
-        {
+        for (int i = 1; i < m; ++i) {
             int meetingDuration = endTime[i - 1] - startTime[i - 1];
 
             // Try merging current meeting with adjacent gaps if its duration
             // is not larger than the max free time on either side
-            if (meetingDuration <= max(largestLeft, largestRight[i]))
-            {
+            if (meetingDuration <= max(largestLeft, largestRight[i])) {
                 ans = max(ans, gap[i - 1] + gap[i] + meetingDuration);
             }
 
@@ -769,23 +736,23 @@ public:
  * LEETCODE 2402: MEETING ROOMS III
  * =================================================================== */
 
-/**
- * @brief You are given `n` meeting rooms and a list of meetings.
- *        Schedule all meetings in a way that respects:
- *        - A meeting can only be held in a room that is available
- *        - If all rooms are busy, delay the meeting until the earliest available room
- *        - Always choose the room with the **lowest index**
- *
- * Return the index of the room with the most meetings.
- *
- * TIME COMPLEXITY: O(M * N) in worst case
- * SPACE COMPLEXITY: O(N)
- */
+ /**
+  * @brief You are given `n` meeting rooms and a list of meetings.
+  *        Schedule all meetings in a way that respects:
+  *        - A meeting can only be held in a room that is available
+  *        - If all rooms are busy, delay the meeting until the earliest available room
+  *        - Always choose the room with the **lowest index**
+  *
+  * Return the index of the room with the most meetings.
+  *
+  * TIME COMPLEXITY: O(M * N) in worst case
+  * SPACE COMPLEXITY: O(N)
+  */
 
 class Solution
 {
 public:
-    int mostBooked(int n, vector<vector<int>> &meetings)
+    int mostBooked(int n, vector<vector<int>>& meetings)
     {
         // Step 1: Sort meetings by start time
         sort(meetings.begin(), meetings.end());
@@ -798,8 +765,7 @@ public:
         vector<int> used_count(n, 0);
 
         // Step 2: Process each meeting
-        for (auto &meet : meetings)
-        {
+        for (auto& meet : meetings) {
             int start = meet[0];
             int end = meet[1];
             int duration = end - start;
@@ -807,30 +773,24 @@ public:
             int chosenRoom = -1;
 
             // Try to find an available room (lowest index)
-            for (int room = 0; room < n; ++room)
-            {
-                if (last_available[room] <= start)
-                {
+            for (int room = 0; room < n; ++room) {
+                if (last_available[room] <= start) {
                     chosenRoom = room;
                     break;
                 }
             }
 
-            if (chosenRoom != -1)
-            {
+            if (chosenRoom != -1) {
                 // Room is available, assign meeting directly
                 last_available[chosenRoom] = end;
                 used_count[chosenRoom]++;
             }
-            else
-            {
+            else {
                 // No room is free, delay the meeting to earliest available room
                 long long earliest = LLONG_MAX;
 
-                for (int room = 0; room < n; ++room)
-                {
-                    if (last_available[room] < earliest)
-                    {
+                for (int room = 0; room < n; ++room) {
+                    if (last_available[room] < earliest) {
                         earliest = last_available[room];
                         chosenRoom = room;
                     }
@@ -844,10 +804,8 @@ public:
 
         // Step 3: Find the room with max usage
         int ans = 0;
-        for (int room = 1; room < n; ++room)
-        {
-            if (used_count[room] > used_count[ans])
-            {
+        for (int room = 1; room < n; ++room) {
+            if (used_count[room] > used_count[ans]) {
                 ans = room;
             }
         }
@@ -860,25 +818,25 @@ public:
  * LEETCODE 1900: EARLIEST AND LATEST ROUNDS WHERE PLAYERS MEET
  * =================================================================== */
 
-/**
- * @brief In a knockout tournament of `n` players labeled 1 to n,
- *        players compete in rounds. Each round, players are paired
- *        from the outside inward (1 vs n, 2 vs n-1, etc.).
- *
- *        Two players `firstPlayer` and `secondPlayer` want to know
- *        the earliest and latest round they can possibly meet.
- *
- * STRATEGY:
- * ---------
- * Simulate all possible tournament paths using DFS and memoization.
- * For each round:
- *   - Pair players from the outside inward.
- *   - If players meet, record round.
- *   - Else, recursively simulate next round with all valid match outcomes.
- *
- * TIME COMPLEXITY: Exponential (but pruned due to symmetric conditions)
- * SPACE COMPLEXITY: O(N^2) stack space + cache (if memoized)
- */
+ /**
+  * @brief In a knockout tournament of `n` players labeled 1 to n,
+  *        players compete in rounds. Each round, players are paired
+  *        from the outside inward (1 vs n, 2 vs n-1, etc.).
+  *
+  *        Two players `firstPlayer` and `secondPlayer` want to know
+  *        the earliest and latest round they can possibly meet.
+  *
+  * STRATEGY:
+  * ---------
+  * Simulate all possible tournament paths using DFS and memoization.
+  * For each round:
+  *   - Pair players from the outside inward.
+  *   - If players meet, record round.
+  *   - Else, recursively simulate next round with all valid match outcomes.
+  *
+  * TIME COMPLEXITY: Exponential (but pruned due to symmetric conditions)
+  * SPACE COMPLEXITY: O(N^2) stack space + cache (if memoized)
+  */
 
 class Solution
 {
@@ -895,21 +853,18 @@ public:
     pair<int, int> dfs(int n, int p1, int p2)
     {
         // Step 1: If they are currently facing each other
-        if (p1 + p2 == n + 1)
-        {
-            return {1, 1};
+        if (p1 + p2 == n + 1) {
+            return { 1, 1 };
         }
 
         // Step 2: Normalize positions (p1 < p2)
-        if (p1 > p2)
-        {
+        if (p1 > p2) {
             swap(p1, p2);
         }
 
         // Step 3: Base case for small tournaments
-        if (n <= 4)
-        {
-            return {2, 2};
+        if (n <= 4) {
+            return { 2, 2 };
         }
 
         int m = (n + 1) / 2; // Next round size
@@ -917,23 +872,19 @@ public:
         int maxR = INT_MIN;
 
         // Step 4: Reflect positions for symmetry optimization
-        if (p1 - 1 > n - p2)
-        {
+        if (p1 - 1 > n - p2) {
             int t = n + 1 - p1;
             p1 = n + 1 - p2;
             p2 = t;
         }
 
         // Step 5: Simulate both players in left half
-        if (p2 * 2 <= n + 1)
-        {
+        if (p2 * 2 <= n + 1) {
             int a = p1 - 1;
             int b = p2 - p1 - 1;
 
-            for (int i = 0; i <= a; ++i)
-            {
-                for (int j = 0; j <= b; ++j)
-                {
+            for (int i = 0; i <= a; ++i) {
+                for (int j = 0; j <= b; ++j) {
                     auto [r1, r2] = dfs(m, i + 1, i + j + 2);
                     minR = min(minR, r1 + 1);
                     maxR = max(maxR, r2 + 1);
@@ -941,17 +892,14 @@ public:
             }
         }
         // Step 6: Players are in opposite halves
-        else
-        {
+        else {
             int p4 = n + 1 - p2;
             int a = p1 - 1;
             int b = p4 - p1 - 1;
             int c = p2 - p4 - 1;
 
-            for (int i = 0; i <= a; ++i)
-            {
-                for (int j = 0; j <= b; ++j)
-                {
+            for (int i = 0; i <= a; ++i) {
+                for (int j = 0; j <= b; ++j) {
                     int offset = i + j + 1 + (c + 1) / 2 + 1;
                     auto [r1, r2] = dfs(m, i + 1, offset);
                     minR = min(minR, r1 + 1);
@@ -960,7 +908,7 @@ public:
             }
         }
 
-        return {minR, maxR};
+        return { minR, maxR };
     }
 
     /**
@@ -970,7 +918,7 @@ public:
     vector<int> earliestAndLatest(int n, int firstPlayer, int secondPlayer)
     {
         auto [earliest, latest] = dfs(n, firstPlayer, secondPlayer);
-        return {earliest, latest};
+        return { earliest, latest };
     }
 };
 
@@ -978,24 +926,24 @@ public:
  * LEETCODE 2410: MATCH PLAYERS WITH TRAINERS
  * ============================================================================ */
 
-/**
- * @brief Each player has a strength requirement, and each trainer
- *        has a maximum strength they can train.
- *        We want to match as many players as possible with trainers such that:
- *        trainer[i] >= player[j] (each used only once)
- *
- * ALGORITHM:
- * - Sort both arrays
- * - Use two pointers to greedily match smallest eligible trainer to each player
- *
- * TIME COMPLEXITY: O(N log N + M log M)
- * SPACE COMPLEXITY: O(1)
- */
+ /**
+  * @brief Each player has a strength requirement, and each trainer
+  *        has a maximum strength they can train.
+  *        We want to match as many players as possible with trainers such that:
+  *        trainer[i] >= player[j] (each used only once)
+  *
+  * ALGORITHM:
+  * - Sort both arrays
+  * - Use two pointers to greedily match smallest eligible trainer to each player
+  *
+  * TIME COMPLEXITY: O(N log N + M log M)
+  * SPACE COMPLEXITY: O(1)
+  */
 
 class Solution
 {
 public:
-    int matchPlayersAndTrainers(vector<int> &players, vector<int> &trainers)
+    int matchPlayersAndTrainers(vector<int>& players, vector<int>& trainers)
     {
         // Step 1: Sort both players and trainers
         sort(begin(players), end(players));
@@ -1005,17 +953,14 @@ public:
         int count = 0;
 
         // Step 2: Greedily match trainers to players
-        while (player < players.size() && trainer < trainers.size())
-        {
-            if (trainers[trainer] >= players[player])
-            {
+        while (player < players.size() && trainer < trainers.size()) {
+            if (trainers[trainer] >= players[player]) {
                 // Found a match
                 count++;
                 player++;
                 trainer++;
             }
-            else
-            {
+            else {
                 // Trainer too weak, try next trainer
                 trainer++;
             }
@@ -1029,40 +974,39 @@ public:
  * LEETCODE 1290: CONVERT BINARY NUMBER IN A LINKED LIST TO INTEGER
  * ============================================================================ */
 
-/**
- * @brief A singly linked list represents a binary number.
- *        Convert it into its corresponding integer value.
- *
- * ALGORITHM:
- * - Traverse the linked list from head to end.
- * - Use bit manipulation: left shift the result and add current node value.
- *
- * TIME COMPLEXITY: O(N) — one pass through the list
- * SPACE COMPLEXITY: O(1) — constant extra space
- */
+ /**
+  * @brief A singly linked list represents a binary number.
+  *        Convert it into its corresponding integer value.
+  *
+  * ALGORITHM:
+  * - Traverse the linked list from head to end.
+  * - Use bit manipulation: left shift the result and add current node value.
+  *
+  * TIME COMPLEXITY: O(N) — one pass through the list
+  * SPACE COMPLEXITY: O(1) — constant extra space
+  */
 
-/**
- * Definition for singly-linked list.
- */
+  /**
+   * Definition for singly-linked list.
+   */
 struct ListNode
 {
     int val;
-    ListNode *next;
+    ListNode* next;
     ListNode() : val(0), next(nullptr) {}
     ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
+    ListNode(int x, ListNode* next) : val(x), next(next) {}
 };
 
 class Solution
 {
 public:
-    static int getDecimalValue(ListNode *head)
+    static int getDecimalValue(ListNode* head)
     {
         int ans = 0;
 
         // Traverse the list and compute decimal value
-        for (ListNode *curr = head; curr != nullptr; curr = curr->next)
-        {
+        for (ListNode* curr = head; curr != nullptr; curr = curr->next) {
             ans = (ans << 1) + curr->val; // Left shift and add current bit
         }
 
@@ -1074,15 +1018,15 @@ public:
  * CUSTOM VALIDATION: CHECK STRING FOR AT LEAST ONE VOWEL AND ONE CONSONANT
  * ============================================================================ */
 
-/**
- * @brief Check if a string is valid:
- *        - At least length 3
- *        - Contains at least one vowel and one consonant
- *        - Only contains alphabets and digits (non-alphanumerics are invalid)
- *
- * TIME COMPLEXITY: O(N) — where N is length of string
- * SPACE COMPLEXITY: O(1)
- */
+ /**
+  * @brief Check if a string is valid:
+  *        - At least length 3
+  *        - Contains at least one vowel and one consonant
+  *        - Only contains alphabets and digits (non-alphanumerics are invalid)
+  *
+  * TIME COMPLEXITY: O(N) — where N is length of string
+  * SPACE COMPLEXITY: O(1)
+  */
 
 class Solution
 {
@@ -1096,22 +1040,17 @@ public:
         int vowels = 0, consonants = 0;
         string vowelList = "aeiouAEIOU";
 
-        for (char c : s)
-        {
-            if (isalpha(c))
-            {
+        for (char c : s) {
+            if (isalpha(c)) {
                 // Check for vowel or consonant
-                if (vowelList.find(c) != string::npos)
-                {
+                if (vowelList.find(c) != string::npos) {
                     vowels++;
                 }
-                else
-                {
+                else {
                     consonants++;
                 }
             }
-            else if (!isdigit(c))
-            {
+            else if (!isdigit(c)) {
                 // Invalid character (not alphanumeric)
                 return false;
             }
@@ -1126,33 +1065,32 @@ public:
  * CUSTOM LOGIC: MAXIMUM LENGTH OF ALTERNATING EVEN-ODD SEQUENCE
  * ============================================================================ */
 
-/**
- * @brief Given an array of integers, find the maximum length of a sequence
- *        that alternates between even and odd numbers.
- *
- * ALGORITHM:
- * - Count total number of evens and odds.
- * - Use dynamic programming logic:
- *   - even_dp: longest subsequence ending with even
- *   - odd_dp : longest subsequence ending with odd
- * - For each number:
- *     - If even → it can extend an odd-ending sequence
- *     - If odd  → it can extend an even-ending sequence
- *
- * TIME COMPLEXITY: O(N)
- * SPACE COMPLEXITY: O(1)
- */
+ /**
+  * @brief Given an array of integers, find the maximum length of a sequence
+  *        that alternates between even and odd numbers.
+  *
+  * ALGORITHM:
+  * - Count total number of evens and odds.
+  * - Use dynamic programming logic:
+  *   - even_dp: longest subsequence ending with even
+  *   - odd_dp : longest subsequence ending with odd
+  * - For each number:
+  *     - If even → it can extend an odd-ending sequence
+  *     - If odd  → it can extend an even-ending sequence
+  *
+  * TIME COMPLEXITY: O(N)
+  * SPACE COMPLEXITY: O(1)
+  */
 
 class Solution
 {
 public:
-    int maximumLength(vector<int> &nums)
+    int maximumLength(vector<int>& nums)
     {
         int count_even = 0, count_odd = 0;
 
         // Step 1: Count total evens and odds
-        for (int num : nums)
-        {
+        for (int num : nums) {
             if (num % 2 == 0)
                 count_even++;
             else
@@ -1162,22 +1100,19 @@ public:
         // Step 2: DP-style pass for longest alternating sequence
         int even_dp = 0, odd_dp = 0;
 
-        for (int num : nums)
-        {
-            if (num % 2 == 0)
-            {
+        for (int num : nums) {
+            if (num % 2 == 0) {
                 // Can extend a subsequence ending in odd
                 even_dp = max(even_dp, odd_dp + 1);
             }
-            else
-            {
+            else {
                 // Can extend a subsequence ending in even
                 odd_dp = max(odd_dp, even_dp + 1);
             }
         }
 
         // Step 3: Return max of simple counts or alternating chain
-        return max({count_even, count_odd, even_dp, odd_dp});
+        return max({ count_even, count_odd, even_dp, odd_dp });
     }
 };
 
@@ -1204,7 +1139,7 @@ public:
 class Solution
 {
 public:
-    int maximumLength(vector<int> &nums, int k)
+    int maximumLength(vector<int>& nums, int k)
     {
         int n = nums.size();
         int maxSub = 1;
@@ -1213,10 +1148,8 @@ public:
         vector<vector<int>> dp(k, vector<int>(n, 1));
 
         // Compare each pair (j, i) to extend subsequence ending at j
-        for (int i = 1; i < n; ++i)
-        {
-            for (int j = 0; j < i; ++j)
-            {
+        for (int i = 1; i < n; ++i) {
+            for (int j = 0; j < i; ++j) {
                 int mod = (nums[j] + nums[i]) % k;
 
                 // If valid, update dp[mod][i] based on dp[mod][j]
@@ -1251,7 +1184,7 @@ public:
 class Solution
 {
 public:
-    long long minimumDifference(vector<int> &nums)
+    long long minimumDifference(vector<int>& nums)
     {
         int N = nums.size();
         int n = N / 3;
@@ -1263,13 +1196,11 @@ public:
         priority_queue<int> maxHeap;
         long long leftSum = 0;
 
-        for (int i = 0; i < 2 * n; i++)
-        {
+        for (int i = 0; i < 2 * n; i++) {
             maxHeap.push(nums[i]);
             leftSum += nums[i];
 
-            if (maxHeap.size() > n)
-            {
+            if (maxHeap.size() > n) {
                 leftSum -= maxHeap.top(); // remove largest (to keep n smallest)
                 maxHeap.pop();
             }
@@ -1281,13 +1212,11 @@ public:
         priority_queue<int, vector<int>, greater<>> minHeap;
         long long rightSum = 0;
 
-        for (int i = N - 1; i >= n; i--)
-        {
+        for (int i = N - 1; i >= n; i--) {
             minHeap.push(nums[i]);
             rightSum += nums[i];
 
-            if (minHeap.size() > n)
-            {
+            if (minHeap.size() > n) {
                 rightSum -= minHeap.top(); // remove smallest (to keep n largest)
                 minHeap.pop();
             }
@@ -1297,8 +1226,7 @@ public:
 
         // ------------- Find minimum difference between prefix & suffix -----------
         long long ans = LLONG_MAX;
-        for (int i = n - 1; i < 2 * n; i++)
-        {
+        for (int i = n - 1; i < 2 * n; i++) {
             ans = min(ans, leftMinSum[i] - rightMaxSum[i + 1]);
         }
 
@@ -1327,31 +1255,26 @@ public:
 class Solution
 {
 public:
-    vector<string> removeSubfolders(vector<string> &folder)
+    vector<string> removeSubfolders(vector<string>& folder)
     {
         // Sort folders so subfolders follow their parent folders
         sort(folder.begin(), folder.end());
 
         vector<string> res;
 
-        for (const auto &f : folder)
-        {
-            if (res.empty())
-            {
+        for (const auto& f : folder) {
+            if (res.empty()) {
                 res.push_back(f); // First folder always added
             }
-            else
-            {
-                const string &prev = res.back();
+            else {
+                const string& prev = res.back();
 
                 // Check if current folder is a sub-folder of prev
                 // Must start with prev and have '/' right after it
-                if (f.find(prev) == 0 && f.size() > prev.size() && f[prev.size()] == '/')
-                {
+                if (f.find(prev) == 0 && f.size() > prev.size() && f[prev.size()] == '/') {
                     continue; // Skip sub-folder
                 }
-                else
-                {
+                else {
                     res.push_back(f); // Not a sub-folder, add to result
                 }
             }
@@ -1380,7 +1303,7 @@ public:
 struct Node
 {
     string name;
-    unordered_map<string, Node *> children;
+    unordered_map<string, Node*> children;
     string signature;
 
     Node(string name) : name(name) {}
@@ -1390,17 +1313,15 @@ class Solution
 {
 public:
     // Step 1: First DFS to compute unique subtree signatures
-    void dfs(Node *node, unordered_map<string, int> &signatureCount)
+    void dfs(Node* node, unordered_map<string, int>& signatureCount)
     {
-        if (node->children.empty())
-        {
+        if (node->children.empty()) {
             node->signature = "";
             return;
         }
 
         vector<string> childSignatures;
-        for (const auto &[name, child] : node->children)
-        {
+        for (const auto& [name, child] : node->children) {
             dfs(child, signatureCount);
             // Build signature using folder name and child signature
             childSignatures.push_back(name + "(" + child->signature + ")");
@@ -1410,8 +1331,7 @@ public:
         sort(childSignatures.begin(), childSignatures.end());
 
         node->signature = "";
-        for (const string &sig : childSignatures)
-        {
+        for (const string& sig : childSignatures) {
             node->signature += sig;
         }
 
@@ -1420,22 +1340,20 @@ public:
     }
 
     // Step 2: Second DFS to rebuild filtered tree
-    void dfs2(Node *node, vector<string> &currentPath,
-              vector<vector<string>> &result,
-              unordered_map<string, int> &signatureCount)
+    void dfs2(Node* node, vector<string>& currentPath,
+        vector<vector<string>>& result,
+        unordered_map<string, int>& signatureCount)
     {
 
         // If subtree is duplicate, don't add to result
-        if (!node->children.empty() && signatureCount[node->signature] >= 2)
-        {
+        if (!node->children.empty() && signatureCount[node->signature] >= 2) {
             return;
         }
 
         currentPath.push_back(node->name);
         result.push_back(currentPath);
 
-        for (const auto &[name, child] : node->children)
-        {
+        for (const auto& [name, child] : node->children) {
             dfs2(child, currentPath, result, signatureCount);
         }
 
@@ -1443,17 +1361,14 @@ public:
     }
 
     // Main function
-    vector<vector<string>> deleteDuplicateFolder(vector<vector<string>> &paths)
+    vector<vector<string>> deleteDuplicateFolder(vector<vector<string>>& paths)
     {
         // Step 0: Build folder tree
-        Node *root = new Node("");
-        for (const auto &path : paths)
-        {
-            Node *curr = root;
-            for (const string &folder : path)
-            {
-                if (!curr->children.count(folder))
-                {
+        Node* root = new Node("");
+        for (const auto& path : paths) {
+            Node* curr = root;
+            for (const string& folder : path) {
+                if (!curr->children.count(folder)) {
                     curr->children[folder] = new Node(folder);
                 }
                 curr = curr->children[folder];
@@ -1467,8 +1382,7 @@ public:
         // Step 2: Reconstruct tree without duplicate subtrees
         vector<vector<string>> result;
         vector<string> currentPath;
-        for (const auto &[name, child] : root->children)
-        {
+        for (const auto& [name, child] : root->children) {
             dfs2(child, currentPath, result, signatureCount);
         }
 
@@ -1506,11 +1420,9 @@ public:
         ans += s[0]; // Always take the first character
 
         // Loop from 1 to n-2, checking for triplets
-        for (int i = 1; i < s.size() - 1; i++)
-        {
+        for (int i = 1; i < s.size() - 1; i++) {
             // If current and both neighbors are the same, skip current
-            if (s[i - 1] == s[i] && s[i] == s[i + 1])
-            {
+            if (s[i - 1] == s[i] && s[i] == s[i + 1]) {
                 continue;
             }
             ans += s[i]; // Otherwise, keep it
@@ -1540,7 +1452,7 @@ public:
 class Solution
 {
 public:
-    int maximumUniqueSubarray(vector<int> &nums)
+    int maximumUniqueSubarray(vector<int>& nums)
     {
         int n = nums.size();
         int l = 0, r = 0;           // Left and right pointers
@@ -1548,15 +1460,12 @@ public:
         int mx = -1;                // Maximum unique subarray sum
         unordered_map<int, int> mp; // Frequency map of elements in window
 
-        while (r < n)
-        {
+        while (r < n) {
             mp[nums[r]] += 1;
 
             // If nums[r] is a duplicate, shrink the window from the left
-            if (mp[nums[r]] > 1)
-            {
-                while (mp[nums[r]] > 1 && l <= r)
-                {
+            if (mp[nums[r]] > 1) {
+                while (mp[nums[r]] > 1 && l <= r) {
                     sum -= nums[l];
                     mp[nums[l]] -= 1;
                     l += 1;
@@ -1602,55 +1511,42 @@ public:
         int i = 0;
 
         // Decide which pair to remove first based on value
-        while (i < s.size())
-        {
-            if (y >= x)
-            {
+        while (i < s.size()) {
+            if (y >= x) {
                 // Prefer removing "ba" first (y is higher)
-                if (s[i] == 'b')
-                {
+                if (s[i] == 'b') {
                     cnt2++;
                 }
-                else if (s[i] == 'a')
-                {
-                    if (cnt2 > 0)
-                    {
+                else if (s[i] == 'a') {
+                    if (cnt2 > 0) {
                         cnt2--;     // Match with previous 'b'
                         score += y; // Add score for "ba"
                     }
-                    else
-                    {
+                    else {
                         cnt1++; // 'a' with no matching 'b'
                     }
                 }
-                else
-                {
+                else {
                     // Any non a/b character, reset and remove "ab" pairs
                     score += (x * min(cnt1, cnt2));
                     cnt1 = cnt2 = 0;
                 }
             }
-            else
-            {
+            else {
                 // Prefer removing "ab" first (x is higher)
-                if (s[i] == 'a')
-                {
+                if (s[i] == 'a') {
                     cnt2++;
                 }
-                else if (s[i] == 'b')
-                {
-                    if (cnt2 > 0)
-                    {
+                else if (s[i] == 'b') {
+                    if (cnt2 > 0) {
                         cnt2--;     // Match with previous 'a'
                         score += x; // Add score for "ab"
                     }
-                    else
-                    {
+                    else {
                         cnt1++; // 'b' with no matching 'a'
                     }
                 }
-                else
-                {
+                else {
                     // Reset and remove "ba" pairs
                     score += (y * min(cnt1, cnt2));
                     cnt1 = cnt2 = 0;
@@ -1686,7 +1582,7 @@ public:
 class Solution
 {
 public:
-    int minimumScore(vector<int> &nums, vector<vector<int>> &edges)
+    int minimumScore(vector<int>& nums, vector<vector<int>>& edges)
     {
         int n = nums.size();
         vector<vector<int>> graph(n);
@@ -1695,8 +1591,7 @@ public:
         vector<int> degree(n, 0);
 
         // Build the tree graph
-        for (const auto &e : edges)
-        {
+        for (const auto& e : edges) {
             int u = e[0], v = e[1];
             graph[u].push_back(v);
             graph[v].push_back(u);
@@ -1709,32 +1604,26 @@ public:
         vector<bool> seen(n, false);
 
         // Initialize: XOR of all values, find all leaves
-        for (int i = 0; i < n; ++i)
-        {
+        for (int i = 0; i < n; ++i) {
             total ^= nums[i];
-            if (degree[i] == 1)
-            {
+            if (degree[i] == 1) {
                 q.push(i);
                 seen[i] = true;
             }
         }
 
         // Bottom-up traversal to build children sets and xor_val
-        while (!q.empty())
-        {
+        while (!q.empty()) {
             int cur = q.front();
             q.pop();
-            for (int next : graph[cur])
-            {
-                if (!seen[next])
-                {
+            for (int next : graph[cur]) {
+                if (!seen[next]) {
                     children[next].insert(cur);
                     children[next].insert(children[cur].begin(), children[cur].end());
                     xor_val[next] ^= xor_val[cur];
                 }
                 degree[next]--;
-                if (degree[next] == 1 && !seen[next])
-                {
+                if (degree[next] == 1 && !seen[next]) {
                     seen[next] = true;
                     q.push(next);
                 }
@@ -1745,10 +1634,8 @@ public:
         int m = edges.size();
 
         // Try all edge pairs
-        for (int i = 0; i < m - 1; ++i)
-        {
-            for (int j = i + 1; j < m; ++j)
-            {
+        for (int i = 0; i < m - 1; ++i) {
+            for (int j = i + 1; j < m; ++j) {
                 int a = edges[i][0], b = edges[i][1];
                 if (children[a].count(b))
                     swap(a, b);
@@ -1760,17 +1647,14 @@ public:
                 vector<int> vals;
 
                 // Classify relationship of subtrees and compute XOR partitions
-                if (children[a].count(c))
-                {
-                    vals = {xor_val[c], xor_val[a] ^ xor_val[c], total ^ xor_val[a]};
+                if (children[a].count(c)) {
+                    vals = { xor_val[c], xor_val[a] ^ xor_val[c], total ^ xor_val[a] };
                 }
-                else if (children[c].count(a))
-                {
-                    vals = {xor_val[a], xor_val[c] ^ xor_val[a], total ^ xor_val[c]};
+                else if (children[c].count(a)) {
+                    vals = { xor_val[a], xor_val[c] ^ xor_val[a], total ^ xor_val[c] };
                 }
-                else
-                {
-                    vals = {xor_val[a], xor_val[c], total ^ xor_val[a] ^ xor_val[c]};
+                else {
+                    vals = { xor_val[a], xor_val[c], total ^ xor_val[a] ^ xor_val[c] };
                 }
 
                 int max_v = *max_element(vals.begin(), vals.end());
@@ -1802,23 +1686,20 @@ public:
 class Solution
 {
 public:
-    int maxSum(vector<int> &nums)
+    int maxSum(vector<int>& nums)
     {
         unordered_set<int> s;
         int sum = 0, mx = INT_MIN;
         bool allNegative = true;
 
-        for (int num : nums)
-        {
+        for (int num : nums) {
             mx = max(mx, num);
             int prevSize = s.size();
             s.insert(num);
 
             // If inserted (i.e., was unique)
-            if (s.size() != prevSize)
-            {
-                if (num >= 0)
-                {
+            if (s.size() != prevSize) {
+                if (num >= 0) {
                     sum += num;
                     allNegative = false;
                 }
@@ -1851,48 +1732,42 @@ public:
 class Solution
 {
 public:
-    long long maxSubarrays(int n, std::vector<std::vector<int>> &conflictingPairs)
+    long long maxSubarrays(int n, std::vector<std::vector<int>>& conflictingPairs)
     {
         // Normalize each pair so the smaller index comes first
-        for (auto &pair : conflictingPairs)
-        {
-            if (pair[1] < pair[0])
-            {
+        for (auto& pair : conflictingPairs) {
+            if (pair[1] < pair[0]) {
                 std::swap(pair[0], pair[1]);
             }
         }
 
         // Sort pairs by the second index
         std::sort(conflictingPairs.begin(), conflictingPairs.end(),
-                  [](const std::vector<int> &a, const std::vector<int> &b)
-                  {
-                      return a[1] < b[1];
-                  });
+            [](const std::vector<int>& a, const std::vector<int>& b)
+            {
+                return a[1] < b[1];
+            });
 
         int m = conflictingPairs.size();
         int max1 = 0, max2 = 0;
         long long gain = 0, maxGain = 0, totalOccupied = 0;
 
-        for (int i = 0; i < m; ++i)
-        {
+        for (int i = 0; i < m; ++i) {
             int start = conflictingPairs[i][0];
             int base = n + 1 - conflictingPairs[i][1];
 
             // Adjust base if there’s a next conflict
-            if (i < m - 1)
-            {
+            if (i < m - 1) {
                 base = conflictingPairs[i + 1][1] - conflictingPairs[i][1];
             }
 
             // Update top two maximums
-            if (start > max1)
-            {
+            if (start > max1) {
                 max2 = max1;
                 max1 = start;
                 gain = 0;
             }
-            else if (start > max2)
-            {
+            else if (start > max2) {
                 max2 = start;
             }
 
@@ -2814,7 +2689,8 @@ Complexity Analysis:
 
 class Solution {
 public:
-    string largestGoodInteger(string num) {
+    string largestGoodInteger(string num)
+    {
         int largest = INT_MIN; // Track largest digit found
         string result = "";
 
@@ -2874,7 +2750,8 @@ Complexity Analysis:
 
 class Solution {
 public:
-    bool isPowerOfFour(int n) {
+    bool isPowerOfFour(int n)
+    {
         if (n == 1) return true;  // 4^0 = 1
         if (n < 4) return false;  // Cannot be a power of 4
 
@@ -2934,7 +2811,8 @@ Complexity Analysis:
 
 class Solution {
 public:
-    int maximum69Number(int num) {
+    int maximum69Number(int num)
+    {
         vector<int> digits;
 
         // Extract digits from num
@@ -3121,7 +2999,8 @@ Complexity Analysis:
 
 class Solution {
 public:
-    long long zeroFilledSubarray(vector<int>& nums) {
+    long long zeroFilledSubarray(vector<int>& nums)
+    {
         long long cnt = 0;     // Total count of zero-filled subarrays
         long long streak = 0;  // Length of current consecutive zero streak
 
@@ -3129,7 +3008,8 @@ public:
             if (num == 0) {
                 streak++;       // Extend streak
                 cnt += streak;  // Add all new subarrays ending here
-            } else {
+            }
+            else {
                 streak = 0;     // Reset streak
             }
         }
@@ -3485,3 +3365,56 @@ public:
         return dp3[0][n - 1][0][m - 1];
     }
 };
+
+//==============================================================================
+// Problem: Longest Subarray of 1's After Deleting One Element
+//------------------------------------------------------------------------------
+// Task:
+// Given a binary array `nums`, return the length of the longest subarray
+// consisting of only 1’s after deleting exactly one element.
+//
+// Approach (Sliding Window):
+// 1. Maintain two pointers (l, r) and a counter `zeros` for the number of zeros
+//    in the current window.
+// 2. Expand the window by moving `r` and include nums[r].
+// 3. If zeros > 1, shrink window from the left until we have at most one zero.
+// 4. Track the maximum window size as (r - l) because one element must be deleted.
+//
+// Complexity Analysis:
+// - Time: O(n), since each element is visited at most twice (expand + shrink).
+// - Space: O(1), only a few variables used.
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int longestSubarray(vector<int>& nums)
+    {
+        int n = nums.size();
+        int zeros = 0, ans = 0;
+
+        for (int l = 0, r = 0; r < n; r++) {
+            // Include nums[r] into the window
+            if (nums[r] == 0) zeros++;
+
+            // Shrink window if more than 1 zero
+            while (zeros > 1) {
+                if (nums[l] == 0) zeros--;
+                l++;
+            }
+
+            // Update max length (delete one element => r - l)
+            ans = max(ans, r - l);
+        }
+        return ans;
+    }
+};
+
+//==============================================================================
+// Example Usage:
+// Input: nums = [1,1,0,1]
+// Output: 3
+// Explanation: Delete the single 0, longest subarray of 1’s = 3.
+//==============================================================================
