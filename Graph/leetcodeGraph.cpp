@@ -6,62 +6,58 @@ using namespace std;
  * PROBLEM 733: FLOOD FILL (LeetCode)
  * =================================================================== */
 
-/**
- * @brief Perform flood fill on a 2D image starting from (sr, sc)
- *
- * PROBLEM STATEMENT:
- * You are given an image (2D grid) where each pixel has an integer value.
- * A pixel is connected 4-directionally to its adjacent pixels.
- * Starting from pixel (sr, sc), change its color and all connected pixels
- * of the same original color to a new color.
- *
- * EXAMPLE:
- * Input:
- *   image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, color = 2
- * Output:
- *   [[2,2,2],[2,2,0],[2,0,1]]
- *
- * APPROACH:
- * - Use DFS to visit all pixels connected to the start pixel that have the same color.
- * - Mark visited to avoid reprocessing.
- * - Change color during the traversal.
- *
- * @param image 2D grid of pixel values
- * @param sr Start row index
- * @param sc Start column index
- * @param color Target color to apply
- * @return Modified image after flood fill
- *
- * @complexity
- * Time: O(m * n) - in worst case all pixels are visited
- * Space: O(m * n) - visited array + recursion stack
- */
+ /**
+  * @brief Perform flood fill on a 2D image starting from (sr, sc)
+  *
+  * PROBLEM STATEMENT:
+  * You are given an image (2D grid) where each pixel has an integer value.
+  * A pixel is connected 4-directionally to its adjacent pixels.
+  * Starting from pixel (sr, sc), change its color and all connected pixels
+  * of the same original color to a new color.
+  *
+  * EXAMPLE:
+  * Input:
+  *   image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, color = 2
+  * Output:
+  *   [[2,2,2],[2,2,0],[2,0,1]]
+  *
+  * APPROACH:
+  * - Use DFS to visit all pixels connected to the start pixel that have the same color.
+  * - Mark visited to avoid reprocessing.
+  * - Change color during the traversal.
+  *
+  * @param image 2D grid of pixel values
+  * @param sr Start row index
+  * @param sc Start column index
+  * @param color Target color to apply
+  * @return Modified image after flood fill
+  *
+  * @complexity
+  * Time: O(m * n) - in worst case all pixels are visited
+  * Space: O(m * n) - visited array + recursion stack
+  */
 
 class Solution
 {
 public:
-    bool bfs(int start, vector<vector<int>> &adj, vector<bool> &visited)
+    bool bfs(int start, vector<vector<int>>& adj, vector<bool>& visited)
     {
         queue<pair<int, int>> q; // {node, parent}
         visited[start] = true;
-        q.push({start, -1});
+        q.push({ start, -1 });
 
-        while (!q.empty())
-        {
+        while (!q.empty()) {
             pair<int, int> curr = q.front();
             q.pop();
             int node = curr.first;
             int parent = curr.second;
 
-            for (int neighbor : adj[node])
-            {
-                if (!visited[neighbor])
-                {
+            for (int neighbor : adj[node]) {
+                if (!visited[neighbor]) {
                     visited[neighbor] = true;
-                    q.push({neighbor, node});
+                    q.push({ neighbor, node });
                 }
-                else if (neighbor != parent)
-                {
+                else if (neighbor != parent) {
                     return true; // Cycle found
                 }
             }
@@ -70,14 +66,12 @@ public:
         return false;
     }
 
-    bool hasCycle(int n, vector<vector<int>> &adj)
+    bool hasCycle(int n, vector<vector<int>>& adj)
     {
         vector<bool> visited(n, false);
 
-        for (int node = 0; node < n; node++)
-        {
-            if (!visited[node])
-            {
+        for (int node = 0; node < n; node++) {
+            if (!visited[node]) {
                 if (bfs(node, adj, visited))
                     return true;
             }
@@ -92,46 +86,42 @@ public:
  * PROBLEM 785: IS GRAPH BIPARTITE? (LeetCode)
  * ======================================================================== */
 
-/**
- * @brief Check if the given graph is bipartite using DFS
- *
- * PROBLEM STATEMENT:
- * Given an undirected graph represented as an adjacency list,
- * determine whether it is bipartite. A graph is bipartite if the nodes
- * can be divided into two sets such that no two nodes within the same
- * set are adjacent.
- *
- * EXAMPLE:
- * Input: graph = [[1,2,3],[0,2],[0,1,3],[0,2]]
- * Output: false
- *
- * @param graph Adjacency list of the graph
- * @return true if the graph is bipartite, false otherwise
- *
- * @complexity
- * Time: O(V + E)
- * Space: O(V) - for color/visited array and recursion stack
- */
+ /**
+  * @brief Check if the given graph is bipartite using DFS
+  *
+  * PROBLEM STATEMENT:
+  * Given an undirected graph represented as an adjacency list,
+  * determine whether it is bipartite. A graph is bipartite if the nodes
+  * can be divided into two sets such that no two nodes within the same
+  * set are adjacent.
+  *
+  * EXAMPLE:
+  * Input: graph = [[1,2,3],[0,2],[0,1,3],[0,2]]
+  * Output: false
+  *
+  * @param graph Adjacency list of the graph
+  * @return true if the graph is bipartite, false otherwise
+  *
+  * @complexity
+  * Time: O(V + E)
+  * Space: O(V) - for color/visited array and recursion stack
+  */
 
-// ====================== DFS APPROACH ======================
+  // ====================== DFS APPROACH ======================
 
 class Solution
 {
 public:
-    bool dfs(vector<vector<int>> &graph, int node, vector<int> &color, int currColor)
+    bool dfs(vector<vector<int>>& graph, int node, vector<int>& color, int currColor)
     {
         color[node] = currColor;
 
-        for (auto neighbour : graph[node])
-        {
-            if (color[node] == color[neighbour])
-            {
+        for (auto neighbour : graph[node]) {
+            if (color[node] == color[neighbour]) {
                 return false;
             }
-            if (color[neighbour] == -1)
-            {
-                if (dfs(graph, neighbour, color, 1 - currColor) == false)
-                { // If its 1 it becomes 0 and if its 0 then it becomes 1
+            if (color[neighbour] == -1) {
+                if (dfs(graph, neighbour, color, 1 - currColor) == false) { // If its 1 it becomes 0 and if its 0 then it becomes 1
                     return false;
                 }
             }
@@ -139,7 +129,7 @@ public:
         return true;
     }
 
-    bool isBipartite(vector<vector<int>> &graph)
+    bool isBipartite(vector<vector<int>>& graph)
     {
         // make the color
         int n = graph.size();
@@ -147,12 +137,9 @@ public:
 
         // color0 = 0, color1 = 1;
 
-        for (int i = 0; i < n; i++)
-        {
-            if (color[i] == -1)
-            {
-                if (dfs(graph, i, color, 0) == false)
-                {
+        for (int i = 0; i < n; i++) {
+            if (color[i] == -1) {
+                if (dfs(graph, i, color, 0) == false) {
                     return false;
                 }
             }
@@ -177,33 +164,27 @@ public:
 class Solution
 {
 public:
-    bool isBipartite(vector<vector<int>> &graph)
+    bool isBipartite(vector<vector<int>>& graph)
     {
         int n = graph.size();
         vector<int> color(n, -1); // -1 = unvisited
 
-        for (int i = 0; i < n; i++)
-        {
-            if (color[i] == -1)
-            {
+        for (int i = 0; i < n; i++) {
+            if (color[i] == -1) {
                 queue<int> q;
                 q.push(i);
                 color[i] = 0;
 
-                while (!q.empty())
-                {
+                while (!q.empty()) {
                     int node = q.front();
                     q.pop();
 
-                    for (int neighbor : graph[node])
-                    {
-                        if (color[neighbor] == -1)
-                        {
+                    for (int neighbor : graph[node]) {
+                        if (color[neighbor] == -1) {
                             color[neighbor] = 1 - color[node];
                             q.push(neighbor);
                         }
-                        else if (color[neighbor] == color[node])
-                        {
+                        else if (color[neighbor] == color[node]) {
                             return false;
                         }
                     }
@@ -218,55 +199,51 @@ public:
  * PROBLEM 802: FIND EVENTUAL SAFE STATES (LeetCode)
  * =================================================================== */
 
-/**
- * @brief Return all eventual safe nodes in a directed graph using DFS
- *
- * PROBLEM STATEMENT:
- * A node is called **eventually safe** if every possible path starting from
- * that node leads to a terminal node (i.e., a node with no outgoing edges).
- *
- * Given a directed graph represented as an adjacency list, return a sorted list
- * of all the **eventual safe nodes**.
- *
- * APPROACH:
- * - Use DFS to detect cycles using `visited` and `pathVisited`.
- * - Nodes involved in cycles or leading to cycles are not safe.
- * - A node is safe if it does not lie on any cycle path.
- *
- * STRATEGY:
- * - If a node is part of a cycle, or leads to one → mark unsafe.
- * - After all DFS calls, nodes not in the current recursion path (pathVisited)
- *   are safe nodes.
- *
- * @param graph Adjacency list of the directed graph
- * @return vector<int> of all safe node indices in sorted order
- *
- * @complexity
- * Time: O(V + E)
- * Space: O(V) for visited, pathVisited arrays and recursion stack
- */
+ /**
+  * @brief Return all eventual safe nodes in a directed graph using DFS
+  *
+  * PROBLEM STATEMENT:
+  * A node is called **eventually safe** if every possible path starting from
+  * that node leads to a terminal node (i.e., a node with no outgoing edges).
+  *
+  * Given a directed graph represented as an adjacency list, return a sorted list
+  * of all the **eventual safe nodes**.
+  *
+  * APPROACH:
+  * - Use DFS to detect cycles using `visited` and `pathVisited`.
+  * - Nodes involved in cycles or leading to cycles are not safe.
+  * - A node is safe if it does not lie on any cycle path.
+  *
+  * STRATEGY:
+  * - If a node is part of a cycle, or leads to one → mark unsafe.
+  * - After all DFS calls, nodes not in the current recursion path (pathVisited)
+  *   are safe nodes.
+  *
+  * @param graph Adjacency list of the directed graph
+  * @return vector<int> of all safe node indices in sorted order
+  *
+  * @complexity
+  * Time: O(V + E)
+  * Space: O(V) for visited, pathVisited arrays and recursion stack
+  */
 
 class Solution
 {
 public:
     // Helper DFS to detect cycles
-    bool hasCycleDFS(vector<vector<int>> &graph, int node,
-                     vector<bool> &visited, vector<bool> &pathVisited)
+    bool hasCycleDFS(vector<vector<int>>& graph, int node,
+        vector<bool>& visited, vector<bool>& pathVisited)
     {
         visited[node] = true;
         pathVisited[node] = true;
 
-        for (int neighbour : graph[node])
-        {
-            if (!visited[neighbour])
-            {
-                if (hasCycleDFS(graph, neighbour, visited, pathVisited))
-                {
+        for (int neighbour : graph[node]) {
+            if (!visited[neighbour]) {
+                if (hasCycleDFS(graph, neighbour, visited, pathVisited)) {
                     return true;
                 }
             }
-            else if (pathVisited[neighbour])
-            {
+            else if (pathVisited[neighbour]) {
                 // A back edge found → cycle
                 return true;
             }
@@ -276,7 +253,7 @@ public:
         return false;
     }
 
-    vector<int> eventualSafeNodes(vector<vector<int>> &graph)
+    vector<int> eventualSafeNodes(vector<vector<int>>& graph)
     {
         int n = graph.size();
         vector<bool> visited(n, false);
@@ -284,19 +261,15 @@ public:
         vector<int> safeNodes;
 
         // Step 1: DFS on all nodes to find unsafe/cyclic ones
-        for (int i = 0; i < n; i++)
-        {
-            if (!visited[i])
-            {
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
                 hasCycleDFS(graph, i, visited, pathVisited);
             }
         }
 
         // Step 2: Nodes not part of any cycle are safe
-        for (int i = 0; i < n; i++)
-        {
-            if (pathVisited[i] == false)
-            {
+        for (int i = 0; i < n; i++) {
+            if (pathVisited[i] == false) {
                 safeNodes.push_back(i);
             }
         }
@@ -313,79 +286,72 @@ public:
  * PROBLEM 269: ALIEN DICTIONARY (LeetCode)
  * =================================================================== */
 
-/**
- * @brief Determine the order of characters in an alien language
- *
- * PROBLEM STATEMENT:
- * You are given a list of words sorted lexicographically according to the rules
- * of an unknown alien language. You must derive the order of characters in the alien alphabet.
- *
- * If the ordering is invalid (e.g., a prefix appears after its full word), return "".
- * If multiple valid orderings exist, return any one of them.
- *
- * EXAMPLE:
- * Input:  words = ["wrt","wrf","er","ett","rftt"]
- * Output: "wertf"
- *
- * APPROACH:
- * - Build a graph of characters using pairwise comparisons of adjacent words.
- * - If char1 comes before char2 → add edge: char1 → char2.
- * - Use Kahn’s Algorithm (BFS Topological Sort) to determine character order.
- *
- * STRATEGY:
- * 1. Initialize graph (adjacency list) and indegree map.
- * 2. For each pair of adjacent words, compare characters and build edges.
- * 3. Apply topological sort using queue to find valid order.
- * 4. If result length != total unique characters → cycle exists → return "".
- *
- * @param words Vector of words sorted by alien dictionary
- * @return string A valid character order or "" if not possible
- *
- * @complexity
- * Time:  O(N * L), where N = number of words, L = average word length
- * Space: O(1), since alphabet is limited to 26 characters
- */
+ /**
+  * @brief Determine the order of characters in an alien language
+  *
+  * PROBLEM STATEMENT:
+  * You are given a list of words sorted lexicographically according to the rules
+  * of an unknown alien language. You must derive the order of characters in the alien alphabet.
+  *
+  * If the ordering is invalid (e.g., a prefix appears after its full word), return "".
+  * If multiple valid orderings exist, return any one of them.
+  *
+  * EXAMPLE:
+  * Input:  words = ["wrt","wrf","er","ett","rftt"]
+  * Output: "wertf"
+  *
+  * APPROACH:
+  * - Build a graph of characters using pairwise comparisons of adjacent words.
+  * - If char1 comes before char2 → add edge: char1 → char2.
+  * - Use Kahn’s Algorithm (BFS Topological Sort) to determine character order.
+  *
+  * STRATEGY:
+  * 1. Initialize graph (adjacency list) and indegree map.
+  * 2. For each pair of adjacent words, compare characters and build edges.
+  * 3. Apply topological sort using queue to find valid order.
+  * 4. If result length != total unique characters → cycle exists → return "".
+  *
+  * @param words Vector of words sorted by alien dictionary
+  * @return string A valid character order or "" if not possible
+  *
+  * @complexity
+  * Time:  O(N * L), where N = number of words, L = average word length
+  * Space: O(1), since alphabet is limited to 26 characters
+  */
 
 class Solution
 {
 public:
-    string alienOrder(vector<string> &words)
+    string alienOrder(vector<string>& words)
     {
         unordered_map<char, unordered_set<char>> adj; // adjacency list
         unordered_map<char, int> indegree;            // indegree of each node
 
         // Step 1: Initialize graph nodes
-        for (const string &word : words)
-        {
-            for (char c : word)
-            {
+        for (const string& word : words) {
+            for (char c : word) {
                 indegree[c] = 0; // Ensure every character is in the indegree map
             }
         }
 
         // Step 2: Build the graph from adjacent word pairs
-        for (int i = 0; i < words.size() - 1; ++i)
-        {
-            string &w1 = words[i];
-            string &w2 = words[i + 1];
+        for (int i = 0; i < words.size() - 1; ++i) {
+            string& w1 = words[i];
+            string& w2 = words[i + 1];
 
             // Invalid case: longer word appears before its prefix
-            if (w1.size() > w2.size() && w1.substr(0, w2.size()) == w2)
-            {
+            if (w1.size() > w2.size() && w1.substr(0, w2.size()) == w2) {
                 return "";
             }
 
             // Compare characters to find the first difference
-            for (int j = 0; j < min(w1.size(), w2.size()); ++j)
-            {
+            for (int j = 0; j < min(w1.size(), w2.size()); ++j) {
                 char c1 = w1[j];
                 char c2 = w2[j];
 
-                if (c1 != c2)
-                {
+                if (c1 != c2) {
                     // Add edge only if not already present
-                    if (!adj[c1].count(c2))
-                    {
+                    if (!adj[c1].count(c2)) {
                         adj[c1].insert(c2);
                         indegree[c2]++;
                     }
@@ -396,26 +362,21 @@ public:
 
         // Step 3: Kahn’s Algorithm (Topological Sort using BFS)
         queue<char> q;
-        for (auto &[c, deg] : indegree)
-        {
-            if (deg == 0)
-            {
+        for (auto& [c, deg] : indegree) {
+            if (deg == 0) {
                 q.push(c);
             }
         }
 
         string result;
-        while (!q.empty())
-        {
+        while (!q.empty()) {
             char c = q.front();
             q.pop();
             result += c;
 
-            for (char neighbor : adj[c])
-            {
+            for (char neighbor : adj[c]) {
                 indegree[neighbor]--;
-                if (indegree[neighbor] == 0)
-                {
+                if (indegree[neighbor] == 0) {
                     q.push(neighbor);
                 }
             }
@@ -433,41 +394,40 @@ public:
  * PROBLEM 743: NETWORK DELAY TIME (LeetCode)
  * =================================================================== */
 
-/**
- * @brief Find the time it takes for all nodes to receive a signal from a source node.
- *
- * PROBLEM STATEMENT:
- * You are given a directed weighted graph with `n` nodes labeled from 1 to `n`,
- * and a list of travel times as directed edges `times[i] = [u, v, w]`,
- * where `u` sends a signal to `v` with a time delay of `w`.
- *
- * Return the minimum time it takes for all the `n` nodes to receive the signal from the source `k`.
- * If it is impossible for all nodes to receive the signal, return `-1`.
- *
- * APPROACH:
- * - Build an adjacency list to represent the graph.
- * - Use Dijkstra's Algorithm (min-heap) to find the shortest time from node `k` to all others.
- * - Track the time to reach each node using a `time[]` array.
- * - The result is the maximum value in the `time[]` array (i.e., the longest minimum delay).
- *
- * @complexity
- * Time: O((V + E) * log V)
- * Space: O(V + E)
- */
+ /**
+  * @brief Find the time it takes for all nodes to receive a signal from a source node.
+  *
+  * PROBLEM STATEMENT:
+  * You are given a directed weighted graph with `n` nodes labeled from 1 to `n`,
+  * and a list of travel times as directed edges `times[i] = [u, v, w]`,
+  * where `u` sends a signal to `v` with a time delay of `w`.
+  *
+  * Return the minimum time it takes for all the `n` nodes to receive the signal from the source `k`.
+  * If it is impossible for all nodes to receive the signal, return `-1`.
+  *
+  * APPROACH:
+  * - Build an adjacency list to represent the graph.
+  * - Use Dijkstra's Algorithm (min-heap) to find the shortest time from node `k` to all others.
+  * - Track the time to reach each node using a `time[]` array.
+  * - The result is the maximum value in the `time[]` array (i.e., the longest minimum delay).
+  *
+  * @complexity
+  * Time: O((V + E) * log V)
+  * Space: O(V + E)
+  */
 
 class Solution
 {
 public:
-    int networkDelayTime(vector<vector<int>> &times, int n, int k)
+    int networkDelayTime(vector<vector<int>>& times, int n, int k)
     {
         // Step 1: Build the adjacency list
         vector<vector<pair<int, int>>> adj(n + 1);
-        for (auto vec : times)
-        {
+        for (auto vec : times) {
             int u = vec[0];
             int v = vec[1];
             int w = vec[2];
-            adj[u].push_back({v, w});
+            adj[u].push_back({ v, w });
         }
 
         // Step 2: Initialize min-heap and distance array
@@ -475,28 +435,24 @@ public:
         priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
 
         time[k] = 0;
-        pq.push({0, k}); // {delayTime, node}
+        pq.push({ 0, k }); // {delayTime, node}
 
         // Step 3: Dijkstra’s Algorithm
-        while (!pq.empty())
-        {
+        while (!pq.empty()) {
             auto [d, node] = pq.top();
             pq.pop();
 
-            for (auto [neighbor, weight] : adj[node])
-            {
-                if (d + weight < time[neighbor])
-                {
+            for (auto [neighbor, weight] : adj[node]) {
+                if (d + weight < time[neighbor]) {
                     time[neighbor] = d + weight;
-                    pq.push({time[neighbor], neighbor});
+                    pq.push({ time[neighbor], neighbor });
                 }
             }
         }
 
         // Step 4: Compute max delay time among all nodes
         int maxTime = 0;
-        for (int i = 1; i <= n; i++)
-        {
+        for (int i = 1; i <= n; i++) {
             if (time[i] == INT_MAX)
                 return -1; // unreachable node
             maxTime = max(maxTime, time[i]);
@@ -512,30 +468,30 @@ public:
  * PROBLEM 1631: PATH WITH MINIMUM EFFORT (LeetCode)
  * =================================================================== */
 
-/**
- * @brief Find a path from (0, 0) to (m-1, n-1) minimizing the maximum height difference.
- *
- * PROBLEM:
- * - You are given an `m x n` grid of integers `heights`.
- * - A path is valid if at each step you move to an adjacent cell (up/down/left/right).
- * - The *effort* of a path is the **maximum absolute difference** in heights between adjacent cells.
- * - Return the minimum possible *effort* needed to reach the bottom-right from the top-left.
- *
- * APPROACH (Dijkstra’s Algorithm):
- * - Treat each cell as a node, and each move to a neighbor as an edge with a weight = abs(height difference).
- * - The goal is to minimize the **maximum edge weight** on the path from source to destination.
- * - Use a min-heap (priority queue) to always pick the path with the least *effort so far*.
- * - For each neighbor, compute the maximum effort along that path and update it if it's better.
- *
- * COMPLEXITY:
- * - Time: O(m * n * log(m * n)) because each cell is pushed to the heap at most once
- * - Space: O(m * n) for the result matrix and priority queue
- */
+ /**
+  * @brief Find a path from (0, 0) to (m-1, n-1) minimizing the maximum height difference.
+  *
+  * PROBLEM:
+  * - You are given an `m x n` grid of integers `heights`.
+  * - A path is valid if at each step you move to an adjacent cell (up/down/left/right).
+  * - The *effort* of a path is the **maximum absolute difference** in heights between adjacent cells.
+  * - Return the minimum possible *effort* needed to reach the bottom-right from the top-left.
+  *
+  * APPROACH (Dijkstra’s Algorithm):
+  * - Treat each cell as a node, and each move to a neighbor as an edge with a weight = abs(height difference).
+  * - The goal is to minimize the **maximum edge weight** on the path from source to destination.
+  * - Use a min-heap (priority queue) to always pick the path with the least *effort so far*.
+  * - For each neighbor, compute the maximum effort along that path and update it if it's better.
+  *
+  * COMPLEXITY:
+  * - Time: O(m * n * log(m * n)) because each cell is pushed to the heap at most once
+  * - Space: O(m * n) for the result matrix and priority queue
+  */
 
 class Solution
 {
 public:
-    int minimumEffortPath(vector<vector<int>> &heights)
+    int minimumEffortPath(vector<vector<int>>& heights)
     {
         int m = heights.size();
         int n = heights[0].size();
@@ -551,14 +507,13 @@ public:
             greater<>>
             pq;
 
-        pq.push({0, {0, 0}}); // Start from the top-left cell
+        pq.push({ 0, {0, 0} }); // Start from the top-left cell
 
         // 4-directional movement (up, down, left, right)
         vector<pair<int, int>> directions = {
-            {1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+            {1, 0}, {0, 1}, {-1, 0}, {0, -1} };
 
-        while (!pq.empty())
-        {
+        while (!pq.empty()) {
             auto [currEffort, coords] = pq.top();
             pq.pop();
             auto [x, y] = coords;
@@ -568,23 +523,20 @@ public:
                 return currEffort;
 
             // Visit all 4 neighbors
-            for (auto [dx, dy] : directions)
-            {
+            for (auto [dx, dy] : directions) {
                 int nx = x + dx;
                 int ny = y + dy;
 
                 // Make sure neighbor is within grid bounds
-                if (nx >= 0 && ny >= 0 && nx < m && ny < n)
-                {
+                if (nx >= 0 && ny >= 0 && nx < m && ny < n) {
                     // Calculate the effort to move to neighbor
                     int diff = abs(heights[nx][ny] - heights[x][y]);
                     int newEffort = max(currEffort, diff); // max of path so far and current edge
 
                     // If this path offers a smaller max effort to reach (nx, ny), update it
-                    if (newEffort < result[nx][ny])
-                    {
+                    if (newEffort < result[nx][ny]) {
                         result[nx][ny] = newEffort;
-                        pq.push({newEffort, {nx, ny}});
+                        pq.push({ newEffort, {nx, ny} });
                     }
                 }
             }
@@ -598,31 +550,31 @@ public:
  * PROBLEM 1584: MINIMUM COST TO CONNECT ALL POINTS (USING PRIM'S MST)
  * =================================================================== */
 
-/**
- * @brief Find the minimum cost to connect all points in 2D space
- *
- * PROBLEM STATEMENT:
- * Given `n` points in a 2D plane, you are to connect all points such that the total cost is minimized.
- * The cost to connect two points (x1, y1) and (x2, y2) is the **Manhattan Distance**:
- *   cost = |x1 - x2| + |y1 - y2|
- *
- * You can connect any two points directly; the goal is to **connect all points with minimum total cost**
- * such that all nodes are reachable (Minimum Spanning Tree).
- *
- * Input:
- * - vector<vector<int>> points: where points[i] = {xi, yi}
- *
- * Output:
- * - Integer value representing minimum total cost to connect all points
- *
- * APPROACH (Prim's Algorithm for MST):
- * - Construct a complete graph using Manhattan distances
- * - Apply Prim’s algorithm with Min-Heap to find MST cost
- *
- * COMPLEXITY:
- * - Time: O(N^2 * log N) due to dense graph and priority queue
- * - Space: O(N^2) for adjacency list
- */
+ /**
+  * @brief Find the minimum cost to connect all points in 2D space
+  *
+  * PROBLEM STATEMENT:
+  * Given `n` points in a 2D plane, you are to connect all points such that the total cost is minimized.
+  * The cost to connect two points (x1, y1) and (x2, y2) is the **Manhattan Distance**:
+  *   cost = |x1 - x2| + |y1 - y2|
+  *
+  * You can connect any two points directly; the goal is to **connect all points with minimum total cost**
+  * such that all nodes are reachable (Minimum Spanning Tree).
+  *
+  * Input:
+  * - vector<vector<int>> points: where points[i] = {xi, yi}
+  *
+  * Output:
+  * - Integer value representing minimum total cost to connect all points
+  *
+  * APPROACH (Prim's Algorithm for MST):
+  * - Construct a complete graph using Manhattan distances
+  * - Apply Prim’s algorithm with Min-Heap to find MST cost
+  *
+  * COMPLEXITY:
+  * - Time: O(N^2 * log N) due to dense graph and priority queue
+  * - Space: O(N^2) for adjacency list
+  */
 
 class Solution
 {
@@ -633,7 +585,7 @@ public:
      * @param n: Number of nodes
      * @return Total cost of the Minimum Spanning Tree
      */
-    int primsAlgo(vector<vector<pair<int, int>>> &adj, int n)
+    int primsAlgo(vector<vector<pair<int, int>>>& adj, int n)
     {
         // Min-heap: {cost, node}
         priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
@@ -641,10 +593,9 @@ public:
         vector<bool> inMST(n, false); // Mark nodes already included in MST
         int minCost = 0;
 
-        pq.push({0, 0}); // Start from node 0 with 0 cost
+        pq.push({ 0, 0 }); // Start from node 0 with 0 cost
 
-        while (!pq.empty())
-        {
+        while (!pq.empty()) {
             auto [cost, node] = pq.top();
             pq.pop();
 
@@ -655,11 +606,9 @@ public:
             minCost += cost;
 
             // Add all neighbors of current node to the heap
-            for (auto [neighbour, neighbourCost] : adj[node])
-            {
-                if (!inMST[neighbour])
-                {
-                    pq.push({neighbourCost, neighbour});
+            for (auto [neighbour, neighbourCost] : adj[node]) {
+                if (!inMST[neighbour]) {
+                    pq.push({ neighbourCost, neighbour });
                 }
             }
         }
@@ -670,19 +619,17 @@ public:
     /**
      * @brief Main function to compute the minimum cost to connect all given points
      */
-    int minCostConnectPoints(vector<vector<int>> &points)
+    int minCostConnectPoints(vector<vector<int>>& points)
     {
         int n = points.size();
 
         // Step 1: Build complete graph with Manhattan distances
         vector<vector<pair<int, int>>> adj(n); // adj[u] = {v, cost}
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = i + 1; j < n; j++)
-            {
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
                 int cost = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]);
-                adj[i].push_back({j, cost});
-                adj[j].push_back({i, cost});
+                adj[i].push_back({ j, cost });
+                adj[j].push_back({ i, cost });
             }
         }
 
@@ -696,38 +643,38 @@ public:
  * LEETCODE 947: MOST STONES REMOVED WITH SAME ROW OR COLUMN
  * =================================================================== */
 
-/**
- * @brief Remove the maximum number of stones from a 2D grid
- *
- * PROBLEM STATEMENT:
- * You are given a list of stones where each stone is at position (x, y) on a 2D grid.
- * A stone can be removed **if there is another stone in the same row or column**.
- *
- * Return the **maximum number of stones that can be removed**.
- *
- * Note: You can only remove a stone if it shares a row or column with at least one other remaining stone.
- *
- * Input:
- * - vector<vector<int>> stones: list of stone coordinates
- *
- * Output:
- * - Integer: Maximum number of stones that can be removed
- *
- * EXAMPLE:
- * Input: stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]
- * Output: 5
- * Explanation: We can remove 5 stones, one per move, leaving one isolated stone.
- *
- * ALGORITHM (DFS + Connected Components):
- * - Treat each stone as a node in a graph
- * - Connect two stones if they share a row or column
- * - Count number of connected components using DFS
- * - Answer = total stones - number of connected components
- *
- * COMPLEXITY:
- * - Time: O(N^2), where N is the number of stones (due to pairwise comparisons)
- * - Space: O(N) for visited array
- */
+ /**
+  * @brief Remove the maximum number of stones from a 2D grid
+  *
+  * PROBLEM STATEMENT:
+  * You are given a list of stones where each stone is at position (x, y) on a 2D grid.
+  * A stone can be removed **if there is another stone in the same row or column**.
+  *
+  * Return the **maximum number of stones that can be removed**.
+  *
+  * Note: You can only remove a stone if it shares a row or column with at least one other remaining stone.
+  *
+  * Input:
+  * - vector<vector<int>> stones: list of stone coordinates
+  *
+  * Output:
+  * - Integer: Maximum number of stones that can be removed
+  *
+  * EXAMPLE:
+  * Input: stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]
+  * Output: 5
+  * Explanation: We can remove 5 stones, one per move, leaving one isolated stone.
+  *
+  * ALGORITHM (DFS + Connected Components):
+  * - Treat each stone as a node in a graph
+  * - Connect two stones if they share a row or column
+  * - Count number of connected components using DFS
+  * - Answer = total stones - number of connected components
+  *
+  * COMPLEXITY:
+  * - Time: O(N^2), where N is the number of stones (due to pairwise comparisons)
+  * - Space: O(N) for visited array
+  */
 
 class Solution
 {
@@ -735,7 +682,7 @@ public:
     /**
      * @brief DFS to mark all connected stones (same row or column)
      */
-    void dfs(vector<vector<int>> &stones, int index, vector<bool> &visited)
+    void dfs(vector<vector<int>>& stones, int index, vector<bool>& visited)
     {
         int n = stones.size();
         visited[index] = true;
@@ -744,10 +691,8 @@ public:
         int c = stones[index][1];
 
         // Traverse all other stones and visit connected ones
-        for (int i = 0; i < n; i++)
-        {
-            if (!visited[i] && (stones[i][0] == r || stones[i][1] == c))
-            {
+        for (int i = 0; i < n; i++) {
+            if (!visited[i] && (stones[i][0] == r || stones[i][1] == c)) {
                 dfs(stones, i, visited);
             }
         }
@@ -756,7 +701,7 @@ public:
     /**
      * @brief Main function to compute max removable stones
      */
-    int removeStones(vector<vector<int>> &stones)
+    int removeStones(vector<vector<int>>& stones)
     {
         int n = stones.size();
         vector<bool> visited(n, false);
@@ -764,10 +709,8 @@ public:
         int group = 0; // Count connected components (islands)
 
         // Use DFS to find all connected components
-        for (int i = 0; i < n; i++)
-        {
-            if (!visited[i])
-            {
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
                 dfs(stones, i, visited);
                 group++;
             }
@@ -783,38 +726,38 @@ public:
  * LEETCODE 1971: FIND IF PATH EXISTS IN GRAPH
  * =================================================================== */
 
-/**
- * @brief Determine if there is a valid path between source and destination
- *
- * PROBLEM STATEMENT:
- * You are given an **undirected graph** with `n` nodes numbered from 0 to n - 1.
- * You are also given a list of `edges` where each edge connects two nodes.
- *
- * Given a `source` node and a `destination` node, return `true` if there is a valid path
- * between the two, or `false` otherwise.
- *
- * Input:
- * - Integer `n`: number of nodes
- * - vector<vector<int>> edges: list of undirected edges
- * - Integer `source`: start node
- * - Integer `destination`: target node
- *
- * Output:
- * - Boolean: true if path exists, false otherwise
- *
- * EXAMPLE:
- * Input: n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5
- * Output: false
- *
- * ALGORITHM (DFS Traversal):
- * - Build the adjacency list from edge list
- * - Perform DFS from the source
- * - If destination is found during DFS, return true
- *
- * COMPLEXITY:
- * - Time: O(V + E)
- * - Space: O(V + E) for adjacency list and visited array
- */
+ /**
+  * @brief Determine if there is a valid path between source and destination
+  *
+  * PROBLEM STATEMENT:
+  * You are given an **undirected graph** with `n` nodes numbered from 0 to n - 1.
+  * You are also given a list of `edges` where each edge connects two nodes.
+  *
+  * Given a `source` node and a `destination` node, return `true` if there is a valid path
+  * between the two, or `false` otherwise.
+  *
+  * Input:
+  * - Integer `n`: number of nodes
+  * - vector<vector<int>> edges: list of undirected edges
+  * - Integer `source`: start node
+  * - Integer `destination`: target node
+  *
+  * Output:
+  * - Boolean: true if path exists, false otherwise
+  *
+  * EXAMPLE:
+  * Input: n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5
+  * Output: false
+  *
+  * ALGORITHM (DFS Traversal):
+  * - Build the adjacency list from edge list
+  * - Perform DFS from the source
+  * - If destination is found during DFS, return true
+  *
+  * COMPLEXITY:
+  * - Time: O(V + E)
+  * - Space: O(V + E) for adjacency list and visited array
+  */
 
 class Solution
 {
@@ -822,17 +765,15 @@ public:
     /**
      * @brief DFS to find if destination is reachable from source
      */
-    bool dfs(vector<vector<int>> &adj, int source, int destination, vector<bool> &visited)
+    bool dfs(vector<vector<int>>& adj, int source, int destination, vector<bool>& visited)
     {
         if (source == destination)
             return true;
 
         visited[source] = true;
 
-        for (auto neighbour : adj[source])
-        {
-            if (!visited[neighbour] && dfs(adj, neighbour, destination, visited))
-            {
+        for (auto neighbour : adj[source]) {
+            if (!visited[neighbour] && dfs(adj, neighbour, destination, visited)) {
                 return true;
             }
         }
@@ -843,14 +784,13 @@ public:
     /**
      * @brief Main function to check if path exists between source and destination
      */
-    bool validPath(int n, vector<vector<int>> &edges, int source, int destination)
+    bool validPath(int n, vector<vector<int>>& edges, int source, int destination)
     {
         vector<vector<int>> adj(n);
         vector<bool> visited(n, false);
 
         // Build adjacency list
-        for (auto &edge : edges)
-        {
+        for (auto& edge : edges) {
             int u = edge[0];
             int v = edge[1];
             adj[u].push_back(v);
@@ -867,38 +807,38 @@ public:
  * LEETCODE 886: POSSIBLE BIPARTITION
  * =================================================================== */
 
-/**
- * @brief Check if it’s possible to partition people into two groups such that
- *        no pair of people who dislike each other are in the same group.
- *
- * PROBLEM STATEMENT:
- * Given `n` people labeled from 1 to n and a list of `dislikes` pairs,
- * determine if it is possible to split all people into two groups such that:
- * - No pair in the same group dislikes each other.
- *
- * This is equivalent to checking if the graph is **bipartite**.
- *
- * Input:
- * - Integer `n`: number of people
- * - vector<vector<int>> dislikes: list of mutual dislikes (edges)
- *
- * Output:
- * - Boolean: true if bipartition is possible, false otherwise
- *
- * EXAMPLE:
- * Input: n = 4, dislikes = [[1,2],[1,3],[2,4]]
- * Output: true
- * Explanation: Group 1 = {1, 4}, Group 2 = {2, 3}
- *
- * ALGORITHM (DFS for Bipartite Check):
- * - Build the graph using adjacency list
- * - Use DFS to color nodes in two groups (0 and 1)
- * - If a conflict is found (same color on both sides), return false
- *
- * COMPLEXITY:
- * - Time: O(V + E), where V = n, E = size of dislikes
- * - Space: O(V + E) for graph + O(V) for visited/group
- */
+ /**
+  * @brief Check if it’s possible to partition people into two groups such that
+  *        no pair of people who dislike each other are in the same group.
+  *
+  * PROBLEM STATEMENT:
+  * Given `n` people labeled from 1 to n and a list of `dislikes` pairs,
+  * determine if it is possible to split all people into two groups such that:
+  * - No pair in the same group dislikes each other.
+  *
+  * This is equivalent to checking if the graph is **bipartite**.
+  *
+  * Input:
+  * - Integer `n`: number of people
+  * - vector<vector<int>> dislikes: list of mutual dislikes (edges)
+  *
+  * Output:
+  * - Boolean: true if bipartition is possible, false otherwise
+  *
+  * EXAMPLE:
+  * Input: n = 4, dislikes = [[1,2],[1,3],[2,4]]
+  * Output: true
+  * Explanation: Group 1 = {1, 4}, Group 2 = {2, 3}
+  *
+  * ALGORITHM (DFS for Bipartite Check):
+  * - Build the graph using adjacency list
+  * - Use DFS to color nodes in two groups (0 and 1)
+  * - If a conflict is found (same color on both sides), return false
+  *
+  * COMPLEXITY:
+  * - Time: O(V + E), where V = n, E = size of dislikes
+  * - Space: O(V + E) for graph + O(V) for visited/group
+  */
 
 class Solution
 {
@@ -906,19 +846,16 @@ public:
     /**
      * @brief Recursive DFS to check bipartiteness by coloring
      */
-    bool checkBipart(vector<vector<int>> &adj, int curr, vector<int> &group, int currGroup)
+    bool checkBipart(vector<vector<int>>& adj, int curr, vector<int>& group, int currGroup)
     {
         group[curr] = currGroup;
 
-        for (int neighbour : adj[curr])
-        {
+        for (int neighbour : adj[curr]) {
             if (group[neighbour] == group[curr])
                 return false;
 
-            if (group[neighbour] == -1)
-            {
-                if (!checkBipart(adj, neighbour, group, 1 - currGroup))
-                {
+            if (group[neighbour] == -1) {
+                if (!checkBipart(adj, neighbour, group, 1 - currGroup)) {
                     return false;
                 }
             }
@@ -930,14 +867,13 @@ public:
     /**
      * @brief Main function to check if possible to bipartition the graph
      */
-    bool possibleBipartition(int n, vector<vector<int>> &dislikes)
+    bool possibleBipartition(int n, vector<vector<int>>& dislikes)
     {
         vector<vector<int>> adj(n + 1);
         vector<int> group(n + 1, -1); // -1 = unvisited, 0 and 1 = two groups
 
         // Build adjacency list
-        for (auto &edge : dislikes)
-        {
+        for (auto& edge : dislikes) {
             int u = edge[0];
             int v = edge[1];
             adj[u].push_back(v);
@@ -945,12 +881,9 @@ public:
         }
 
         // Check for each connected component
-        for (int i = 1; i <= n; i++)
-        {
-            if (group[i] == -1)
-            {
-                if (!checkBipart(adj, i, group, 0))
-                {
+        for (int i = 1; i <= n; i++) {
+            if (group[i] == -1) {
+                if (!checkBipart(adj, i, group, 0)) {
                     return false;
                 }
             }
@@ -965,38 +898,38 @@ public:
  * LEETCODE 1443: MINIMUM TIME TO COLLECT ALL APPLES IN A TREE
  * =================================================================== */
 
-/**
- * @brief Find the minimum time needed to collect all apples in the tree
- *
- * PROBLEM STATEMENT:
- * Given a tree with `n` nodes (0 to n - 1) and an array `hasApple` where
- * hasApple[i] = true means node i has an apple, find the **minimum time**
- * to collect all apples starting and ending at the root node (node 0).
- *
- * Each edge takes 1 second to go and 1 second to return (2 seconds total).
- *
- * INPUT:
- * - int n: number of nodes
- * - vector<vector<int>> edges: undirected edges of the tree
- * - vector<bool> hasApple: array indicating which nodes have apples
- *
- * OUTPUT:
- * - Integer: minimum time to collect all apples
- *
- * EXAMPLE:
- * Input: n = 7, edges = [[0,1],[0,2],[1,4],[1,5],[2,3],[2,6]], hasApple = [false,false,true,false,true,true,false]
- * Output: 8
- *
- * ALGORITHM (DFS Tree Traversal):
- * - Build an adjacency list from the edge list
- * - Do DFS from the root (node 0)
- * - At each node, recursively calculate time for its children
- * - If a child subtree contains an apple, add 2 seconds (go + return)
- *
- * COMPLEXITY:
- * - Time: O(N)
- * - Space: O(N) for recursion and adjacency list
- */
+ /**
+  * @brief Find the minimum time needed to collect all apples in the tree
+  *
+  * PROBLEM STATEMENT:
+  * Given a tree with `n` nodes (0 to n - 1) and an array `hasApple` where
+  * hasApple[i] = true means node i has an apple, find the **minimum time**
+  * to collect all apples starting and ending at the root node (node 0).
+  *
+  * Each edge takes 1 second to go and 1 second to return (2 seconds total).
+  *
+  * INPUT:
+  * - int n: number of nodes
+  * - vector<vector<int>> edges: undirected edges of the tree
+  * - vector<bool> hasApple: array indicating which nodes have apples
+  *
+  * OUTPUT:
+  * - Integer: minimum time to collect all apples
+  *
+  * EXAMPLE:
+  * Input: n = 7, edges = [[0,1],[0,2],[1,4],[1,5],[2,3],[2,6]], hasApple = [false,false,true,false,true,true,false]
+  * Output: 8
+  *
+  * ALGORITHM (DFS Tree Traversal):
+  * - Build an adjacency list from the edge list
+  * - Do DFS from the root (node 0)
+  * - At each node, recursively calculate time for its children
+  * - If a child subtree contains an apple, add 2 seconds (go + return)
+  *
+  * COMPLEXITY:
+  * - Time: O(N)
+  * - Space: O(N) for recursion and adjacency list
+  */
 
 class Solution
 {
@@ -1009,20 +942,18 @@ public:
      * @param hasApple: apple presence array
      * @return time taken from this node's subtree
      */
-    int dfs(vector<vector<int>> &adj, int node, int parent, vector<bool> &hasApple)
+    int dfs(vector<vector<int>>& adj, int node, int parent, vector<bool>& hasApple)
     {
         int time = 0;
 
-        for (int child : adj[node])
-        {
+        for (int child : adj[node]) {
             if (child == parent)
                 continue;
 
             int timeChild = dfs(adj, child, node, hasApple);
 
             // If child has apple or any of its descendants have one
-            if (timeChild != 0 || hasApple[child])
-            {
+            if (timeChild != 0 || hasApple[child]) {
                 time += timeChild + 2; // +2 for the round trip edge
             }
         }
@@ -1033,12 +964,11 @@ public:
     /**
      * @brief Main function to return minimum time
      */
-    int minTime(int n, vector<vector<int>> &edges, vector<bool> &hasApple)
+    int minTime(int n, vector<vector<int>>& edges, vector<bool>& hasApple)
     {
         // Build adjacency list
         vector<vector<int>> adj(n);
-        for (auto &edge : edges)
-        {
+        for (auto& edge : edges) {
             int u = edge[0];
             int v = edge[1];
             adj[u].push_back(v);
@@ -1054,37 +984,37 @@ public:
  * LEETCODE 1061: LEXICOGRAPHICALLY SMALLEST EQUIVALENT STRING
  * =================================================================== */
 
-/**
- * @brief Return the lexicographically smallest equivalent string
- *
- * PROBLEM STATEMENT:
- * You are given two strings `s1` and `s2` of equal length, and a `baseStr`.
- * Characters from `s1[i]` and `s2[i]` are considered **equivalent**.
- *
- * You may replace a character in `baseStr` with any of its equivalents.
- * Return the **lexicographically smallest** string after replacements.
- *
- * INPUT:
- * - string s1, s2: mapping of equivalent characters (same length)
- * - string baseStr: base string to transform
- *
- * OUTPUT:
- * - Transformed string: lexicographically smallest equivalent version of baseStr
- *
- * EXAMPLE:
- * Input: s1 = "parker", s2 = "morris", baseStr = "parser"
- * Output: "makkek"
- *
- * ALGORITHM (DFS + Graph of Equivalents):
- * - Treat characters as nodes in a graph
- * - If s1[i] = u and s2[i] = v → add edges u ↔ v
- * - For each character in baseStr:
- *   - DFS to find the lexicographically smallest character in its component
- *
- * COMPLEXITY:
- * - Time: O(N + M * 26), where N = length of s1/s2, M = baseStr.length()
- * - Space: O(26) for visited array + adjacency list
- */
+ /**
+  * @brief Return the lexicographically smallest equivalent string
+  *
+  * PROBLEM STATEMENT:
+  * You are given two strings `s1` and `s2` of equal length, and a `baseStr`.
+  * Characters from `s1[i]` and `s2[i]` are considered **equivalent**.
+  *
+  * You may replace a character in `baseStr` with any of its equivalents.
+  * Return the **lexicographically smallest** string after replacements.
+  *
+  * INPUT:
+  * - string s1, s2: mapping of equivalent characters (same length)
+  * - string baseStr: base string to transform
+  *
+  * OUTPUT:
+  * - Transformed string: lexicographically smallest equivalent version of baseStr
+  *
+  * EXAMPLE:
+  * Input: s1 = "parker", s2 = "morris", baseStr = "parser"
+  * Output: "makkek"
+  *
+  * ALGORITHM (DFS + Graph of Equivalents):
+  * - Treat characters as nodes in a graph
+  * - If s1[i] = u and s2[i] = v → add edges u ↔ v
+  * - For each character in baseStr:
+  *   - DFS to find the lexicographically smallest character in its component
+  *
+  * COMPLEXITY:
+  * - Time: O(N + M * 26), where N = length of s1/s2, M = baseStr.length()
+  * - Space: O(26) for visited array + adjacency list
+  */
 
 class Solution
 {
@@ -1092,15 +1022,13 @@ public:
     /**
      * @brief DFS to find the lexicographically smallest character in the component
      */
-    char dfsMinCh(unordered_map<char, vector<char>> &adj, char ch, vector<bool> &visited)
+    char dfsMinCh(unordered_map<char, vector<char>>& adj, char ch, vector<bool>& visited)
     {
         visited[ch - 'a'] = true;
         char minCh = ch;
 
-        for (char neighbour : adj[ch])
-        {
-            if (!visited[neighbour - 'a'])
-            {
+        for (char neighbour : adj[ch]) {
+            if (!visited[neighbour - 'a']) {
                 minCh = min(minCh, dfsMinCh(adj, neighbour, visited));
             }
         }
@@ -1119,8 +1047,7 @@ public:
         unordered_map<char, vector<char>> adj;
 
         // Step 1: Build equivalence graph
-        for (int i = 0; i < n; i++)
-        {
+        for (int i = 0; i < n; i++) {
             char u = s1[i];
             char v = s2[i];
             adj[u].push_back(v);
@@ -1130,8 +1057,7 @@ public:
         string result;
 
         // Step 2: For each char in baseStr, find smallest equivalent
-        for (int i = 0; i < m; i++)
-        {
+        for (int i = 0; i < m; i++) {
             char ch = baseStr[i];
             vector<bool> visited(26, false);
             char minCh = dfsMinCh(adj, ch, visited);
@@ -1146,38 +1072,38 @@ public:
  * LEETCODE 2359: FIND CLOSEST NODE TO GIVEN TWO NODES
  * =================================================================== */
 
-/**
- * @brief Find the node reachable from both start1 and start2 with minimal maximum distance
- *
- * PROBLEM STATEMENT:
- * Given a directed graph (each node has at most one outgoing edge),
- * and two starting nodes `start1` and `start2`,
- * return the node that is reachable from **both** and has the **minimum maximum distance**
- * from the two starting nodes.
- *
- * If multiple answers exist, return the one with the smallest index.
- * If no such node exists, return -1.
- *
- * INPUT:
- * - vector<int> edges: graph represented as edges[i] = node i points to
- * - int start1, start2: starting nodes
- *
- * OUTPUT:
- * - int: closest meeting node index
- *
- * EXAMPLE:
- * Input: edges = [2,2,3,-1], start1 = 0, start2 = 1
- * Output: 2
- *
- * ALGORITHM:
- * - Perform DFS from both start1 and start2 to compute distances to all reachable nodes
- * - For every node, if it’s reachable from both, track max(dist1, dist2)
- * - Return node with the smallest such max distance
- *
- * COMPLEXITY:
- * - Time: O(N) where N = number of nodes
- * - Space: O(N) for storing distances
- */
+ /**
+  * @brief Find the node reachable from both start1 and start2 with minimal maximum distance
+  *
+  * PROBLEM STATEMENT:
+  * Given a directed graph (each node has at most one outgoing edge),
+  * and two starting nodes `start1` and `start2`,
+  * return the node that is reachable from **both** and has the **minimum maximum distance**
+  * from the two starting nodes.
+  *
+  * If multiple answers exist, return the one with the smallest index.
+  * If no such node exists, return -1.
+  *
+  * INPUT:
+  * - vector<int> edges: graph represented as edges[i] = node i points to
+  * - int start1, start2: starting nodes
+  *
+  * OUTPUT:
+  * - int: closest meeting node index
+  *
+  * EXAMPLE:
+  * Input: edges = [2,2,3,-1], start1 = 0, start2 = 1
+  * Output: 2
+  *
+  * ALGORITHM:
+  * - Perform DFS from both start1 and start2 to compute distances to all reachable nodes
+  * - For every node, if it’s reachable from both, track max(dist1, dist2)
+  * - Return node with the smallest such max distance
+  *
+  * COMPLEXITY:
+  * - Time: O(N) where N = number of nodes
+  * - Space: O(N) for storing distances
+  */
 
 class Solution
 {
@@ -1185,10 +1111,9 @@ public:
     /**
      * @brief DFS-like traversal to populate distance array from a starting node
      */
-    void dfs(int current, int distance, const vector<int> &edges, vector<int> &distances)
+    void dfs(int current, int distance, const vector<int>& edges, vector<int>& distances)
     {
-        while (current != -1 && distances[current] == -1)
-        {
+        while (current != -1 && distances[current] == -1) {
             distances[current] = distance++;
             current = edges[current]; // Follow the next edge
         }
@@ -1197,7 +1122,7 @@ public:
     /**
      * @brief Main function to return the closest meeting node
      */
-    int closestMeetingNode(vector<int> &edges, int start1, int start2)
+    int closestMeetingNode(vector<int>& edges, int start1, int start2)
     {
         int n = edges.size();
         vector<int> dist1(n, -1), dist2(n, -1);
@@ -1210,13 +1135,10 @@ public:
         int minMaxDist = INT_MAX;
 
         // Compare distances at each node
-        for (int i = 0; i < n; i++)
-        {
-            if (dist1[i] >= 0 && dist2[i] >= 0)
-            {
+        for (int i = 0; i < n; i++) {
+            if (dist1[i] >= 0 && dist2[i] >= 0) {
                 int maxDist = max(dist1[i], dist2[i]);
-                if (maxDist < minMaxDist)
-                {
+                if (maxDist < minMaxDist) {
                     minMaxDist = maxDist;
                     res = i; // Store index of closest meeting node
                 }
@@ -1231,37 +1153,37 @@ public:
  * LEETCODE 2492: MINIMUM SCORE OF A PATH BETWEEN TWO CITIES
  * =================================================================== */
 
-/**
- * @brief Find the minimum score of a path between city 1 and city n
- *
- * PROBLEM STATEMENT:
- * You are given a connected undirected graph with `n` cities (1 to n) and weighted roads.
- * Each road connects two cities and has a score (weight).
- * A path from city 1 to city n can pass through any number of cities.
- *
- * The **score of a path** is defined as the **minimum weight** of all the roads in the path.
- * Return the **minimum possible score** of a path between city 1 and city n.
- *
- * INPUT:
- * - int n: number of cities
- * - vector<vector<int>> roads: list of roads, each road = [u, v, weight]
- *
- * OUTPUT:
- * - int: the minimum score of any path from city 1 to city n
- *
- * EXAMPLE:
- * Input: n = 4, roads = [[1,2,9],[2,3,6],[2,4,5],[1,4,7]]
- * Output: 5
- *
- * ALGORITHM (DFS + Min Tracking):
- * - Use DFS to visit all reachable nodes from city 1.
- * - Track the **minimum edge weight** encountered during traversal.
- * - Since the graph is connected, every node is eventually reachable.
- *
- * COMPLEXITY:
- * - Time: O(V + E)
- * - Space: O(V + E)
- */
+ /**
+  * @brief Find the minimum score of a path between city 1 and city n
+  *
+  * PROBLEM STATEMENT:
+  * You are given a connected undirected graph with `n` cities (1 to n) and weighted roads.
+  * Each road connects two cities and has a score (weight).
+  * A path from city 1 to city n can pass through any number of cities.
+  *
+  * The **score of a path** is defined as the **minimum weight** of all the roads in the path.
+  * Return the **minimum possible score** of a path between city 1 and city n.
+  *
+  * INPUT:
+  * - int n: number of cities
+  * - vector<vector<int>> roads: list of roads, each road = [u, v, weight]
+  *
+  * OUTPUT:
+  * - int: the minimum score of any path from city 1 to city n
+  *
+  * EXAMPLE:
+  * Input: n = 4, roads = [[1,2,9],[2,3,6],[2,4,5],[1,4,7]]
+  * Output: 5
+  *
+  * ALGORITHM (DFS + Min Tracking):
+  * - Use DFS to visit all reachable nodes from city 1.
+  * - Track the **minimum edge weight** encountered during traversal.
+  * - Since the graph is connected, every node is eventually reachable.
+  *
+  * COMPLEXITY:
+  * - Time: O(V + E)
+  * - Space: O(V + E)
+  */
 
 class Solution
 {
@@ -1269,17 +1191,15 @@ public:
     /**
      * @brief DFS traversal to explore graph and track minimum edge weight
      */
-    void dfs(int node, vector<vector<pair<int, int>>> &adj,
-             vector<bool> &visited, int &score)
+    void dfs(int node, vector<vector<pair<int, int>>>& adj,
+        vector<bool>& visited, int& score)
     {
 
         visited[node] = true;
 
-        for (auto &[neighbour, weight] : adj[node])
-        {
+        for (auto& [neighbour, weight] : adj[node]) {
             score = min(score, weight); // update minimum score
-            if (!visited[neighbour])
-            {
+            if (!visited[neighbour]) {
                 dfs(neighbour, adj, visited, score);
             }
         }
@@ -1288,13 +1208,12 @@ public:
     /**
      * @brief Main function to return minimum score between city 1 and city n
      */
-    int minScore(int n, vector<vector<int>> &roads)
+    int minScore(int n, vector<vector<int>>& roads)
     {
         vector<vector<pair<int, int>>> adj(n + 1); // 1-based indexing
 
         // Step 1: Build adjacency list
-        for (auto &road : roads)
-        {
+        for (auto& road : roads) {
             int u = road[0], v = road[1], w = road[2];
             adj[u].emplace_back(v, w);
             adj[v].emplace_back(u, w); // undirected graph
@@ -1314,40 +1233,40 @@ public:
  * LEETCODE 1466: REORDER ROUTES TO MAKE ALL PATHS LEAD TO CITY ZERO
  * =================================================================== */
 
-/**
- * @brief Count the minimum number of edge reorientations required
- *        so that all paths lead to city 0.
- *
- * PROBLEM STATEMENT:
- * You are given a directed tree (graph with n nodes and n - 1 directed edges) where each edge
- * goes from city `u` to city `v`.
- *
- * Your goal is to **reorient the minimum number of edges** so that every node has a path
- * that leads to city 0.
- *
- * INPUT:
- * - int n: number of cities
- * - vector<vector<int>> connections: directed edges from u → v
- *
- * OUTPUT:
- * - int: minimum number of edges that need to be reversed
- *
- * EXAMPLE:
- * Input: n = 6, connections = [[0,1],[1,3],[2,3],[4,0],[4,5]]
- * Output: 3
- *
- * ALGORITHM (DFS with directed edge marking):
- * - For each directed edge u → v:
- *      - store (v, true) in adj[u]   → original direction
- *      - store (u, false) in adj[v] → reverse edge to allow bidirectional DFS
- * - Start DFS from node 0
- *      - If we traverse an edge in the original direction (i.e., away from 0), count it
- * - Return the total number of such edges that need to be reversed.
- *
- * COMPLEXITY:
- * - Time: O(N)
- * - Space: O(N)
- */
+ /**
+  * @brief Count the minimum number of edge reorientations required
+  *        so that all paths lead to city 0.
+  *
+  * PROBLEM STATEMENT:
+  * You are given a directed tree (graph with n nodes and n - 1 directed edges) where each edge
+  * goes from city `u` to city `v`.
+  *
+  * Your goal is to **reorient the minimum number of edges** so that every node has a path
+  * that leads to city 0.
+  *
+  * INPUT:
+  * - int n: number of cities
+  * - vector<vector<int>> connections: directed edges from u → v
+  *
+  * OUTPUT:
+  * - int: minimum number of edges that need to be reversed
+  *
+  * EXAMPLE:
+  * Input: n = 6, connections = [[0,1],[1,3],[2,3],[4,0],[4,5]]
+  * Output: 3
+  *
+  * ALGORITHM (DFS with directed edge marking):
+  * - For each directed edge u → v:
+  *      - store (v, true) in adj[u]   → original direction
+  *      - store (u, false) in adj[v] → reverse edge to allow bidirectional DFS
+  * - Start DFS from node 0
+  *      - If we traverse an edge in the original direction (i.e., away from 0), count it
+  * - Return the total number of such edges that need to be reversed.
+  *
+  * COMPLEXITY:
+  * - Time: O(N)
+  * - Space: O(N)
+  */
 
 class Solution
 {
@@ -1355,17 +1274,14 @@ public:
     /**
      * @brief DFS traversal that counts wrongly directed edges
      */
-    void dfs(unordered_map<int, vector<pair<int, bool>>> &adj, int node,
-             int parent, vector<bool> &visited, int &count)
+    void dfs(unordered_map<int, vector<pair<int, bool>>>& adj, int node,
+        int parent, vector<bool>& visited, int& count)
     {
         visited[node] = true;
 
-        for (auto [neighbour, isReal] : adj[node])
-        {
-            if (!visited[neighbour])
-            {
-                if (isReal)
-                {
+        for (auto [neighbour, isReal] : adj[node]) {
+            if (!visited[neighbour]) {
+                if (isReal) {
                     count++; // edge needs to be reversed
                 }
                 dfs(adj, neighbour, node, visited, count);
@@ -1376,13 +1292,12 @@ public:
     /**
      * @brief Main function to return the minimum number of edge reversals
      */
-    int minReorder(int n, vector<vector<int>> &connections)
+    int minReorder(int n, vector<vector<int>>& connections)
     {
         unordered_map<int, vector<pair<int, bool>>> adj;
 
         // Step 1: Build an adjacency list with direction info
-        for (auto &edge : connections)
-        {
+        for (auto& edge : connections) {
             int u = edge[0];
             int v = edge[1];
 
@@ -1404,33 +1319,33 @@ public:
  * LEETCODE 2360: LONGEST CYCLE IN A GRAPH
  * =================================================================== */
 
-/**
- * @brief Find the length of the longest cycle in a directed graph
- *
- * PROBLEM STATEMENT:
- * Given a directed graph where each node has at most one outgoing edge,
- * find the length of the longest cycle in the graph. If no cycle exists, return -1.
- *
- * INPUT:
- * - vector<int>& edges: edges[i] = the node that node i points to (or -1 if none)
- *
- * OUTPUT:
- * - int: length of the longest cycle (or -1 if none exists)
- *
- * EXAMPLE:
- * Input: edges = [3,3,4,2,3]
- * Output: 3
- *
- * ALGORITHM (DFS + Recursion Tracking):
- * - Use DFS to explore paths and detect cycles
- * - Track recursion stack (`inRecursion[]`) to identify back-edges
- * - Maintain a `count[]` array to store distance (depth) from the start node
- * - If a cycle is found, calculate its length using count difference
- *
- * COMPLEXITY:
- * - Time: O(N), where N is number of nodes (since each node is visited once)
- * - Space: O(N) for visited, inRecursion, and count arrays
- */
+ /**
+  * @brief Find the length of the longest cycle in a directed graph
+  *
+  * PROBLEM STATEMENT:
+  * Given a directed graph where each node has at most one outgoing edge,
+  * find the length of the longest cycle in the graph. If no cycle exists, return -1.
+  *
+  * INPUT:
+  * - vector<int>& edges: edges[i] = the node that node i points to (or -1 if none)
+  *
+  * OUTPUT:
+  * - int: length of the longest cycle (or -1 if none exists)
+  *
+  * EXAMPLE:
+  * Input: edges = [3,3,4,2,3]
+  * Output: 3
+  *
+  * ALGORITHM (DFS + Recursion Tracking):
+  * - Use DFS to explore paths and detect cycles
+  * - Track recursion stack (`inRecursion[]`) to identify back-edges
+  * - Maintain a `count[]` array to store distance (depth) from the start node
+  * - If a cycle is found, calculate its length using count difference
+  *
+  * COMPLEXITY:
+  * - Time: O(N), where N is number of nodes (since each node is visited once)
+  * - Space: O(N) for visited, inRecursion, and count arrays
+  */
 
 class Solution
 {
@@ -1440,8 +1355,8 @@ public:
     /**
      * @brief DFS traversal to detect and measure cycles
      */
-    void dfs(int u, vector<int> &edges, vector<bool> &visited,
-             vector<int> &count, vector<bool> &inRecursion)
+    void dfs(int u, vector<int>& edges, vector<bool>& visited,
+        vector<int>& count, vector<bool>& inRecursion)
     {
 
         if (u == -1)
@@ -1452,14 +1367,12 @@ public:
 
         int v = edges[u];
 
-        if (v != -1 && !visited[v])
-        {
+        if (v != -1 && !visited[v]) {
             count[v] = count[u] + 1;
             dfs(v, edges, visited, count, inRecursion);
         }
         // Cycle detected: v is in current DFS path
-        else if (v != -1 && inRecursion[v])
-        {
+        else if (v != -1 && inRecursion[v]) {
             result = max(result, count[u] - count[v] + 1);
         }
 
@@ -1469,17 +1382,15 @@ public:
     /**
      * @brief Main function to compute longest cycle length
      */
-    int longestCycle(vector<int> &edges)
+    int longestCycle(vector<int>& edges)
     {
         int n = edges.size();
         vector<bool> visited(n, false);
         vector<bool> inRecursion(n, false);
         vector<int> count(n, 1); // initial depth is 1 for each start node
 
-        for (int i = 0; i < n; i++)
-        {
-            if (!visited[i])
-            {
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
                 dfs(i, edges, visited, count, inRecursion);
             }
         }
@@ -1492,33 +1403,32 @@ public:
  * LEETCODE 1557: MINIMUM NUMBER OF VERTICES TO REACH ALL NODES
  * =================================================================== */
 
-/**
- * @brief Find all nodes in a DAG that have no incoming edges.
- *
- * PROBLEM STATEMENT:
- * Given a directed acyclic graph (DAG) with `n` nodes labeled from 0 to n - 1,
- * and a list of directed edges, return a list of all vertices with **in-degree 0**.
- *
- * These are the **minimum number of vertices** needed to reach all nodes.
- *
- * ALGORITHM:
- * - Track in-degrees of each node.
- * - Nodes with no incoming edges (in-degree 0) must be part of the answer.
- *
- * TIME COMPLEXITY: O(E + N)
- * SPACE COMPLEXITY: O(N)
- */
+ /**
+  * @brief Find all nodes in a DAG that have no incoming edges.
+  *
+  * PROBLEM STATEMENT:
+  * Given a directed acyclic graph (DAG) with `n` nodes labeled from 0 to n - 1,
+  * and a list of directed edges, return a list of all vertices with **in-degree 0**.
+  *
+  * These are the **minimum number of vertices** needed to reach all nodes.
+  *
+  * ALGORITHM:
+  * - Track in-degrees of each node.
+  * - Nodes with no incoming edges (in-degree 0) must be part of the answer.
+  *
+  * TIME COMPLEXITY: O(E + N)
+  * SPACE COMPLEXITY: O(N)
+  */
 
 class Solution
 {
 public:
-    vector<int> findSmallestSetOfVertices(int n, vector<vector<int>> &edges)
+    vector<int> findSmallestSetOfVertices(int n, vector<vector<int>>& edges)
     {
         // Step 1: Track which nodes have incoming edges
         vector<bool> hasIncoming(n, false);
 
-        for (auto &edge : edges)
-        {
+        for (auto& edge : edges) {
             int from = edge[0];
             int to = edge[1];
             hasIncoming[to] = true; // mark as having an incoming edge
@@ -1526,10 +1436,8 @@ public:
 
         // Step 2: Nodes with no incoming edges are our answer
         vector<int> result;
-        for (int i = 0; i < n; ++i)
-        {
-            if (!hasIncoming[i])
-            {
+        for (int i = 0; i < n; ++i) {
+            if (!hasIncoming[i]) {
                 result.push_back(i); // can't be reached by any other node
             }
         }
@@ -1542,20 +1450,20 @@ public:
  * LEETCODE 399: EVALUATE DIVISION
  * =================================================================== */
 
-/**
- * @brief Given equations like a / b = 2.0 and queries like a / c,
- *        evaluate the result using a graph-based approach.
- *
- * ALGORITHM (DFS Traversal):
- * - Treat each variable as a node in a graph.
- * - Each equation (a / b = val) forms two edges: a → b with weight val and b → a with weight 1/val.
- * - For each query, run DFS to find a path from source to destination,
- *   multiplying edge weights along the way.
- *
- * TIME COMPLEXITY:
- * - Building graph: O(E), where E is number of equations
- * - Query DFS traversal: O(N + E) worst case per query
- */
+ /**
+  * @brief Given equations like a / b = 2.0 and queries like a / c,
+  *        evaluate the result using a graph-based approach.
+  *
+  * ALGORITHM (DFS Traversal):
+  * - Treat each variable as a node in a graph.
+  * - Each equation (a / b = val) forms two edges: a → b with weight val and b → a with weight 1/val.
+  * - For each query, run DFS to find a path from source to destination,
+  *   multiplying edge weights along the way.
+  *
+  * TIME COMPLEXITY:
+  * - Building graph: O(E), where E is number of equations
+  * - Query DFS traversal: O(N + E) worst case per query
+  */
 
 class Solution
 {
@@ -1570,10 +1478,10 @@ public:
      * @param product  Current accumulated product
      * @param ans      Reference to store final result if path is found
      */
-    void dfs(unordered_map<string, vector<pair<string, double>>> &adj,
-             const string &src, const string &dst,
-             unordered_set<string> &visited,
-             double product, double &ans)
+    void dfs(unordered_map<string, vector<pair<string, double>>>& adj,
+        const string& src, const string& dst,
+        unordered_set<string>& visited,
+        double product, double& ans)
     {
 
         // already visited → cycle
@@ -1583,15 +1491,13 @@ public:
         visited.insert(src);
 
         // base case: source and destination matched
-        if (src == dst)
-        {
+        if (src == dst) {
             ans = product;
             return;
         }
 
         // explore neighbors
-        for (auto &[neighbor, weight] : adj[src])
-        {
+        for (auto& [neighbor, weight] : adj[src]) {
             dfs(adj, neighbor, dst, visited, product * weight, ans);
         }
     }
@@ -1599,16 +1505,15 @@ public:
     /**
      * @brief Solve all division queries based on given equations
      */
-    vector<double> calcEquation(vector<vector<string>> &equations,
-                                vector<double> &values,
-                                vector<vector<string>> &queries)
+    vector<double> calcEquation(vector<vector<string>>& equations,
+        vector<double>& values,
+        vector<vector<string>>& queries)
     {
         int n = equations.size();
         unordered_map<string, vector<pair<string, double>>> adj;
 
         // Step 1: Build the graph
-        for (int i = 0; i < n; i++)
-        {
+        for (int i = 0; i < n; i++) {
             string u = equations[i][0];
             string v = equations[i][1];
             double val = values[i];
@@ -1620,14 +1525,12 @@ public:
         // Step 2: Process each query using DFS
         vector<double> result;
 
-        for (auto &query : queries)
-        {
+        for (auto& query : queries) {
             string src = query[0];
             string dst = query[1];
             double ans = -1.0;
 
-            if (adj.count(src) && adj.count(dst))
-            {
+            if (adj.count(src) && adj.count(dst)) {
                 unordered_set<string> visited;
                 dfs(adj, src, dst, visited, 1.0, ans);
             }
@@ -1643,21 +1546,21 @@ public:
  * LEETCODE 2097: VALID ARRANGEMENT OF PAIRS
  * =================================================================== */
 
-/**
- * @brief Given a list of directed pairs [u, v], rearrange them so that:
- *        - For every adjacent pair (a, b) and (b, c), b matches.
- *        - In other words, form a valid Eulerian path from the pairs.
- *
- * ALGORITHM (Hierholzer's Algorithm for Directed Graph):
- * - Build adjacency list and track in-degree/out-degree for all nodes.
- * - Identify the starting node of the Eulerian path:
- *     → It should have out-degree = in-degree + 1
- *     → If none, start with any node
- * - Use a stack to simulate DFS and construct the path in reverse.
- * - Convert the node path into an edge list format.
- *
- * TIME COMPLEXITY: O(E), where E = number of pairs
- */
+ /**
+  * @brief Given a list of directed pairs [u, v], rearrange them so that:
+  *        - For every adjacent pair (a, b) and (b, c), b matches.
+  *        - In other words, form a valid Eulerian path from the pairs.
+  *
+  * ALGORITHM (Hierholzer's Algorithm for Directed Graph):
+  * - Build adjacency list and track in-degree/out-degree for all nodes.
+  * - Identify the starting node of the Eulerian path:
+  *     → It should have out-degree = in-degree + 1
+  *     → If none, start with any node
+  * - Use a stack to simulate DFS and construct the path in reverse.
+  * - Convert the node path into an edge list format.
+  *
+  * TIME COMPLEXITY: O(E), where E = number of pairs
+  */
 
 class Solution
 {
@@ -1668,14 +1571,13 @@ public:
      * @param pairs  List of directed edges [from, to]
      * @return       Sequence of pairs forming a valid path
      */
-    vector<vector<int>> validArrangement(vector<vector<int>> &pairs)
+    vector<vector<int>> validArrangement(vector<vector<int>>& pairs)
     {
         // Step 1: Build adjacency list and degree counters
         unordered_map<int, vector<int>> adj;
         unordered_map<int, int> indegree, outdegree;
 
-        for (auto &edge : pairs)
-        {
+        for (auto& edge : pairs) {
             int u = edge[0];
             int v = edge[1];
             adj[u].push_back(v);
@@ -1685,10 +1587,8 @@ public:
 
         // Step 2: Find start node for Eulerian path
         int start = pairs[0][0];
-        for (auto &[node, _] : adj)
-        {
-            if (outdegree[node] - indegree[node] == 1)
-            {
+        for (auto& [node, _] : adj) {
+            if (outdegree[node] - indegree[node] == 1) {
                 start = node;
                 break;
             }
@@ -1699,18 +1599,15 @@ public:
         stack<int> st;
         st.push(start);
 
-        while (!st.empty())
-        {
+        while (!st.empty()) {
             int curr = st.top();
 
-            if (!adj[curr].empty())
-            {
+            if (!adj[curr].empty()) {
                 int next = adj[curr].back();
                 adj[curr].pop_back();
                 st.push(next);
             }
-            else
-            {
+            else {
                 path.push_back(curr);
                 st.pop();
             }
@@ -1720,9 +1617,8 @@ public:
         reverse(path.begin(), path.end());
 
         vector<vector<int>> result;
-        for (int i = 0; i < path.size() - 1; i++)
-        {
-            result.push_back({path[i], path[i + 1]});
+        for (int i = 0; i < path.size() - 1; i++) {
+            result.push_back({ path[i], path[i + 1] });
         }
 
         return result;
@@ -1733,24 +1629,24 @@ public:
  * LEETCODE: MINIMUM DIAMETER AFTER MERGE OF TWO TREES
  * =================================================================== */
 
-/**
- * @brief Given two trees (acyclic connected graphs), you are to merge them
- *        by connecting one node from each with a new edge.
- *        Return the minimum diameter of the resulting tree.
- *
- * KEY OBSERVATION:
- * - Connecting two trees of diameters `d1` and `d2` through a new edge increases
- *   the longest path possibly via midpoints of each tree → total = ⌊(d1+1)/2⌋ + ⌊(d2+1)/2⌋ + 1
- * - Final diameter = max(existing d1 or d2, or the new combined path)
- *
- * APPROACH:
- * - Use BFS twice to find the **diameter** of each tree:
- *     1. First BFS: from any node to find farthest node (one endpoint of diameter)
- *     2. Second BFS: from that endpoint to compute the actual diameter
- * - Merge logic = connect deepest midpoints of both trees to minimize overall diameter
- *
- * TIME COMPLEXITY: O(N1 + N2) where N1 and N2 are number of nodes in tree1 and tree2
- */
+ /**
+  * @brief Given two trees (acyclic connected graphs), you are to merge them
+  *        by connecting one node from each with a new edge.
+  *        Return the minimum diameter of the resulting tree.
+  *
+  * KEY OBSERVATION:
+  * - Connecting two trees of diameters `d1` and `d2` through a new edge increases
+  *   the longest path possibly via midpoints of each tree → total = ⌊(d1+1)/2⌋ + ⌊(d2+1)/2⌋ + 1
+  * - Final diameter = max(existing d1 or d2, or the new combined path)
+  *
+  * APPROACH:
+  * - Use BFS twice to find the **diameter** of each tree:
+  *     1. First BFS: from any node to find farthest node (one endpoint of diameter)
+  *     2. Second BFS: from that endpoint to compute the actual diameter
+  * - Merge logic = connect deepest midpoints of both trees to minimize overall diameter
+  *
+  * TIME COMPLEXITY: O(N1 + N2) where N1 and N2 are number of nodes in tree1 and tree2
+  */
 
 class Solution
 {
@@ -1762,7 +1658,7 @@ public:
      * @param source  Starting node
      * @return        {farthestNode, distance}
      */
-    pair<int, int> BFS(unordered_map<int, vector<int>> &adj, int source)
+    pair<int, int> BFS(unordered_map<int, vector<int>>& adj, int source)
     {
         queue<int> q;
         unordered_map<int, bool> visited;
@@ -1773,19 +1669,15 @@ public:
         int dist = 0;
         int node = source;
 
-        while (!q.empty())
-        {
+        while (!q.empty()) {
             int size = q.size();
-            while (size--)
-            {
+            while (size--) {
                 int temp = q.front();
                 q.pop();
                 node = temp;
 
-                for (int neighbor : adj[temp])
-                {
-                    if (!visited[neighbor])
-                    {
+                for (int neighbor : adj[temp]) {
+                    if (!visited[neighbor]) {
                         visited[neighbor] = true;
                         q.push(neighbor);
                     }
@@ -1794,13 +1686,13 @@ public:
             dist++;
         }
 
-        return {node, dist - 1}; // dist - 1 as we count levels
+        return { node, dist - 1 }; // dist - 1 as we count levels
     }
 
     /**
      * @brief Finds the diameter of a tree using double BFS
      */
-    int findDiameter(unordered_map<int, vector<int>> &adj)
+    int findDiameter(unordered_map<int, vector<int>>& adj)
     {
         // First BFS to find one end of the diameter
         auto [farthestNode, _] = BFS(adj, 0);
@@ -1814,11 +1706,10 @@ public:
     /**
      * @brief Builds adjacency list from edge list
      */
-    unordered_map<int, vector<int>> buildGraph(const vector<vector<int>> &edges)
+    unordered_map<int, vector<int>> buildGraph(const vector<vector<int>>& edges)
     {
         unordered_map<int, vector<int>> adj;
-        for (const auto &edge : edges)
-        {
+        for (const auto& edge : edges) {
             int u = edge[0];
             int v = edge[1];
             adj[u].push_back(v);
@@ -1834,7 +1725,7 @@ public:
      * @param edges2   Tree 2 edges
      * @return         Diameter of merged tree
      */
-    int minimumDiameterAfterMerge(vector<vector<int>> &edges1, vector<vector<int>> &edges2)
+    int minimumDiameterAfterMerge(vector<vector<int>>& edges1, vector<vector<int>>& edges2)
     {
         // Build adjacency lists for both trees
         unordered_map<int, vector<int>> adj1 = buildGraph(edges1);
@@ -1848,7 +1739,7 @@ public:
         int combinedPath = ((d1 + 1) / 2) + ((d2 + 1) / 2) + 1;
 
         // Final diameter is the max of original diameters and the combined path
-        return max({d1, d2, combinedPath});
+        return max({ d1, d2, combinedPath });
     }
 };
 
@@ -1856,19 +1747,19 @@ public:
  * LEETCODE 1765: MAP OF HIGHEST PEAK
  * =================================================================== */
 
-/**
- * @brief Given a grid with water and land, assign height to each cell such that:
- *        - Water cells have height 0
- *        - Heights of adjacent cells differ by at most 1
- *        - The final result forms the "highest peak" from water sources
- *
- * STRATEGY:
- * - Use multi-source BFS starting from all water cells
- * - Assign increasing heights to adjacent unvisited land cells
- *
- * TIME COMPLEXITY: O(M * N)
- * SPACE COMPLEXITY: O(M * N)
- */
+ /**
+  * @brief Given a grid with water and land, assign height to each cell such that:
+  *        - Water cells have height 0
+  *        - Heights of adjacent cells differ by at most 1
+  *        - The final result forms the "highest peak" from water sources
+  *
+  * STRATEGY:
+  * - Use multi-source BFS starting from all water cells
+  * - Assign increasing heights to adjacent unvisited land cells
+  *
+  * TIME COMPLEXITY: O(M * N)
+  * SPACE COMPLEXITY: O(M * N)
+  */
 
 class Solution
 {
@@ -1879,7 +1770,7 @@ public:
      * @param isWater  2D grid marking water (1) and land (0)
      * @return         2D height grid
      */
-    vector<vector<int>> highestPeak(vector<vector<int>> &isWater)
+    vector<vector<int>> highestPeak(vector<vector<int>>& isWater)
     {
         int m = isWater.size(), n = isWater[0].size();
 
@@ -1887,36 +1778,30 @@ public:
         vector<vector<int>> height(m, vector<int>(n, -1)); // -1 = unvisited
         queue<pair<int, int>> q;
 
-        for (int i = 0; i < m; i++)
-        {
-            for (int j = 0; j < n; j++)
-            {
-                if (isWater[i][j] == 1)
-                {
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (isWater[i][j] == 1) {
                     height[i][j] = 0; // Water cell = height 0
-                    q.push({i, j});   // Enqueue all water cells
+                    q.push({ i, j });   // Enqueue all water cells
                 }
             }
         }
 
         // Step 2: Directions for up, down, left, right
-        int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        int dirs[4][2] = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
 
         // Step 3: BFS from all water cells
-        while (!q.empty())
-        {
+        while (!q.empty()) {
             auto [x, y] = q.front();
             q.pop();
 
-            for (auto &dir : dirs)
-            {
+            for (auto& dir : dirs) {
                 int nx = x + dir[0], ny = y + dir[1];
 
                 // Valid and unvisited neighbor
-                if (nx >= 0 && nx < m && ny >= 0 && ny < n && height[nx][ny] == -1)
-                {
+                if (nx >= 0 && nx < m && ny >= 0 && ny < n && height[nx][ny] == -1) {
                     height[nx][ny] = height[x][y] + 1; // increase height
-                    q.push({nx, ny});
+                    q.push({ nx, ny });
                 }
             }
         }
@@ -1929,19 +1814,19 @@ public:
  * LEETCODE 787: CHEAPEST FLIGHTS WITHIN K STOPS
  * =================================================================== */
 
-/**
- * @brief Given a list of flights (u → v with cost), find the cheapest price
- *        from `src` to `dst` with at most `k` stops (i.e., k+1 flights).
- *
- * APPROACH (Dijkstra Variant with K-stops constraint):
- * - Use a min-heap (priority queue) where each entry stores:
- *       {total_cost, {current_node, stops_so_far}}
- * - Track the minimum number of stops used to reach a node to prune paths.
- * - Skip expanding nodes if current path exceeds allowed stops (k).
- *
- * TIME COMPLEXITY: O(E log V), but controlled by K (max depth)
- * SPACE COMPLEXITY: O(V + E)
- */
+ /**
+  * @brief Given a list of flights (u → v with cost), find the cheapest price
+  *        from `src` to `dst` with at most `k` stops (i.e., k+1 flights).
+  *
+  * APPROACH (Dijkstra Variant with K-stops constraint):
+  * - Use a min-heap (priority queue) where each entry stores:
+  *       {total_cost, {current_node, stops_so_far}}
+  * - Track the minimum number of stops used to reach a node to prune paths.
+  * - Skip expanding nodes if current path exceeds allowed stops (k).
+  *
+  * TIME COMPLEXITY: O(E log V), but controlled by K (max depth)
+  * SPACE COMPLEXITY: O(V + E)
+  */
 
 class Solution
 {
@@ -1956,12 +1841,11 @@ public:
      * @param k       Max number of allowed stops
      * @return        Minimum cost or -1 if not possible
      */
-    int findCheapestPrice(int n, vector<vector<int>> &flights, int src, int dst, int k)
+    int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k)
     {
         // Step 1: Build adjacency list → u -> {v, price}
         unordered_map<int, vector<pair<int, int>>> adj;
-        for (auto &flight : flights)
-        {
+        for (auto& flight : flights) {
             int u = flight[0], v = flight[1], price = flight[2];
             adj[u].emplace_back(v, price);
         }
@@ -1969,14 +1853,13 @@ public:
         // Step 2: Min-heap → {totalCost, {currentNode, stopsSoFar}}
         using T = pair<int, pair<int, int>>;
         priority_queue<T, vector<T>, greater<>> pq;
-        pq.push({0, {src, 0}}); // Initial state
+        pq.push({ 0, {src, 0} }); // Initial state
 
         // Step 3: Track minimum stops to each node to avoid unnecessary revisits
         vector<int> minStops(n, INT_MAX);
 
         // Step 4: Explore graph with cost and stop tracking
-        while (!pq.empty())
-        {
+        while (!pq.empty()) {
             auto [cost, info] = pq.top();
             pq.pop();
             int node = info.first;
@@ -1996,9 +1879,8 @@ public:
             minStops[node] = stops;
 
             // Explore all neighbors
-            for (auto &[neighbor, weight] : adj[node])
-            {
-                pq.push({cost + weight, {neighbor, stops + 1}});
+            for (auto& [neighbor, weight] : adj[node]) {
+                pq.push({ cost + weight, {neighbor, stops + 1} });
             }
         }
 
