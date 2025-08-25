@@ -3418,3 +3418,77 @@ public:
 // Output: 3
 // Explanation: Delete the single 0, longest subarray of 1’s = 3.
 //==============================================================================
+
+//==============================================================================
+// Problem: Diagonal Traverse
+//------------------------------------------------------------------------------
+// Task:
+// Given an m x n matrix, return all elements of the matrix in diagonal order.
+//
+// Approach:
+// 1. Use simulation with (row, col) indices.
+// 2. At each step, move diagonally up-right if (row + col) is even,
+//    otherwise diagonally down-left.
+// 3. Handle boundary conditions carefully when hitting top, bottom, left, or right edges.
+// 4. Continue until all m * n elements are collected.
+//
+// Complexity Analysis:
+// - Time: O(m * n), since each element is visited exactly once.
+// - Space: O(m * n) for the result vector.
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findDiagonalOrder(vector<vector<int>>& matrix)
+    {
+        // Edge case: empty matrix
+        if (matrix.empty() || matrix[0].empty()) return {};
+
+        int m = matrix.size();
+        int n = matrix[0].size();
+        vector<int> result(m * n);
+
+        int row = 0, col = 0;
+
+        for (int i = 0; i < m * n; i++) {
+            result[i] = matrix[row][col];
+
+            // If sum of indices is even, move up-right
+            if ((row + col) % 2 == 0) {
+                if (col == n - 1) {
+                    row++;            // Hit right boundary → move down
+                }
+                else if (row == 0) {
+                    col++;            // Hit top boundary → move right
+                }
+                else {
+                    row--; col++;     // Normal move: up-right
+                }
+            }
+            // If sum of indices is odd, move down-left
+            else {
+                if (row == m - 1) {
+                    col++;            // Hit bottom boundary → move right
+                }
+                else if (col == 0) {
+                    row++;            // Hit left boundary → move down
+                }
+                else {
+                    row++; col--;     // Normal move: down-left
+                }
+            }
+        }
+
+        return result;
+    }
+};
+
+//==============================================================================
+// Example Usage:
+// Input:  matrix = [[1,2,3],[4,5,6],[7,8,9]]
+// Output: [1,2,4,7,5,3,6,8,9]
+// Explanation: Elements are traversed diagonally as required.
+//==============================================================================
