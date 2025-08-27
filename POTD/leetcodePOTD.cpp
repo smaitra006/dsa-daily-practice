@@ -3492,3 +3492,104 @@ public:
 // Output: [1,2,4,7,5,3,6,8,9]
 // Explanation: Elements are traversed diagonally as required.
 //==============================================================================
+
+//==============================================================================
+// Problem: Longest V-Shaped Diagonal Path in Grid
+//------------------------------------------------------------------------------
+// Task:
+// Given a 2D grid, find the maximum length of a diagonal path that starts from
+// a cell with value = 1 and alternates diagonally such that the difference
+// between adjacent cell values is exactly 2.
+// The path is allowed to take at most one turn in direction.
+//
+// Approach:
+// 1. Each cell with value = 1 is a potential starting point.
+// 2. From each starting point, explore all 4 diagonal directions.
+// 3. DFS function `f(x, y, dirNo, turns)` explores the path while:
+//      - Continuing in the same direction (turnOff case).
+//      - Turning once (turnOn case) if turns == 0.
+// 4. Track the maximum path length encountered.
+//
+// Complexity Analysis:
+// - Time: O(n * m * 4 * path_length) in the worst case, since from each cell
+//   DFS explores possible diagonals.
+// - Space: O(recursion_depth) due to DFS stack.
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int n, m;
+    vector<int> dx = { -1, 1, 1, -1 };  // diagonal row movements
+    vector<int> dy = { 1, 1, -1, -1 };  // diagonal col movements
+
+    //------------------------------------------------------------------------------
+    // Recursive DFS to find longest diagonal path
+    //------------------------------------------------------------------------------
+    int f(int x, int y, int dirNo, int turns, vector<vector<int>>& grid)
+    {
+        int nx, ny;
+
+        // Case 1: Continue in the same direction (turnOff)
+        int turnOff = 1;
+        nx = x + dx[dirNo];
+        ny = y + dy[dirNo];
+        if (nx >= 0 && ny >= 0 && nx < n && ny < m && abs(grid[x][y] - grid[nx][ny]) == 2) {
+            turnOff = 1 + f(nx, ny, dirNo, turns, grid);
+        }
+
+        // Case 2: Turn to next diagonal direction (turnOn) if no turn used yet
+        int turnOn = 1;
+        nx = x + dx[(dirNo + 1) % 4];
+        ny = y + dy[(dirNo + 1) % 4];
+        if (turns == 0 && nx >= 0 && ny >= 0 && nx < n && ny < m && abs(grid[x][y] - grid[nx][ny]) == 2) {
+            turnOn = 1 + f(nx, ny, (dirNo + 1) % 4, turns + 1, grid);
+        }
+
+        return max(turnOff, turnOn);
+    }
+
+    //------------------------------------------------------------------------------
+    // Main function to compute maximum V-diagonal length
+    //------------------------------------------------------------------------------
+    int lenOfVDiagonal(vector<vector<int>>& grid)
+    {
+        n = grid.size();
+        m = grid[0].size();
+        int maxi = 0;
+
+        // Iterate through all cells to find valid starting points
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 1) {
+                    maxi = max(maxi, 1);
+
+                    // Try all 4 diagonal directions
+                    for (int dirNo = 0; dirNo < 4; dirNo++) {
+                        int nx = i + dx[dirNo];
+                        int ny = j + dy[dirNo];
+
+                        // Check if valid diagonal move
+                        if (nx < 0 || ny < 0 || nx >= n || ny >= m || grid[nx][ny] <= 1)
+                            continue;
+
+                        int val = 1 + f(nx, ny, dirNo, 0, grid);
+                        maxi = max(maxi, val);
+                    }
+                }
+            }
+        }
+        return maxi;
+    }
+};
+
+//==============================================================================
+// Example Usage:
+// Input: grid = [[1,0,3],
+//                [0,3,0],
+//                [3,0,1]]
+// Output: 3
+// Explanation: Longest valid V-shaped diagonal has length 3.
+//==============================================================================
