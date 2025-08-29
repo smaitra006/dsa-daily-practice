@@ -3593,3 +3593,39 @@ public:
 // Output: 3
 // Explanation: Longest valid V-shaped diagonal has length 3.
 //==============================================================================
+
+//==============================================================================
+// Problem: Flower Game (LeetCode 2928)
+//
+// Task:
+// Alice and Bob play a game. Alice chooses an integer `x` between 1 and `n`,
+// Bob chooses an integer `y` between 1 and `m`. Alice wins if the sum `x + y`
+// is odd. Find the total number of ways Alice can win.
+//
+// Approach:
+// - The sum `x + y` is odd if one is even and the other is odd.
+// - Count evens and odds separately for both n and m.
+//   - odd_n = (n + 1) / 2, even_n = n / 2
+//   - odd_m = (m + 1) / 2, even_m = m / 2
+// - Winning pairs = (odd_n * even_m) + (even_n * odd_m)
+// - This simplifies to (n * m) / 2.
+//==============================================================================
+
+class Solution {
+public:
+    long long flowerGame(int n, int m)
+    {
+        return (1LL * n * m) / 2;
+    }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(1)   (Direct formula calculation)
+// - Space: O(1)
+//
+// Example:
+// Input:  n = 3, m = 2
+// Output: 3
+// Explanation: Possible winning pairs are (1,2), (2,1), (3,2).
+//==============================================================================
