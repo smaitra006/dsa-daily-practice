@@ -3629,3 +3629,79 @@ public:
 // Output: 3
 // Explanation: Possible winning pairs are (1,2), (2,1), (3,2).
 //==============================================================================
+
+//==============================================================================
+// Problem: Maximum Average Pass Ratio (LeetCode 1792)
+//
+// Task:
+// Each class is represented as [pass, total], where "pass" is the number of
+// students passing the exam and "total" is the total students in the class.
+// You are given an integer extraStudents, representing additional students who
+// will definitely pass. Distribute them across classes to maximize the overall
+// average pass ratio.
+//
+// Example:
+//   Input:  classes = [[1,2],[3,5],[2,2]], extraStudents = 2
+//   Output: 0.78333
+//
+// Approach (Greedy + Priority Queue):
+// 1. For each class, compute the "gain" in pass ratio if one extra student is added.
+//    gain(p, t) = (p+1)/(t+1) - p/t
+// 2. Use a max-heap (priority_queue) to always allocate the next student to the
+//    class with the maximum gain.
+// 3. Repeat for all extraStudents.
+// 4. Compute the final average pass ratio.
+//
+// Justification: Each additional student should go to the class with the maximum
+// marginal gain, ensuring optimal distribution (greedy strategy).
+//==============================================================================
+
+class Solution {
+public:
+    double maxAverageRatio(vector<vector<int>>& classes, int extraStudents)
+    {
+        // Helper lambda to compute gain from adding one student
+        auto gain = [](int p, int t) {
+            return (double)(p + 1) / (t + 1) - (double)p / t;
+            };
+
+        // Max heap storing (gain, pass, total)
+        priority_queue<tuple<double, int, int>> pq;
+        for (auto& c : classes) {
+            pq.push({ gain(c[0], c[1]), c[0], c[1] });
+        }
+
+        // Distribute extra students
+        while (extraStudents--) {
+            auto [g, p, t] = pq.top();
+            pq.pop();
+            p++, t++;  // add student
+            pq.push({ gain(p, t), p, t });
+        }
+
+        // Compute total average
+        double total = 0.0;
+        while (!pq.empty()) {
+            auto [g, p, t] = pq.top();
+            pq.pop();
+            total += (double)p / t;
+        }
+
+        return total / classes.size();
+    }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O((n + extraStudents) log n), where n = number of classes
+//         (each heap operation costs log n).
+// - Space: O(n), for storing heap elements.
+//
+// Example Walkthrough:
+// Input: classes = [[1,2],[3,5],[2,2]], extraStudents = 2
+// - Initial gains calculated, push into max heap
+// - Allocate 1st student to maximize gain → update heap
+// - Allocate 2nd student similarly
+// - Final average computed
+// Output: 0.78333
+//==============================================================================
