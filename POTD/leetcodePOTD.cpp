@@ -3705,3 +3705,74 @@ public:
 // - Final average computed
 // Output: 0.78333
 //==============================================================================
+
+//==============================================================================
+// Problem: Number of Pairs of Interchangeable Rectangles (Variant - Geometry)
+//
+// Task:
+// Given a list of points in 2D space, count the number of valid pairs (i, j)
+// that satisfy specific ordering and bounding conditions.
+//
+// Details of conditions implemented here:
+// 1. Sort points primarily by x (ascending).
+//    - If x is equal, sort by y (descending).
+// 2. For each point i, check all subsequent points j (j > i):
+//    - If y_j lies strictly between the "bot" (previously chosen min y)
+//      and "top" (y_i), then it's valid.
+//    - Increase count and update "bot".
+//    - Stop early if bot == top.
+//
+// Example:
+//   Input:  points = [[1,3],[2,2],[3,1]]
+//   After sorting: [[1,3],[2,2],[3,1]]
+//   Output: 2
+//
+// Approach:
+// - Sort points by (x asc, y desc).
+// - For each point i, maintain [bot, top] bounds.
+// - Greedily count valid j’s where y_j is between (bot, top].
+//==============================================================================
+
+class Solution {
+public:
+    int numberOfPairs(vector<vector<int>>& points)
+    {
+        // Sort by x ascending, if tie then y descending
+        sort(points.begin(), points.end(), [](const auto& a, const auto& b) {
+            if (a[0] == b[0]) return a[1] > b[1];
+            return a[0] < b[0];
+            });
+
+        int n = points.size();
+        int result = 0;
+
+        // Traverse each point as potential "top" bound
+        for (int i = 0; i < n; i++) {
+            int top = points[i][1];
+            int bot = INT_MIN;
+
+            // Check subsequent points
+            for (int j = i + 1; j < n; j++) {
+                int y = points[j][1];
+
+                if (bot < y && y <= top) {
+                    result++;
+                    bot = y;  // update lower bound
+                    if (bot == top) break;  // optimization
+                }
+            }
+        }
+
+        return result;
+    }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(n^2) in the worst case due to nested loops.
+// - Space: O(1) extra space, ignoring input storage.
+//
+// Notes:
+// - Sorting ensures proper left-to-right ordering of points.
+// - The descending y-order ensures no invalid over-counting for same x.
+//==============================================================================
