@@ -3776,3 +3776,51 @@ public:
 // - Sorting ensures proper left-to-right ordering of points.
 // - The descending y-order ensures no invalid over-counting for same x.
 //==============================================================================
+
+//==============================================================================
+// Problem: Find Closest Number to Target
+//
+// Task:
+// Given three integers x, y, and z, determine whether x or y is closer to z.
+// Return:
+//   1 -> if x is closer
+//   2 -> if y is closer
+//   0 -> if both are equally close
+//
+// Example:
+//   Input:  x = 3, y = 8, z = 5
+//   Distances: |5 - 3| = 2, |5 - 8| = 3
+//   Output: 1  (x is closer)
+//
+// Approach:
+// - Compute absolute difference between x and z, and y and z.
+// - Compare the distances.
+// - Return result based on which distance is smaller.
+//==============================================================================
+
+class Solution {
+public:
+    int findClosest(int x, int y, int z)
+    {
+        int x_dist = abs(z - x);
+        int y_dist = abs(z - y);
+
+        if (x_dist < y_dist) return 1;   // x is closer
+        else if (x_dist > y_dist) return 2;  // y is closer
+        else return 0;   // equally close
+    }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(1), constant-time arithmetic and comparisons.
+// - Space: O(1), no extra space used.
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+cout << sol.findClosest(3, 8, 5);   // Output: 1
+cout << sol.findClosest(10, 2, 6);  // Output: 0 (both equally close)
+*/
