@@ -3824,3 +3824,64 @@ Solution sol;
 cout << sol.findClosest(3, 8, 5);   // Output: 1
 cout << sol.findClosest(10, 2, 6);  // Output: 0 (both equally close)
 */
+
+//==============================================================================
+// Problem: Make The Integer Zero
+//
+// Task:
+// Given two integers num1 and num2, find the smallest integer k (1 <= k <= 60)
+// such that the value (num1 - num2 * k) can be expressed as the sum of exactly
+// k powers of two (where repetitions are allowed). If no such k exists,
+// return -1.
+//
+// Key Observations:
+// - After subtracting k * num2, the remainder (x) must be >= k (since we need
+//   at least k numbers to sum to x).
+// - The number of set bits in x (popcount) gives the minimum number of powers
+//   of two required to represent x.
+// - If k >= popcount(x), then it's possible to split x into exactly k powers
+//   of two.
+//
+// Approach:
+// 1. Iterate k from 1 to 60.
+// 2. Compute x = num1 - num2 * k.
+// 3. If x < k, break (not enough to distribute).
+// 4. If k >= popcount(x), return k.
+// 5. If no valid k found, return -1.
+//
+//==============================================================================
+
+class Solution {
+public:
+    int makeTheIntegerZero(int num1, int num2)
+    {
+        for (int k = 1; k <= 60; k++) {
+            long long x = num1 - 1LL * num2 * k;
+
+            // Condition: x must be >= k
+            if (x < k) {
+                return -1;
+            }
+
+            // Check if x can be split into exactly k powers of 2
+            if (k >= __builtin_popcountll(x)) {
+                return k;
+            }
+        }
+        return -1;
+    }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(60) = O(1), since k ranges only up to 60.
+// - Space: O(1), constant extra space used.
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+cout << sol.makeTheIntegerZero(12, 2); // Output: 2
+cout << sol.makeTheIntegerZero(5, 3);  // Output: -1
+*/
