@@ -7,453 +7,471 @@ using namespace std;
  * PROBLEM 3330: FIND THE ORIGINAL TYPED STRING I (LeetCode)
  * =================================================================== */
 
- /**
-  * @brief Return the total number of possible original strings
-  *
-  * PROBLEM STATEMENT:
-  * Alice typed a string `word` on her keyboard. She may have pressed at most
-  * one key for **too long**, causing a character to repeat one or more times.
-  *
-  * You are given the final string `word`. Determine how many **possible original
-  * strings** Alice could have intended to type.
-  *
-  * A character group of repeated characters could be reduced to just one character
-  * (only one group can be reduced in total).
-  *
-  * EXAMPLE:
-  * Input:  word = "aaab"
-  * Output: 3
-  * Explanation: Alice may have intended to type "aab", "ab", or "aaab".
-  *
-  * APPROACH:
-  * - Traverse the string and identify groups of consecutive identical characters.
-  * - Each such group (of length > 1) is a candidate for being the *long press* group.
-  * - Only one group can be reduced — total possible original strings = number of such groups + 1
-  *   (1 for the case where Alice didn't long press at all).
-  *
-  * STRATEGY:
-  * - Initialize `possible = 1` for the no-long-press case.
-  * - For each index `i`, if word[i] == word[i-1], it is part of a long-press group.
-  *   Increment `possible` for each group (counted only once per group).
-  *
-  * @param word The final typed string shown on screen
-  * @return int Total number of possible original strings
-  *
-  * @complexity
-  * Time: O(N) — single traversal of the string
-  * Space: O(1) — constant extra space
-  */
+/**
+ * @brief Return the total number of possible original strings
+ *
+ * PROBLEM STATEMENT:
+ * Alice typed a string `word` on her keyboard. She may have pressed at most
+ * one key for **too long**, causing a character to repeat one or more times.
+ *
+ * You are given the final string `word`. Determine how many **possible original
+ * strings** Alice could have intended to type.
+ *
+ * A character group of repeated characters could be reduced to just one character
+ * (only one group can be reduced in total).
+ *
+ * EXAMPLE:
+ * Input:  word = "aaab"
+ * Output: 3
+ * Explanation: Alice may have intended to type "aab", "ab", or "aaab".
+ *
+ * APPROACH:
+ * - Traverse the string and identify groups of consecutive identical characters.
+ * - Each such group (of length > 1) is a candidate for being the *long press* group.
+ * - Only one group can be reduced — total possible original strings = number of such groups + 1
+ *   (1 for the case where Alice didn't long press at all).
+ *
+ * STRATEGY:
+ * - Initialize `possible = 1` for the no-long-press case.
+ * - For each index `i`, if word[i] == word[i-1], it is part of a long-press group.
+ *   Increment `possible` for each group (counted only once per group).
+ *
+ * @param word The final typed string shown on screen
+ * @return int Total number of possible original strings
+ *
+ * @complexity
+ * Time: O(N) — single traversal of the string
+ * Space: O(1) — constant extra space
+ */
 
 class Solution
 {
 public:
-    int numberOfPossibleOriginalStrings(string word)
+  int numberOfPossibleOriginalStrings(string word)
+  {
+    int possible = 1; // No long-press case is always valid
+
+    for (int i = 1; i < word.size(); i++)
     {
-        int possible = 1; // No long-press case is always valid
-
-        for (int i = 1; i < word.size(); i++) {
-            // If a new long-press group starts
-            if (word[i] == word[i - 1]) {
-                possible++;
-            }
-        }
-
-        return possible;
+      // If a new long-press group starts
+      if (word[i] == word[i - 1])
+      {
+        possible++;
+      }
     }
+
+    return possible;
+  }
 };
 
 /* ===================================================================
  * PROBLEM 3333: FIND THE ORIGINAL TYPED STRING II (LeetCode)
  * =================================================================== */
 
- /**
-  * @brief Count total possible original strings given final string and length constraint
-  *
-  * PROBLEM STATEMENT:
-  * Alice was trying to type a string, but she may have pressed a key for too long,
-  * causing some characters to repeat. She did this clumsily at most once per character group.
-  *
-  * You're given:
-  * - `word`: the final typed string (may contain long presses)
-  * - `k`: the minimum length of the original string
-  *
-  * Return the number of possible original strings Alice could have intended to type
-  * that are of length at least `k`. Since the result may be large, return it modulo 1e9+7.
-  *
-  * EXAMPLE:
-  * Input:  word = "aaabb", k = 2
-  * Output: 5
-  * Explanation: All possible compressed combinations of length ≥ 2 are counted.
-  *
-  * APPROACH:
-  * - First, break `word` into consecutive character groups (e.g., "aaabb" → [3,2]).
-  * - For each group of length `g`, we can choose to reduce it to size `1` through `g`.
-  * - So, total possible combinations = product of sizes of all groups.
-  *
-  * - However, we must subtract those combinations where the final compressed string
-  *   has length less than `k`.
-  *
-  * STRATEGY:
-  * - Use DP to count the number of ways to compress groups such that resulting length < k.
-  * - Use prefix sum technique within DP for efficiency.
-  * - Subtract invalid counts from total.
-  *
-  * @param word The final typed string (after clumsy typing)
-  * @param k Minimum required length of original string
-  * @return int Total number of valid original strings modulo 1e9+7
-  *
-  * @complexity
-  * Time:  O(N * k) — where N = number of character groups in `word`
-  * Space: O(k) — dynamic programming with space optimization
-  */
+/**
+ * @brief Count total possible original strings given final string and length constraint
+ *
+ * PROBLEM STATEMENT:
+ * Alice was trying to type a string, but she may have pressed a key for too long,
+ * causing some characters to repeat. She did this clumsily at most once per character group.
+ *
+ * You're given:
+ * - `word`: the final typed string (may contain long presses)
+ * - `k`: the minimum length of the original string
+ *
+ * Return the number of possible original strings Alice could have intended to type
+ * that are of length at least `k`. Since the result may be large, return it modulo 1e9+7.
+ *
+ * EXAMPLE:
+ * Input:  word = "aaabb", k = 2
+ * Output: 5
+ * Explanation: All possible compressed combinations of length ≥ 2 are counted.
+ *
+ * APPROACH:
+ * - First, break `word` into consecutive character groups (e.g., "aaabb" → [3,2]).
+ * - For each group of length `g`, we can choose to reduce it to size `1` through `g`.
+ * - So, total possible combinations = product of sizes of all groups.
+ *
+ * - However, we must subtract those combinations where the final compressed string
+ *   has length less than `k`.
+ *
+ * STRATEGY:
+ * - Use DP to count the number of ways to compress groups such that resulting length < k.
+ * - Use prefix sum technique within DP for efficiency.
+ * - Subtract invalid counts from total.
+ *
+ * @param word The final typed string (after clumsy typing)
+ * @param k Minimum required length of original string
+ * @return int Total number of valid original strings modulo 1e9+7
+ *
+ * @complexity
+ * Time:  O(N * k) — where N = number of character groups in `word`
+ * Space: O(k) — dynamic programming with space optimization
+ */
 
 class Solution
 {
 public:
-    const int MOD = 1e9 + 7;
+  const int MOD = 1e9 + 7;
 
-    int possibleStringCount(string word, int k)
+  int possibleStringCount(string word, int k)
+  {
+    if (word.empty())
+      return 0;
+
+    // Step 1: Break the string into consecutive character groups
+    vector<int> groups;
+    int count = 1;
+
+    for (int i = 1; i < word.size(); i++)
     {
-        if (word.empty())
-            return 0;
-
-        // Step 1: Break the string into consecutive character groups
-        vector<int> groups;
-        int count = 1;
-
-        for (int i = 1; i < word.size(); i++) {
-            if (word[i] == word[i - 1])
-                count++;
-            else {
-                groups.push_back(count);
-                count = 1;
-            }
-        }
-        groups.push_back(count); // Add last group
-
-        // Step 2: Calculate total possible combinations
-        long total = 1;
-        for (int g : groups) {
-            total = (total * g) % MOD;
-        }
-
-        // Step 3: If k is more than max possible original string length, it's invalid
-        if (k > groups.size()) {
-            // DP[s]: Number of ways to get a compressed string of length s
-            vector<int> dp(k, 0);
-            dp[0] = 1;
-
-            for (int g : groups) {
-                vector<int> new_dp(k, 0);
-                long sum = 0;
-
-                for (int s = 0; s < k; s++) {
-                    if (s > 0)
-                        sum = (sum + dp[s - 1]) % MOD;
-                    if (s > g)
-                        sum = (sum - dp[s - g - 1] + MOD) % MOD;
-
-                    new_dp[s] = sum;
-                }
-
-                dp = new_dp;
-            }
-
-            // Step 4: Sum all invalid cases with length < k
-            long invalid = 0;
-            for (int s = groups.size(); s < k; s++) {
-                invalid = (invalid + dp[s]) % MOD;
-            }
-
-            // Final result = total - invalid
-            return (total - invalid + MOD) % MOD;
-        }
-
-        return total;
+      if (word[i] == word[i - 1])
+        count++;
+      else
+      {
+        groups.push_back(count);
+        count = 1;
+      }
     }
+    groups.push_back(count); // Add last group
+
+    // Step 2: Calculate total possible combinations
+    long total = 1;
+    for (int g : groups)
+    {
+      total = (total * g) % MOD;
+    }
+
+    // Step 3: If k is more than max possible original string length, it's invalid
+    if (k > groups.size())
+    {
+      // DP[s]: Number of ways to get a compressed string of length s
+      vector<int> dp(k, 0);
+      dp[0] = 1;
+
+      for (int g : groups)
+      {
+        vector<int> new_dp(k, 0);
+        long sum = 0;
+
+        for (int s = 0; s < k; s++)
+        {
+          if (s > 0)
+            sum = (sum + dp[s - 1]) % MOD;
+          if (s > g)
+            sum = (sum - dp[s - g - 1] + MOD) % MOD;
+
+          new_dp[s] = sum;
+        }
+
+        dp = new_dp;
+      }
+
+      // Step 4: Sum all invalid cases with length < k
+      long invalid = 0;
+      for (int s = groups.size(); s < k; s++)
+      {
+        invalid = (invalid + dp[s]) % MOD;
+      }
+
+      // Final result = total - invalid
+      return (total - invalid + MOD) % MOD;
+    }
+
+    return total;
+  }
 };
 
 /* ================================================================
  * PROBLEM 3304: FIND THE K-TH CHARACTER IN STRING GAME I (LeetCode)
  * ================================================================ */
 
- /**
-  * @brief Return the k-th character in a growing string generated by simulation
-  *
-  * GAME RULE:
-  * - Start with word = "a"
-  * - Each operation:
-  *     → For every character c in word, compute its next character
-  *       (i.e., 'a' → 'b', ..., 'z' → 'a')
-  *     → Append the new characters to the original word
-  *
-  * For example:
-  * "a" → "ab"
-  * "ab" → "abbc"
-  * "abbc" → "abbcbccd"
-  *
-  * We are to return the k-th character (1-indexed) after enough operations such
-  * that the word length is ≥ k.
-  *
-  * SOLUTION:
-  * - Simulate the process until the word has at least k characters
-  * - At each step:
-  *     → Generate "next characters" and append to the original word
-  * - Return word[k - 1]
-  *
-  * @param k The 1-based position of the desired character
-  * @return char The k-th character after simulation
-  *
-  * @complexity
-  * Time: O(k) — in the worst case, we may simulate until string length reaches k
-  * Space: O(k) — storing the expanded string
-  */
+/**
+ * @brief Return the k-th character in a growing string generated by simulation
+ *
+ * GAME RULE:
+ * - Start with word = "a"
+ * - Each operation:
+ *     → For every character c in word, compute its next character
+ *       (i.e., 'a' → 'b', ..., 'z' → 'a')
+ *     → Append the new characters to the original word
+ *
+ * For example:
+ * "a" → "ab"
+ * "ab" → "abbc"
+ * "abbc" → "abbcbccd"
+ *
+ * We are to return the k-th character (1-indexed) after enough operations such
+ * that the word length is ≥ k.
+ *
+ * SOLUTION:
+ * - Simulate the process until the word has at least k characters
+ * - At each step:
+ *     → Generate "next characters" and append to the original word
+ * - Return word[k - 1]
+ *
+ * @param k The 1-based position of the desired character
+ * @return char The k-th character after simulation
+ *
+ * @complexity
+ * Time: O(k) — in the worst case, we may simulate until string length reaches k
+ * Space: O(k) — storing the expanded string
+ */
 
 class Solution
 {
 public:
-    // Helper function to generate "next characters" of a given string
-    string solve(string word)
+  // Helper function to generate "next characters" of a given string
+  string solve(string word)
+  {
+    string next = "";
+    for (char c : word)
     {
-        string next = "";
-        for (char c : word) {
-            // 'z' should wrap around to 'a'
-            next += (c == 'z') ? 'a' : (c + 1);
-        }
-        return next;
+      // 'z' should wrap around to 'a'
+      next += (c == 'z') ? 'a' : (c + 1);
+    }
+    return next;
+  }
+
+  // Main function to find the k-th character
+  char kthCharacter(int k)
+  {
+    string word = "a";
+
+    // Keep growing the word until it has at least k characters
+    while (word.size() < k)
+    {
+      word += solve(word);
     }
 
-    // Main function to find the k-th character
-    char kthCharacter(int k)
-    {
-        string word = "a";
-
-        // Keep growing the word until it has at least k characters
-        while (word.size() < k) {
-            word += solve(word);
-        }
-
-        return word[k - 1]; // Convert to 0-based index
-    }
+    return word[k - 1]; // Convert to 0-based index
+  }
 };
 
 /* =====================================================================================
  * PROBLEM 3307: FIND THE K-TH CHARACTER IN STRING GAME II (LeetCode Hard)
  * ===================================================================================== */
 
- /**
-  * @brief Simulate string operations without building the full string, and return the k-th character.
-  *
-  * PROBLEM STATEMENT:
-  * Initially, Alice has a string `word = "a"`.
-  * You're given an array `operations` and a number `k`.
-  *
-  * For each operation in `operations[i]`:
-  * - If `operations[i] == 0`: word = word + word
-  * - If `operations[i] == 1`: word = word + shift(word) → where each character moves to the next (z→a)
-  *
-  * Return the character at the `k-th` position (1-indexed) after all operations.
-  * Note: String grows exponentially, so building it directly is not feasible.
-  *
-  * EXAMPLE:
-  * Input: k = 4, operations = [0, 1]
-  * Output: 'c'
-  *
-  * STRATEGY:
-  * - Instead of constructing the full string, calculate the number of characters added by each operation.
-  * - Work backwards from the last operation using recursion.
-  * - At each step:
-  *   → If `pows[i] < k`, then the character at `k` lies in the appended portion → reduce k and update answer.
-  *   → If not, continue to earlier operations.
-  * - Use modulo 26 to determine character value from index.
-  *
-  * @complexity
-  * Time: O(n) where n = operations.size() (up to 55 due to 2^55 > 10^16)
-  * Space: O(n) recursion stack + O(n) for power array
-  */
+/**
+ * @brief Simulate string operations without building the full string, and return the k-th character.
+ *
+ * PROBLEM STATEMENT:
+ * Initially, Alice has a string `word = "a"`.
+ * You're given an array `operations` and a number `k`.
+ *
+ * For each operation in `operations[i]`:
+ * - If `operations[i] == 0`: word = word + word
+ * - If `operations[i] == 1`: word = word + shift(word) → where each character moves to the next (z→a)
+ *
+ * Return the character at the `k-th` position (1-indexed) after all operations.
+ * Note: String grows exponentially, so building it directly is not feasible.
+ *
+ * EXAMPLE:
+ * Input: k = 4, operations = [0, 1]
+ * Output: 'c'
+ *
+ * STRATEGY:
+ * - Instead of constructing the full string, calculate the number of characters added by each operation.
+ * - Work backwards from the last operation using recursion.
+ * - At each step:
+ *   → If `pows[i] < k`, then the character at `k` lies in the appended portion → reduce k and update answer.
+ *   → If not, continue to earlier operations.
+ * - Use modulo 26 to determine character value from index.
+ *
+ * @complexity
+ * Time: O(n) where n = operations.size() (up to 55 due to 2^55 > 10^16)
+ * Space: O(n) recursion stack + O(n) for power array
+ */
 
 class Solution
 {
 public:
 #define ll long long
-    vector<ll> pows;
+  vector<ll> pows;
 
-    // Helper function to recursively find how many +1 shifts were applied to get to the kth character
-    int f(int index, ll k, vector<int>& operations)
+  // Helper function to recursively find how many +1 shifts were applied to get to the kth character
+  int f(int index, ll k, vector<int> &operations)
+  {
+    if (index < 0)
+      return 0; // base case: we're at the original 'a'
+
+    if (index >= 55)
+      return f(index - 1, k, operations); // beyond limit (2^55 > 10^16)
+
+    // If kth character is in the added portion of this operation
+    if (pows[index] < k)
     {
-        if (index < 0)
-            return 0; // base case: we're at the original 'a'
-
-        if (index >= 55)
-            return f(index - 1, k, operations); // beyond limit (2^55 > 10^16)
-
-        // If kth character is in the added portion of this operation
-        if (pows[index] < k) {
-            return operations[index] + f(index - 1, k - pows[index], operations);
-        }
-
-        // Otherwise, it's from the original segment
-        return f(index - 1, k, operations);
+      return operations[index] + f(index - 1, k - pows[index], operations);
     }
 
-    char kthCharacter(long long k, vector<int>& operations)
+    // Otherwise, it's from the original segment
+    return f(index - 1, k, operations);
+  }
+
+  char kthCharacter(long long k, vector<int> &operations)
+  {
+    pows.resize(55, 1);
+    pows[0] = 1;
+
+    // Precompute powers: pows[i] = total size of string after i operations
+    for (int i = 1; i < 55; i++)
     {
-        pows.resize(55, 1);
-        pows[0] = 1;
-
-        // Precompute powers: pows[i] = total size of string after i operations
-        for (int i = 1; i < 55; i++) {
-            pows[i] = 2 * pows[i - 1];
-        }
-
-        int n = operations.size();
-        int shifts = f(n - 1, k, operations); // how many +1 shifts happened along the path
-        return 'a' + (shifts % 26);           // final character after that many shifts from 'a'
+      pows[i] = 2 * pows[i - 1];
     }
+
+    int n = operations.size();
+    int shifts = f(n - 1, k, operations); // how many +1 shifts happened along the path
+    return 'a' + (shifts % 26);           // final character after that many shifts from 'a'
+  }
 };
 
 /* ===================================================================
  * LEETCODE 1394: FIND LUCKY INTEGER IN AN ARRAY
  * =================================================================== */
 
- /**
-  * @brief Return the largest lucky integer in the array
-  *
-  * PROBLEM STATEMENT:
-  * Given an array of integers `arr`, a **lucky integer** is an integer
-  * whose value is equal to its frequency in the array.
-  *
-  * You are to return the **largest lucky integer**. If no lucky integer exists, return -1.
-  *
-  * Input:
-  * - vector<int> arr: Array of integers (1 <= arr.length <= 500)
-  *
-  * Output:
-  * - Integer representing the largest lucky number, or -1 if none exists
-  *
-  * EXAMPLE:
-  * Input: arr = [2,2,3,4]
-  * Output: 2
-  * (Explanation: The number 2 appears exactly 2 times)
-  *
-  * ALGORITHM:
-  * - Use a hash map to count frequency of each element
-  * - Traverse the map and check if any key has key == frequency
-  * - Track the maximum such key (lucky number)
-  *
-  * COMPLEXITY:
-  * - Time: O(N) where N is the size of the array
-  * - Space: O(N) for the hash map
-  */
+/**
+ * @brief Return the largest lucky integer in the array
+ *
+ * PROBLEM STATEMENT:
+ * Given an array of integers `arr`, a **lucky integer** is an integer
+ * whose value is equal to its frequency in the array.
+ *
+ * You are to return the **largest lucky integer**. If no lucky integer exists, return -1.
+ *
+ * Input:
+ * - vector<int> arr: Array of integers (1 <= arr.length <= 500)
+ *
+ * Output:
+ * - Integer representing the largest lucky number, or -1 if none exists
+ *
+ * EXAMPLE:
+ * Input: arr = [2,2,3,4]
+ * Output: 2
+ * (Explanation: The number 2 appears exactly 2 times)
+ *
+ * ALGORITHM:
+ * - Use a hash map to count frequency of each element
+ * - Traverse the map and check if any key has key == frequency
+ * - Track the maximum such key (lucky number)
+ *
+ * COMPLEXITY:
+ * - Time: O(N) where N is the size of the array
+ * - Space: O(N) for the hash map
+ */
 
 class Solution
 {
 public:
-    int findLucky(vector<int>& arr)
+  int findLucky(vector<int> &arr)
+  {
+    int n = arr.size();
+    unordered_map<int, int> freq;
+
+    // Count frequency of each number
+    for (int i = 0; i < n; i++)
     {
-        int n = arr.size();
-        unordered_map<int, int> freq;
-
-        // Count frequency of each number
-        for (int i = 0; i < n; i++) {
-            freq[arr[i]]++;
-        }
-
-        int luckyInt = -1;
-
-        // Check for lucky numbers
-        for (auto it : freq) {
-            if (it.first == it.second) {
-                luckyInt = max(luckyInt, it.first);
-            }
-        }
-
-        return luckyInt;
+      freq[arr[i]]++;
     }
+
+    int luckyInt = -1;
+
+    // Check for lucky numbers
+    for (auto it : freq)
+    {
+      if (it.first == it.second)
+      {
+        luckyInt = max(luckyInt, it.first);
+      }
+    }
+
+    return luckyInt;
+  }
 };
 
 /* ===================================================================
  * LEETCODE 1865: FINDING PAIRS WITH A CERTAIN SUM
  * =================================================================== */
 
- /**
-  * @brief Implement a data structure to support dynamic sum pair queries
-  *
-  * PROBLEM STATEMENT:
-  * You are given two integer arrays `nums1` and `nums2`.
-  * Implement a class `FindSumPairs` with the following operations:
-  *
-  * 1. `add(index, val)` → Adds `val` to `nums2[index]`
-  * 2. `count(tot)` → Returns the number of pairs `(i, j)` such that:
-  *                   nums1[i] + nums2[j] == tot
-  *
-  * INPUT:
-  * - vector<int> nums1, nums2
-  * - Queries: add(index, val), count(tot)
-  *
-  * OUTPUT:
-  * - Integer: Count of valid (i, j) pairs for given `tot`
-  *
-  * EXAMPLE:
-  * Input:
-  * FindSumPairs([[1,1,2,2,2,3], [1,4,5,2,5,4]])
-  * add(3, 2)
-  * count(7) → Count pairs (i, j) such that nums1[i] + nums2[j] == 7
-  *
-  * ALGORITHM:
-  * - Use a frequency map for nums2 to quickly count complements in `count(tot)`
-  * - Update the map dynamically when `add()` is called
-  *
-  * COMPLEXITY:
-  * - Constructor: O(n) for nums2 frequency map
-  * - add(): O(1)
-  * - count(): O(n1), where n1 = size of nums1
-  */
+/**
+ * @brief Implement a data structure to support dynamic sum pair queries
+ *
+ * PROBLEM STATEMENT:
+ * You are given two integer arrays `nums1` and `nums2`.
+ * Implement a class `FindSumPairs` with the following operations:
+ *
+ * 1. `add(index, val)` → Adds `val` to `nums2[index]`
+ * 2. `count(tot)` → Returns the number of pairs `(i, j)` such that:
+ *                   nums1[i] + nums2[j] == tot
+ *
+ * INPUT:
+ * - vector<int> nums1, nums2
+ * - Queries: add(index, val), count(tot)
+ *
+ * OUTPUT:
+ * - Integer: Count of valid (i, j) pairs for given `tot`
+ *
+ * EXAMPLE:
+ * Input:
+ * FindSumPairs([[1,1,2,2,2,3], [1,4,5,2,5,4]])
+ * add(3, 2)
+ * count(7) → Count pairs (i, j) such that nums1[i] + nums2[j] == 7
+ *
+ * ALGORITHM:
+ * - Use a frequency map for nums2 to quickly count complements in `count(tot)`
+ * - Update the map dynamically when `add()` is called
+ *
+ * COMPLEXITY:
+ * - Constructor: O(n) for nums2 frequency map
+ * - add(): O(1)
+ * - count(): O(n1), where n1 = size of nums1
+ */
 
 class FindSumPairs
 {
 public:
-    vector<int> n1, n2;
-    unordered_map<int, int> m;
+  vector<int> n1, n2;
+  unordered_map<int, int> m;
 
-    /**
-     * @brief Initialize the object with two arrays
-     */
-    FindSumPairs(vector<int>& nums1, vector<int>& nums2)
+  /**
+   * @brief Initialize the object with two arrays
+   */
+  FindSumPairs(vector<int> &nums1, vector<int> &nums2)
+  {
+    n1 = nums1;
+    n2 = nums2;
+
+    // Create frequency map for nums2
+    for (int x : n2)
     {
-        n1 = nums1;
-        n2 = nums2;
+      m[x]++;
+    }
+  }
 
-        // Create frequency map for nums2
-        for (int x : n2) {
-            m[x]++;
-        }
+  /**
+   * @brief Adds val to nums2[index] and updates the frequency map
+   */
+  void add(int index, int val)
+  {
+    m[n2[index]]--;   // Remove old value from frequency map
+    n2[index] += val; // Update nums2[index]
+    m[n2[index]]++;   // Add new value to frequency map
+  }
+
+  /**
+   * @brief Count number of valid pairs (i, j) where n1[i] + n2[j] == tot
+   */
+  int count(int tot)
+  {
+    int c = 0;
+
+    for (int x : n1)
+    {
+      int complement = tot - x;
+      c += m[complement]; // Look up how many times complement exists in nums2
     }
 
-    /**
-     * @brief Adds val to nums2[index] and updates the frequency map
-     */
-    void add(int index, int val)
-    {
-        m[n2[index]]--;   // Remove old value from frequency map
-        n2[index] += val; // Update nums2[index]
-        m[n2[index]]++;   // Add new value to frequency map
-    }
-
-    /**
-     * @brief Count number of valid pairs (i, j) where n1[i] + n2[j] == tot
-     */
-    int count(int tot)
-    {
-        int c = 0;
-
-        for (int x : n1) {
-            int complement = tot - x;
-            c += m[complement]; // Look up how many times complement exists in nums2
-        }
-
-        return c;
-    }
+    return c;
+  }
 };
 
 /**
@@ -463,657 +481,704 @@ public:
  * int result = obj->count(tot);
  */
 
- /* ===================================================================
-  * LEETCODE 1353: MAXIMUM NUMBER OF EVENTS THAT CAN BE ATTENDED
-  * =================================================================== */
+/* ===================================================================
+ * LEETCODE 1353: MAXIMUM NUMBER OF EVENTS THAT CAN BE ATTENDED
+ * =================================================================== */
 
-  /**
-   * @brief Attend the maximum number of non-overlapping events
-   *
-   * PROBLEM STATEMENT:
-   * You are given an array of `events` where events[i] = [startDay_i, endDay_i].
-   * You can attend only one event per day, and can choose any day `d` such that:
-   *     startDay_i <= d <= endDay_i
-   *
-   * Return the maximum number of events that can be attended.
-   *
-   * INPUT:
-   * - vector<vector<int>> events: list of events as [startDay, endDay]
-   *
-   * OUTPUT:
-   * - int: maximum number of events that can be attended
-   *
-   * EXAMPLE:
-   * Input: events = [[1,2],[2,3],[3,4]]
-   * Output: 3
-   *
-   * ALGORITHM (Greedy + DSU with Path Compression):
-   * - Sort events by their end day (to attend earlier-finishing events first)
-   * - Use a Disjoint Set (nextDay[i]) to find the earliest free day for an event
-   * - Once a day is taken, update it to point to the next available day
-   *
-   * COMPLEXITY:
-   * - Time: O(N log N + M α(N)), where N = number of events, M = max end day
-   * - Space: O(M), where M = maximum end day
-   */
+/**
+ * @brief Attend the maximum number of non-overlapping events
+ *
+ * PROBLEM STATEMENT:
+ * You are given an array of `events` where events[i] = [startDay_i, endDay_i].
+ * You can attend only one event per day, and can choose any day `d` such that:
+ *     startDay_i <= d <= endDay_i
+ *
+ * Return the maximum number of events that can be attended.
+ *
+ * INPUT:
+ * - vector<vector<int>> events: list of events as [startDay, endDay]
+ *
+ * OUTPUT:
+ * - int: maximum number of events that can be attended
+ *
+ * EXAMPLE:
+ * Input: events = [[1,2],[2,3],[3,4]]
+ * Output: 3
+ *
+ * ALGORITHM (Greedy + DSU with Path Compression):
+ * - Sort events by their end day (to attend earlier-finishing events first)
+ * - Use a Disjoint Set (nextDay[i]) to find the earliest free day for an event
+ * - Once a day is taken, update it to point to the next available day
+ *
+ * COMPLEXITY:
+ * - Time: O(N log N + M α(N)), where N = number of events, M = max end day
+ * - Space: O(M), where M = maximum end day
+ */
 
 class Solution
 {
-    /**
-     * @brief DSU find function with path compression to get the next free day
-     */
-    int findNext(vector<int>& nextDay, int day)
+  /**
+   * @brief DSU find function with path compression to get the next free day
+   */
+  int findNext(vector<int> &nextDay, int day)
+  {
+    if (nextDay[day] != day)
     {
-        if (nextDay[day] != day) {
-            nextDay[day] = findNext(nextDay, nextDay[day]); // Path compression
-        }
-        return nextDay[day];
+      nextDay[day] = findNext(nextDay, nextDay[day]); // Path compression
     }
+    return nextDay[day];
+  }
 
 public:
-    /**
-     * @brief Main function to return the max number of events that can be attended
-     */
-    int maxEvents(vector<vector<int>>& events)
+  /**
+   * @brief Main function to return the max number of events that can be attended
+   */
+  int maxEvents(vector<vector<int>> &events)
+  {
+    // Step 1: Sort events based on their ending day (greedy strategy)
+    sort(events.begin(), events.end(), [](const vector<int> &a, const vector<int> &b)
+         { return a[1] < b[1]; });
+
+    // Step 2: Find the latest day among all events to size DSU array
+    int maxDay = 0;
+    for (const auto &evt : events)
     {
-        // Step 1: Sort events based on their ending day (greedy strategy)
-        sort(events.begin(), events.end(), [](const vector<int>& a, const vector<int>& b)
-            { return a[1] < b[1]; });
-
-        // Step 2: Find the latest day among all events to size DSU array
-        int maxDay = 0;
-        for (const auto& evt : events) {
-            maxDay = max(maxDay, evt[1]);
-        }
-
-        // Step 3: Initialize DSU (each day points to itself)
-        vector<int> nextDay(maxDay + 2); // +2 to handle boundary case
-        for (int d = 0; d <= maxDay + 1; ++d) {
-            nextDay[d] = d;
-        }
-
-        int count = 0;
-
-        // Step 4: Process each event
-        for (const auto& evt : events) {
-            int start = evt[0];
-            int end = evt[1];
-
-            // Find the earliest available day to attend this event
-            int day = findNext(nextDay, start);
-
-            if (day <= end) {
-                ++count;                                   // Attend this event
-                nextDay[day] = findNext(nextDay, day + 1); // Mark the day as used
-            }
-        }
-
-        return count;
+      maxDay = max(maxDay, evt[1]);
     }
+
+    // Step 3: Initialize DSU (each day points to itself)
+    vector<int> nextDay(maxDay + 2); // +2 to handle boundary case
+    for (int d = 0; d <= maxDay + 1; ++d)
+    {
+      nextDay[d] = d;
+    }
+
+    int count = 0;
+
+    // Step 4: Process each event
+    for (const auto &evt : events)
+    {
+      int start = evt[0];
+      int end = evt[1];
+
+      // Find the earliest available day to attend this event
+      int day = findNext(nextDay, start);
+
+      if (day <= end)
+      {
+        ++count;                                   // Attend this event
+        nextDay[day] = findNext(nextDay, day + 1); // Mark the day as used
+      }
+    }
+
+    return count;
+  }
 };
 
 /* ===================================================================
  * LEETCODE 3439: RESCHEDULE MEETINGS FOR MAXIMUM FREE TIME I
  * =================================================================== */
 
- /**
-  * @brief Given non-overlapping meetings and event duration,
-  *        you can shift at most k meetings earlier (preserving order and duration)
-  *        to **maximize the longest free time** during the event.
-  *
-  * CONSTRAINTS:
-  * - Meetings must remain non-overlapping
-  * - At most k meetings can be rescheduled
-  * - Rescheduling means moving the start earlier, duration stays the same
-  * - All meetings must fit in [0, eventTime]
-  *
-  * GOAL: Maximize the longest continuous **free period**
-  *       within [0, eventTime] after at most `k` reschedules.
-  *
-  * ALGORITHM (Binary Search + Greedy Simulation):
-  * - Binary search on answer: longest possible free time F
-  * - For each candidate F:
-  *     → Simulate scheduling the meetings greedily
-  *     → Shift up to k meetings to ensure each free gap ≥ F
-  * - If possible → try larger F, else try smaller
-  *
-  * TIME COMPLEXITY: O(n log eventTime)
-  */
+/**
+ * @brief Given non-overlapping meetings and event duration,
+ *        you can shift at most k meetings earlier (preserving order and duration)
+ *        to **maximize the longest free time** during the event.
+ *
+ * CONSTRAINTS:
+ * - Meetings must remain non-overlapping
+ * - At most k meetings can be rescheduled
+ * - Rescheduling means moving the start earlier, duration stays the same
+ * - All meetings must fit in [0, eventTime]
+ *
+ * GOAL: Maximize the longest continuous **free period**
+ *       within [0, eventTime] after at most `k` reschedules.
+ *
+ * ALGORITHM (Binary Search + Greedy Simulation):
+ * - Binary search on answer: longest possible free time F
+ * - For each candidate F:
+ *     → Simulate scheduling the meetings greedily
+ *     → Shift up to k meetings to ensure each free gap ≥ F
+ * - If possible → try larger F, else try smaller
+ *
+ * TIME COMPLEXITY: O(n log eventTime)
+ */
 
 class Solution
 {
 public:
-    /**
-     * @brief Simulates rescheduling to test if a minimum free time gap is possible
-     *
-     * @param start      Original start times of meetings
-     * @param end        Original end times of meetings
-     * @param k          Max number of allowed reschedules
-     * @param eventTime  Duration of the overall event
-     * @param gap        Target free time gap to validate
-     * @return           true if gap is achievable, false otherwise
-     */
-    bool isPossible(vector<int>& start, vector<int>& end, int k, int eventTime, int gap)
+  /**
+   * @brief Simulates rescheduling to test if a minimum free time gap is possible
+   *
+   * @param start      Original start times of meetings
+   * @param end        Original end times of meetings
+   * @param k          Max number of allowed reschedules
+   * @param eventTime  Duration of the overall event
+   * @param gap        Target free time gap to validate
+   * @return           true if gap is achievable, false otherwise
+   */
+  bool isPossible(vector<int> &start, vector<int> &end, int k, int eventTime, int gap)
+  {
+    int n = start.size();
+    int rescheduled = 0;
+    int currentTime = 0;
+
+    for (int i = 0; i < n; i++)
     {
-        int n = start.size();
-        int rescheduled = 0;
-        int currentTime = 0;
+      int duration = end[i] - start[i];
+      // Required earliest start to maintain `gap` before this meeting
+      int minStart = currentTime + gap;
 
-        for (int i = 0; i < n; i++) {
-            int duration = end[i] - start[i];
-            // Required earliest start to maintain `gap` before this meeting
-            int minStart = currentTime + gap;
+      if (start[i] < minStart)
+      {
+        // Must reschedule this meeting to start at minStart
+        if (++rescheduled > k)
+          return false;
+        currentTime = minStart + duration;
+      }
+      else
+      {
+        // No reschedule needed, take original position
+        currentTime = start[i] + duration;
+      }
 
-            if (start[i] < minStart) {
-                // Must reschedule this meeting to start at minStart
-                if (++rescheduled > k)
-                    return false;
-                currentTime = minStart + duration;
-            }
-            else {
-                // No reschedule needed, take original position
-                currentTime = start[i] + duration;
-            }
-
-            if (currentTime > eventTime)
-                return false;
-        }
-
-        // Check if there's a gap at the end
-        return (eventTime - currentTime) >= gap;
+      if (currentTime > eventTime)
+        return false;
     }
 
-    /**
-     * @brief Returns the maximum free time possible after at most k reschedules
-     *
-     * @param eventTime  Duration of the entire event
-     * @param startTime  Start times of meetings
-     * @param endTime    End times of meetings
-     * @param k          Max reschedules allowed
-     * @return           Longest continuous free time after adjustments
-     */
-    int maxFreeTime(int eventTime, vector<int>& startTime, vector<int>& endTime, int k)
+    // Check if there's a gap at the end
+    return (eventTime - currentTime) >= gap;
+  }
+
+  /**
+   * @brief Returns the maximum free time possible after at most k reschedules
+   *
+   * @param eventTime  Duration of the entire event
+   * @param startTime  Start times of meetings
+   * @param endTime    End times of meetings
+   * @param k          Max reschedules allowed
+   * @return           Longest continuous free time after adjustments
+   */
+  int maxFreeTime(int eventTime, vector<int> &startTime, vector<int> &endTime, int k)
+  {
+    int low = 0, high = eventTime, ans = 0;
+
+    while (low <= high)
     {
-        int low = 0, high = eventTime, ans = 0;
+      int mid = low + (high - low) / 2;
 
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-
-            if (isPossible(startTime, endTime, k, eventTime, mid)) {
-                ans = mid; // valid gap found, try larger
-                low = mid + 1;
-            }
-            else {
-                high = mid - 1; // too large gap, reduce
-            }
-        }
-
-        return ans;
+      if (isPossible(startTime, endTime, k, eventTime, mid))
+      {
+        ans = mid; // valid gap found, try larger
+        low = mid + 1;
+      }
+      else
+      {
+        high = mid - 1; // too large gap, reduce
+      }
     }
+
+    return ans;
+  }
 };
 
 /* ===================================================================
  * LEETCODE 3439: MAXIMUM FREE TIME AFTER ONE RESCHEDULE II
  * =================================================================== */
 
- /**
-  * @brief Given meetings scheduled in an event timeline, compute the maximum
-  *        continuous free time possible if you are allowed to reschedule exactly
-  *        one meeting (shift earlier without overlapping, maintaining order).
-  *
-  * STRATEGY:
-  * - Compute all free gaps:
-  *     → gap[0] = before first meeting
-  *     → gap[i] = between end of meeting i-1 and start of meeting i
-  *     → gap[n] = after last meeting till end of event
-  *
-  * - Precompute:
-  *     → largest gap to the **right** of each index (suffix max)
-  *
-  * - Then, iterate through each potential reschedule point:
-  *     → Try combining adjacent gaps with the shifted meeting duration
-  *     → Maintain maximum merged gap found
-  *
-  * TIME COMPLEXITY: O(n)
-  * SPACE COMPLEXITY: O(n)
-  */
+/**
+ * @brief Given meetings scheduled in an event timeline, compute the maximum
+ *        continuous free time possible if you are allowed to reschedule exactly
+ *        one meeting (shift earlier without overlapping, maintaining order).
+ *
+ * STRATEGY:
+ * - Compute all free gaps:
+ *     → gap[0] = before first meeting
+ *     → gap[i] = between end of meeting i-1 and start of meeting i
+ *     → gap[n] = after last meeting till end of event
+ *
+ * - Precompute:
+ *     → largest gap to the **right** of each index (suffix max)
+ *
+ * - Then, iterate through each potential reschedule point:
+ *     → Try combining adjacent gaps with the shifted meeting duration
+ *     → Maintain maximum merged gap found
+ *
+ * TIME COMPLEXITY: O(n)
+ * SPACE COMPLEXITY: O(n)
+ */
 
 class Solution
 {
 public:
-    /**
-     * @brief Computes max free time after one allowed reschedule
-     *
-     * @param eventTime   Total duration of the event
-     * @param startTime   Start times of the meetings
-     * @param endTime     End times of the meetings
-     * @return            Maximum continuous free time possible
-     */
-    int maxFreeTime(int eventTime, vector<int>& startTime, vector<int>& endTime)
+  /**
+   * @brief Computes max free time after one allowed reschedule
+   *
+   * @param eventTime   Total duration of the event
+   * @param startTime   Start times of the meetings
+   * @param endTime     End times of the meetings
+   * @return            Maximum continuous free time possible
+   */
+  int maxFreeTime(int eventTime, vector<int> &startTime, vector<int> &endTime)
+  {
+    int n = startTime.size();
+
+    // Step 1: Calculate free gaps before, between, and after meetings
+    vector<int> gap;
+    gap.push_back(startTime[0]); // before first meeting
+    for (int i = 1; i < n; ++i)
     {
-        int n = startTime.size();
-
-        // Step 1: Calculate free gaps before, between, and after meetings
-        vector<int> gap;
-        gap.push_back(startTime[0]); // before first meeting
-        for (int i = 1; i < n; ++i) {
-            gap.push_back(startTime[i] - endTime[i - 1]); // between meetings
-        }
-        gap.push_back(eventTime - endTime.back()); // after last meeting
-
-        int m = gap.size();
-
-        // Step 2: Precompute largest gap to the right (suffix max)
-        vector<int> largestRight(m, 0);
-        for (int i = m - 2; i >= 0; --i) {
-            largestRight[i] = max(largestRight[i + 1], gap[i + 1]);
-        }
-
-        // Step 3: Iterate and evaluate max possible merged free time
-        int ans = 0, largestLeft = 0;
-
-        for (int i = 1; i < m; ++i) {
-            int meetingDuration = endTime[i - 1] - startTime[i - 1];
-
-            // Try merging current meeting with adjacent gaps if its duration
-            // is not larger than the max free time on either side
-            if (meetingDuration <= max(largestLeft, largestRight[i])) {
-                ans = max(ans, gap[i - 1] + gap[i] + meetingDuration);
-            }
-
-            // Or just merge the two gaps without shifting any meeting
-            ans = max(ans, gap[i - 1] + gap[i]);
-
-            // Update largest gap seen to the left
-            largestLeft = max(largestLeft, gap[i - 1]);
-        }
-
-        return ans;
+      gap.push_back(startTime[i] - endTime[i - 1]); // between meetings
     }
+    gap.push_back(eventTime - endTime.back()); // after last meeting
+
+    int m = gap.size();
+
+    // Step 2: Precompute largest gap to the right (suffix max)
+    vector<int> largestRight(m, 0);
+    for (int i = m - 2; i >= 0; --i)
+    {
+      largestRight[i] = max(largestRight[i + 1], gap[i + 1]);
+    }
+
+    // Step 3: Iterate and evaluate max possible merged free time
+    int ans = 0, largestLeft = 0;
+
+    for (int i = 1; i < m; ++i)
+    {
+      int meetingDuration = endTime[i - 1] - startTime[i - 1];
+
+      // Try merging current meeting with adjacent gaps if its duration
+      // is not larger than the max free time on either side
+      if (meetingDuration <= max(largestLeft, largestRight[i]))
+      {
+        ans = max(ans, gap[i - 1] + gap[i] + meetingDuration);
+      }
+
+      // Or just merge the two gaps without shifting any meeting
+      ans = max(ans, gap[i - 1] + gap[i]);
+
+      // Update largest gap seen to the left
+      largestLeft = max(largestLeft, gap[i - 1]);
+    }
+
+    return ans;
+  }
 };
 
 /* ===================================================================
  * LEETCODE 2402: MEETING ROOMS III
  * =================================================================== */
 
- /**
-  * @brief You are given `n` meeting rooms and a list of meetings.
-  *        Schedule all meetings in a way that respects:
-  *        - A meeting can only be held in a room that is available
-  *        - If all rooms are busy, delay the meeting until the earliest available room
-  *        - Always choose the room with the **lowest index**
-  *
-  * Return the index of the room with the most meetings.
-  *
-  * TIME COMPLEXITY: O(M * N) in worst case
-  * SPACE COMPLEXITY: O(N)
-  */
+/**
+ * @brief You are given `n` meeting rooms and a list of meetings.
+ *        Schedule all meetings in a way that respects:
+ *        - A meeting can only be held in a room that is available
+ *        - If all rooms are busy, delay the meeting until the earliest available room
+ *        - Always choose the room with the **lowest index**
+ *
+ * Return the index of the room with the most meetings.
+ *
+ * TIME COMPLEXITY: O(M * N) in worst case
+ * SPACE COMPLEXITY: O(N)
+ */
 
 class Solution
 {
 public:
-    int mostBooked(int n, vector<vector<int>>& meetings)
+  int mostBooked(int n, vector<vector<int>> &meetings)
+  {
+    // Step 1: Sort meetings by start time
+    sort(meetings.begin(), meetings.end());
+    int m = meetings.size();
+
+    // last_available[i]: the earliest time room i becomes free
+    vector<long long> last_available(n, 0);
+
+    // used_count[i]: number of meetings room i has hosted
+    vector<int> used_count(n, 0);
+
+    // Step 2: Process each meeting
+    for (auto &meet : meetings)
     {
-        // Step 1: Sort meetings by start time
-        sort(meetings.begin(), meetings.end());
-        int m = meetings.size();
+      int start = meet[0];
+      int end = meet[1];
+      int duration = end - start;
 
-        // last_available[i]: the earliest time room i becomes free
-        vector<long long> last_available(n, 0);
+      int chosenRoom = -1;
 
-        // used_count[i]: number of meetings room i has hosted
-        vector<int> used_count(n, 0);
+      // Try to find an available room (lowest index)
+      for (int room = 0; room < n; ++room)
+      {
+        if (last_available[room] <= start)
+        {
+          chosenRoom = room;
+          break;
+        }
+      }
 
-        // Step 2: Process each meeting
-        for (auto& meet : meetings) {
-            int start = meet[0];
-            int end = meet[1];
-            int duration = end - start;
+      if (chosenRoom != -1)
+      {
+        // Room is available, assign meeting directly
+        last_available[chosenRoom] = end;
+        used_count[chosenRoom]++;
+      }
+      else
+      {
+        // No room is free, delay the meeting to earliest available room
+        long long earliest = LLONG_MAX;
 
-            int chosenRoom = -1;
-
-            // Try to find an available room (lowest index)
-            for (int room = 0; room < n; ++room) {
-                if (last_available[room] <= start) {
-                    chosenRoom = room;
-                    break;
-                }
-            }
-
-            if (chosenRoom != -1) {
-                // Room is available, assign meeting directly
-                last_available[chosenRoom] = end;
-                used_count[chosenRoom]++;
-            }
-            else {
-                // No room is free, delay the meeting to earliest available room
-                long long earliest = LLONG_MAX;
-
-                for (int room = 0; room < n; ++room) {
-                    if (last_available[room] < earliest) {
-                        earliest = last_available[room];
-                        chosenRoom = room;
-                    }
-                }
-
-                // Assign meeting starting at earliest time
-                last_available[chosenRoom] += duration;
-                used_count[chosenRoom]++;
-            }
+        for (int room = 0; room < n; ++room)
+        {
+          if (last_available[room] < earliest)
+          {
+            earliest = last_available[room];
+            chosenRoom = room;
+          }
         }
 
-        // Step 3: Find the room with max usage
-        int ans = 0;
-        for (int room = 1; room < n; ++room) {
-            if (used_count[room] > used_count[ans]) {
-                ans = room;
-            }
-        }
-
-        return ans;
+        // Assign meeting starting at earliest time
+        last_available[chosenRoom] += duration;
+        used_count[chosenRoom]++;
+      }
     }
+
+    // Step 3: Find the room with max usage
+    int ans = 0;
+    for (int room = 1; room < n; ++room)
+    {
+      if (used_count[room] > used_count[ans])
+      {
+        ans = room;
+      }
+    }
+
+    return ans;
+  }
 };
 
 /* ===================================================================
  * LEETCODE 1900: EARLIEST AND LATEST ROUNDS WHERE PLAYERS MEET
  * =================================================================== */
 
- /**
-  * @brief In a knockout tournament of `n` players labeled 1 to n,
-  *        players compete in rounds. Each round, players are paired
-  *        from the outside inward (1 vs n, 2 vs n-1, etc.).
-  *
-  *        Two players `firstPlayer` and `secondPlayer` want to know
-  *        the earliest and latest round they can possibly meet.
-  *
-  * STRATEGY:
-  * ---------
-  * Simulate all possible tournament paths using DFS and memoization.
-  * For each round:
-  *   - Pair players from the outside inward.
-  *   - If players meet, record round.
-  *   - Else, recursively simulate next round with all valid match outcomes.
-  *
-  * TIME COMPLEXITY: Exponential (but pruned due to symmetric conditions)
-  * SPACE COMPLEXITY: O(N^2) stack space + cache (if memoized)
-  */
+/**
+ * @brief In a knockout tournament of `n` players labeled 1 to n,
+ *        players compete in rounds. Each round, players are paired
+ *        from the outside inward (1 vs n, 2 vs n-1, etc.).
+ *
+ *        Two players `firstPlayer` and `secondPlayer` want to know
+ *        the earliest and latest round they can possibly meet.
+ *
+ * STRATEGY:
+ * ---------
+ * Simulate all possible tournament paths using DFS and memoization.
+ * For each round:
+ *   - Pair players from the outside inward.
+ *   - If players meet, record round.
+ *   - Else, recursively simulate next round with all valid match outcomes.
+ *
+ * TIME COMPLEXITY: Exponential (but pruned due to symmetric conditions)
+ * SPACE COMPLEXITY: O(N^2) stack space + cache (if memoized)
+ */
 
 class Solution
 {
 public:
-    /**
-     * @brief Depth-first search to compute earliest and latest round
-     *        two players can meet in a knockout bracket.
-     *
-     * @param n   Total players in current round
-     * @param p1  Position of first player
-     * @param p2  Position of second player
-     * @return    {earliest_round, latest_round}
-     */
-    pair<int, int> dfs(int n, int p1, int p2)
+  /**
+   * @brief Depth-first search to compute earliest and latest round
+   *        two players can meet in a knockout bracket.
+   *
+   * @param n   Total players in current round
+   * @param p1  Position of first player
+   * @param p2  Position of second player
+   * @return    {earliest_round, latest_round}
+   */
+  pair<int, int> dfs(int n, int p1, int p2)
+  {
+    // Step 1: If they are currently facing each other
+    if (p1 + p2 == n + 1)
     {
-        // Step 1: If they are currently facing each other
-        if (p1 + p2 == n + 1) {
-            return { 1, 1 };
-        }
-
-        // Step 2: Normalize positions (p1 < p2)
-        if (p1 > p2) {
-            swap(p1, p2);
-        }
-
-        // Step 3: Base case for small tournaments
-        if (n <= 4) {
-            return { 2, 2 };
-        }
-
-        int m = (n + 1) / 2; // Next round size
-        int minR = INT_MAX;
-        int maxR = INT_MIN;
-
-        // Step 4: Reflect positions for symmetry optimization
-        if (p1 - 1 > n - p2) {
-            int t = n + 1 - p1;
-            p1 = n + 1 - p2;
-            p2 = t;
-        }
-
-        // Step 5: Simulate both players in left half
-        if (p2 * 2 <= n + 1) {
-            int a = p1 - 1;
-            int b = p2 - p1 - 1;
-
-            for (int i = 0; i <= a; ++i) {
-                for (int j = 0; j <= b; ++j) {
-                    auto [r1, r2] = dfs(m, i + 1, i + j + 2);
-                    minR = min(minR, r1 + 1);
-                    maxR = max(maxR, r2 + 1);
-                }
-            }
-        }
-        // Step 6: Players are in opposite halves
-        else {
-            int p4 = n + 1 - p2;
-            int a = p1 - 1;
-            int b = p4 - p1 - 1;
-            int c = p2 - p4 - 1;
-
-            for (int i = 0; i <= a; ++i) {
-                for (int j = 0; j <= b; ++j) {
-                    int offset = i + j + 1 + (c + 1) / 2 + 1;
-                    auto [r1, r2] = dfs(m, i + 1, offset);
-                    minR = min(minR, r1 + 1);
-                    maxR = max(maxR, r2 + 1);
-                }
-            }
-        }
-
-        return { minR, maxR };
+      return {1, 1};
     }
 
-    /**
-     * @brief Main function to compute earliest and latest round
-     *        two players can meet.
-     */
-    vector<int> earliestAndLatest(int n, int firstPlayer, int secondPlayer)
+    // Step 2: Normalize positions (p1 < p2)
+    if (p1 > p2)
     {
-        auto [earliest, latest] = dfs(n, firstPlayer, secondPlayer);
-        return { earliest, latest };
+      swap(p1, p2);
     }
+
+    // Step 3: Base case for small tournaments
+    if (n <= 4)
+    {
+      return {2, 2};
+    }
+
+    int m = (n + 1) / 2; // Next round size
+    int minR = INT_MAX;
+    int maxR = INT_MIN;
+
+    // Step 4: Reflect positions for symmetry optimization
+    if (p1 - 1 > n - p2)
+    {
+      int t = n + 1 - p1;
+      p1 = n + 1 - p2;
+      p2 = t;
+    }
+
+    // Step 5: Simulate both players in left half
+    if (p2 * 2 <= n + 1)
+    {
+      int a = p1 - 1;
+      int b = p2 - p1 - 1;
+
+      for (int i = 0; i <= a; ++i)
+      {
+        for (int j = 0; j <= b; ++j)
+        {
+          auto [r1, r2] = dfs(m, i + 1, i + j + 2);
+          minR = min(minR, r1 + 1);
+          maxR = max(maxR, r2 + 1);
+        }
+      }
+    }
+    // Step 6: Players are in opposite halves
+    else
+    {
+      int p4 = n + 1 - p2;
+      int a = p1 - 1;
+      int b = p4 - p1 - 1;
+      int c = p2 - p4 - 1;
+
+      for (int i = 0; i <= a; ++i)
+      {
+        for (int j = 0; j <= b; ++j)
+        {
+          int offset = i + j + 1 + (c + 1) / 2 + 1;
+          auto [r1, r2] = dfs(m, i + 1, offset);
+          minR = min(minR, r1 + 1);
+          maxR = max(maxR, r2 + 1);
+        }
+      }
+    }
+
+    return {minR, maxR};
+  }
+
+  /**
+   * @brief Main function to compute earliest and latest round
+   *        two players can meet.
+   */
+  vector<int> earliestAndLatest(int n, int firstPlayer, int secondPlayer)
+  {
+    auto [earliest, latest] = dfs(n, firstPlayer, secondPlayer);
+    return {earliest, latest};
+  }
 };
 
 /* ============================================================================
  * LEETCODE 2410: MATCH PLAYERS WITH TRAINERS
  * ============================================================================ */
 
- /**
-  * @brief Each player has a strength requirement, and each trainer
-  *        has a maximum strength they can train.
-  *        We want to match as many players as possible with trainers such that:
-  *        trainer[i] >= player[j] (each used only once)
-  *
-  * ALGORITHM:
-  * - Sort both arrays
-  * - Use two pointers to greedily match smallest eligible trainer to each player
-  *
-  * TIME COMPLEXITY: O(N log N + M log M)
-  * SPACE COMPLEXITY: O(1)
-  */
+/**
+ * @brief Each player has a strength requirement, and each trainer
+ *        has a maximum strength they can train.
+ *        We want to match as many players as possible with trainers such that:
+ *        trainer[i] >= player[j] (each used only once)
+ *
+ * ALGORITHM:
+ * - Sort both arrays
+ * - Use two pointers to greedily match smallest eligible trainer to each player
+ *
+ * TIME COMPLEXITY: O(N log N + M log M)
+ * SPACE COMPLEXITY: O(1)
+ */
 
 class Solution
 {
 public:
-    int matchPlayersAndTrainers(vector<int>& players, vector<int>& trainers)
+  int matchPlayersAndTrainers(vector<int> &players, vector<int> &trainers)
+  {
+    // Step 1: Sort both players and trainers
+    sort(begin(players), end(players));
+    sort(begin(trainers), end(trainers));
+
+    int player = 0, trainer = 0;
+    int count = 0;
+
+    // Step 2: Greedily match trainers to players
+    while (player < players.size() && trainer < trainers.size())
     {
-        // Step 1: Sort both players and trainers
-        sort(begin(players), end(players));
-        sort(begin(trainers), end(trainers));
-
-        int player = 0, trainer = 0;
-        int count = 0;
-
-        // Step 2: Greedily match trainers to players
-        while (player < players.size() && trainer < trainers.size()) {
-            if (trainers[trainer] >= players[player]) {
-                // Found a match
-                count++;
-                player++;
-                trainer++;
-            }
-            else {
-                // Trainer too weak, try next trainer
-                trainer++;
-            }
-        }
-
-        return count;
+      if (trainers[trainer] >= players[player])
+      {
+        // Found a match
+        count++;
+        player++;
+        trainer++;
+      }
+      else
+      {
+        // Trainer too weak, try next trainer
+        trainer++;
+      }
     }
+
+    return count;
+  }
 };
 
 /* ============================================================================
  * LEETCODE 1290: CONVERT BINARY NUMBER IN A LINKED LIST TO INTEGER
  * ============================================================================ */
 
- /**
-  * @brief A singly linked list represents a binary number.
-  *        Convert it into its corresponding integer value.
-  *
-  * ALGORITHM:
-  * - Traverse the linked list from head to end.
-  * - Use bit manipulation: left shift the result and add current node value.
-  *
-  * TIME COMPLEXITY: O(N) — one pass through the list
-  * SPACE COMPLEXITY: O(1) — constant extra space
-  */
+/**
+ * @brief A singly linked list represents a binary number.
+ *        Convert it into its corresponding integer value.
+ *
+ * ALGORITHM:
+ * - Traverse the linked list from head to end.
+ * - Use bit manipulation: left shift the result and add current node value.
+ *
+ * TIME COMPLEXITY: O(N) — one pass through the list
+ * SPACE COMPLEXITY: O(1) — constant extra space
+ */
 
-  /**
-   * Definition for singly-linked list.
-   */
+/**
+ * Definition for singly-linked list.
+ */
 struct ListNode
 {
-    int val;
-    ListNode* next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode* next) : val(x), next(next) {}
+  int val;
+  ListNode *next;
+  ListNode() : val(0), next(nullptr) {}
+  ListNode(int x) : val(x), next(nullptr) {}
+  ListNode(int x, ListNode *next) : val(x), next(next) {}
 };
 
 class Solution
 {
 public:
-    static int getDecimalValue(ListNode* head)
+  static int getDecimalValue(ListNode *head)
+  {
+    int ans = 0;
+
+    // Traverse the list and compute decimal value
+    for (ListNode *curr = head; curr != nullptr; curr = curr->next)
     {
-        int ans = 0;
-
-        // Traverse the list and compute decimal value
-        for (ListNode* curr = head; curr != nullptr; curr = curr->next) {
-            ans = (ans << 1) + curr->val; // Left shift and add current bit
-        }
-
-        return ans;
+      ans = (ans << 1) + curr->val; // Left shift and add current bit
     }
+
+    return ans;
+  }
 };
 
 /* ============================================================================
  * CUSTOM VALIDATION: CHECK STRING FOR AT LEAST ONE VOWEL AND ONE CONSONANT
  * ============================================================================ */
 
- /**
-  * @brief Check if a string is valid:
-  *        - At least length 3
-  *        - Contains at least one vowel and one consonant
-  *        - Only contains alphabets and digits (non-alphanumerics are invalid)
-  *
-  * TIME COMPLEXITY: O(N) — where N is length of string
-  * SPACE COMPLEXITY: O(1)
-  */
+/**
+ * @brief Check if a string is valid:
+ *        - At least length 3
+ *        - Contains at least one vowel and one consonant
+ *        - Only contains alphabets and digits (non-alphanumerics are invalid)
+ *
+ * TIME COMPLEXITY: O(N) — where N is length of string
+ * SPACE COMPLEXITY: O(1)
+ */
 
 class Solution
 {
 public:
-    bool isValid(string s)
+  bool isValid(string s)
+  {
+    int n = s.length();
+    if (n < 3)
+      return false;
+
+    int vowels = 0, consonants = 0;
+    string vowelList = "aeiouAEIOU";
+
+    for (char c : s)
     {
-        int n = s.length();
-        if (n < 3)
-            return false;
-
-        int vowels = 0, consonants = 0;
-        string vowelList = "aeiouAEIOU";
-
-        for (char c : s) {
-            if (isalpha(c)) {
-                // Check for vowel or consonant
-                if (vowelList.find(c) != string::npos) {
-                    vowels++;
-                }
-                else {
-                    consonants++;
-                }
-            }
-            else if (!isdigit(c)) {
-                // Invalid character (not alphanumeric)
-                return false;
-            }
+      if (isalpha(c))
+      {
+        // Check for vowel or consonant
+        if (vowelList.find(c) != string::npos)
+        {
+          vowels++;
         }
-
-        // At least one vowel and one consonant required
-        return vowels >= 1 && consonants >= 1;
+        else
+        {
+          consonants++;
+        }
+      }
+      else if (!isdigit(c))
+      {
+        // Invalid character (not alphanumeric)
+        return false;
+      }
     }
+
+    // At least one vowel and one consonant required
+    return vowels >= 1 && consonants >= 1;
+  }
 };
 
 /* ============================================================================
  * CUSTOM LOGIC: MAXIMUM LENGTH OF ALTERNATING EVEN-ODD SEQUENCE
  * ============================================================================ */
 
- /**
-  * @brief Given an array of integers, find the maximum length of a sequence
-  *        that alternates between even and odd numbers.
-  *
-  * ALGORITHM:
-  * - Count total number of evens and odds.
-  * - Use dynamic programming logic:
-  *   - even_dp: longest subsequence ending with even
-  *   - odd_dp : longest subsequence ending with odd
-  * - For each number:
-  *     - If even → it can extend an odd-ending sequence
-  *     - If odd  → it can extend an even-ending sequence
-  *
-  * TIME COMPLEXITY: O(N)
-  * SPACE COMPLEXITY: O(1)
-  */
+/**
+ * @brief Given an array of integers, find the maximum length of a sequence
+ *        that alternates between even and odd numbers.
+ *
+ * ALGORITHM:
+ * - Count total number of evens and odds.
+ * - Use dynamic programming logic:
+ *   - even_dp: longest subsequence ending with even
+ *   - odd_dp : longest subsequence ending with odd
+ * - For each number:
+ *     - If even → it can extend an odd-ending sequence
+ *     - If odd  → it can extend an even-ending sequence
+ *
+ * TIME COMPLEXITY: O(N)
+ * SPACE COMPLEXITY: O(1)
+ */
 
 class Solution
 {
 public:
-    int maximumLength(vector<int>& nums)
+  int maximumLength(vector<int> &nums)
+  {
+    int count_even = 0, count_odd = 0;
+
+    // Step 1: Count total evens and odds
+    for (int num : nums)
     {
-        int count_even = 0, count_odd = 0;
-
-        // Step 1: Count total evens and odds
-        for (int num : nums) {
-            if (num % 2 == 0)
-                count_even++;
-            else
-                count_odd++;
-        }
-
-        // Step 2: DP-style pass for longest alternating sequence
-        int even_dp = 0, odd_dp = 0;
-
-        for (int num : nums) {
-            if (num % 2 == 0) {
-                // Can extend a subsequence ending in odd
-                even_dp = max(even_dp, odd_dp + 1);
-            }
-            else {
-                // Can extend a subsequence ending in even
-                odd_dp = max(odd_dp, even_dp + 1);
-            }
-        }
-
-        // Step 3: Return max of simple counts or alternating chain
-        return max({ count_even, count_odd, even_dp, odd_dp });
+      if (num % 2 == 0)
+        count_even++;
+      else
+        count_odd++;
     }
+
+    // Step 2: DP-style pass for longest alternating sequence
+    int even_dp = 0, odd_dp = 0;
+
+    for (int num : nums)
+    {
+      if (num % 2 == 0)
+      {
+        // Can extend a subsequence ending in odd
+        even_dp = max(even_dp, odd_dp + 1);
+      }
+      else
+      {
+        // Can extend a subsequence ending in even
+        odd_dp = max(odd_dp, even_dp + 1);
+      }
+    }
+
+    // Step 3: Return max of simple counts or alternating chain
+    return max({count_even, count_odd, even_dp, odd_dp});
+  }
 };
 
 /* =============================================================================
@@ -1139,29 +1204,31 @@ public:
 class Solution
 {
 public:
-    int maximumLength(vector<int>& nums, int k)
+  int maximumLength(vector<int> &nums, int k)
+  {
+    int n = nums.size();
+    int maxSub = 1;
+
+    // dp[mod][i] = max length of subsequence ending at i with pairwise % k == mod
+    vector<vector<int>> dp(k, vector<int>(n, 1));
+
+    // Compare each pair (j, i) to extend subsequence ending at j
+    for (int i = 1; i < n; ++i)
     {
-        int n = nums.size();
-        int maxSub = 1;
+      for (int j = 0; j < i; ++j)
+      {
+        int mod = (nums[j] + nums[i]) % k;
 
-        // dp[mod][i] = max length of subsequence ending at i with pairwise % k == mod
-        vector<vector<int>> dp(k, vector<int>(n, 1));
+        // If valid, update dp[mod][i] based on dp[mod][j]
+        dp[mod][i] = max(dp[mod][i], 1 + dp[mod][j]);
 
-        // Compare each pair (j, i) to extend subsequence ending at j
-        for (int i = 1; i < n; ++i) {
-            for (int j = 0; j < i; ++j) {
-                int mod = (nums[j] + nums[i]) % k;
-
-                // If valid, update dp[mod][i] based on dp[mod][j]
-                dp[mod][i] = max(dp[mod][i], 1 + dp[mod][j]);
-
-                // Track global maximum
-                maxSub = max(maxSub, dp[mod][i]);
-            }
-        }
-
-        return maxSub;
+        // Track global maximum
+        maxSub = max(maxSub, dp[mod][i]);
+      }
     }
+
+    return maxSub;
+  }
 };
 
 /* ============================================================================
@@ -1184,54 +1251,59 @@ public:
 class Solution
 {
 public:
-    long long minimumDifference(vector<int>& nums)
+  long long minimumDifference(vector<int> &nums)
+  {
+    int N = nums.size();
+    int n = N / 3;
+
+    vector<long long> leftMinSum(N, 0);  // Sum of smallest n elements from left
+    vector<long long> rightMaxSum(N, 0); // Sum of largest n elements from right
+
+    // ----------- LEFT TO RIGHT: maintain smallest n from 0 to 2n-1 ----------
+    priority_queue<int> maxHeap;
+    long long leftSum = 0;
+
+    for (int i = 0; i < 2 * n; i++)
     {
-        int N = nums.size();
-        int n = N / 3;
+      maxHeap.push(nums[i]);
+      leftSum += nums[i];
 
-        vector<long long> leftMinSum(N, 0);  // Sum of smallest n elements from left
-        vector<long long> rightMaxSum(N, 0); // Sum of largest n elements from right
+      if (maxHeap.size() > n)
+      {
+        leftSum -= maxHeap.top(); // remove largest (to keep n smallest)
+        maxHeap.pop();
+      }
 
-        // ----------- LEFT TO RIGHT: maintain smallest n from 0 to 2n-1 ----------
-        priority_queue<int> maxHeap;
-        long long leftSum = 0;
-
-        for (int i = 0; i < 2 * n; i++) {
-            maxHeap.push(nums[i]);
-            leftSum += nums[i];
-
-            if (maxHeap.size() > n) {
-                leftSum -= maxHeap.top(); // remove largest (to keep n smallest)
-                maxHeap.pop();
-            }
-
-            leftMinSum[i] = leftSum;
-        }
-
-        // ----------- RIGHT TO LEFT: maintain largest n from N-1 to n ------------
-        priority_queue<int, vector<int>, greater<>> minHeap;
-        long long rightSum = 0;
-
-        for (int i = N - 1; i >= n; i--) {
-            minHeap.push(nums[i]);
-            rightSum += nums[i];
-
-            if (minHeap.size() > n) {
-                rightSum -= minHeap.top(); // remove smallest (to keep n largest)
-                minHeap.pop();
-            }
-
-            rightMaxSum[i] = rightSum;
-        }
-
-        // ------------- Find minimum difference between prefix & suffix -----------
-        long long ans = LLONG_MAX;
-        for (int i = n - 1; i < 2 * n; i++) {
-            ans = min(ans, leftMinSum[i] - rightMaxSum[i + 1]);
-        }
-
-        return ans;
+      leftMinSum[i] = leftSum;
     }
+
+    // ----------- RIGHT TO LEFT: maintain largest n from N-1 to n ------------
+    priority_queue<int, vector<int>, greater<>> minHeap;
+    long long rightSum = 0;
+
+    for (int i = N - 1; i >= n; i--)
+    {
+      minHeap.push(nums[i]);
+      rightSum += nums[i];
+
+      if (minHeap.size() > n)
+      {
+        rightSum -= minHeap.top(); // remove smallest (to keep n largest)
+        minHeap.pop();
+      }
+
+      rightMaxSum[i] = rightSum;
+    }
+
+    // ------------- Find minimum difference between prefix & suffix -----------
+    long long ans = LLONG_MAX;
+    for (int i = n - 1; i < 2 * n; i++)
+    {
+      ans = min(ans, leftMinSum[i] - rightMaxSum[i + 1]);
+    }
+
+    return ans;
+  }
 };
 
 /* ============================================================================
@@ -1255,33 +1327,38 @@ public:
 class Solution
 {
 public:
-    vector<string> removeSubfolders(vector<string>& folder)
+  vector<string> removeSubfolders(vector<string> &folder)
+  {
+    // Sort folders so subfolders follow their parent folders
+    sort(folder.begin(), folder.end());
+
+    vector<string> res;
+
+    for (const auto &f : folder)
     {
-        // Sort folders so subfolders follow their parent folders
-        sort(folder.begin(), folder.end());
+      if (res.empty())
+      {
+        res.push_back(f); // First folder always added
+      }
+      else
+      {
+        const string &prev = res.back();
 
-        vector<string> res;
-
-        for (const auto& f : folder) {
-            if (res.empty()) {
-                res.push_back(f); // First folder always added
-            }
-            else {
-                const string& prev = res.back();
-
-                // Check if current folder is a sub-folder of prev
-                // Must start with prev and have '/' right after it
-                if (f.find(prev) == 0 && f.size() > prev.size() && f[prev.size()] == '/') {
-                    continue; // Skip sub-folder
-                }
-                else {
-                    res.push_back(f); // Not a sub-folder, add to result
-                }
-            }
+        // Check if current folder is a sub-folder of prev
+        // Must start with prev and have '/' right after it
+        if (f.find(prev) == 0 && f.size() > prev.size() && f[prev.size()] == '/')
+        {
+          continue; // Skip sub-folder
         }
-
-        return res;
+        else
+        {
+          res.push_back(f); // Not a sub-folder, add to result
+        }
+      }
     }
+
+    return res;
+  }
 };
 
 /* ============================================================================
@@ -1302,93 +1379,102 @@ public:
 
 struct Node
 {
-    string name;
-    unordered_map<string, Node*> children;
-    string signature;
+  string name;
+  unordered_map<string, Node *> children;
+  string signature;
 
-    Node(string name) : name(name) {}
+  Node(string name) : name(name) {}
 };
 
 class Solution
 {
 public:
-    // Step 1: First DFS to compute unique subtree signatures
-    void dfs(Node* node, unordered_map<string, int>& signatureCount)
+  // Step 1: First DFS to compute unique subtree signatures
+  void dfs(Node *node, unordered_map<string, int> &signatureCount)
+  {
+    if (node->children.empty())
     {
-        if (node->children.empty()) {
-            node->signature = "";
-            return;
-        }
-
-        vector<string> childSignatures;
-        for (const auto& [name, child] : node->children) {
-            dfs(child, signatureCount);
-            // Build signature using folder name and child signature
-            childSignatures.push_back(name + "(" + child->signature + ")");
-        }
-
-        // Sort to ensure deterministic order for matching
-        sort(childSignatures.begin(), childSignatures.end());
-
-        node->signature = "";
-        for (const string& sig : childSignatures) {
-            node->signature += sig;
-        }
-
-        // Count how many times this signature has appeared
-        signatureCount[node->signature]++;
+      node->signature = "";
+      return;
     }
 
-    // Step 2: Second DFS to rebuild filtered tree
-    void dfs2(Node* node, vector<string>& currentPath,
-        vector<vector<string>>& result,
-        unordered_map<string, int>& signatureCount)
+    vector<string> childSignatures;
+    for (const auto &[name, child] : node->children)
     {
-
-        // If subtree is duplicate, don't add to result
-        if (!node->children.empty() && signatureCount[node->signature] >= 2) {
-            return;
-        }
-
-        currentPath.push_back(node->name);
-        result.push_back(currentPath);
-
-        for (const auto& [name, child] : node->children) {
-            dfs2(child, currentPath, result, signatureCount);
-        }
-
-        currentPath.pop_back(); // Backtrack
+      dfs(child, signatureCount);
+      // Build signature using folder name and child signature
+      childSignatures.push_back(name + "(" + child->signature + ")");
     }
 
-    // Main function
-    vector<vector<string>> deleteDuplicateFolder(vector<vector<string>>& paths)
+    // Sort to ensure deterministic order for matching
+    sort(childSignatures.begin(), childSignatures.end());
+
+    node->signature = "";
+    for (const string &sig : childSignatures)
     {
-        // Step 0: Build folder tree
-        Node* root = new Node("");
-        for (const auto& path : paths) {
-            Node* curr = root;
-            for (const string& folder : path) {
-                if (!curr->children.count(folder)) {
-                    curr->children[folder] = new Node(folder);
-                }
-                curr = curr->children[folder];
-            }
-        }
-
-        // Step 1: Compute subtree signatures
-        unordered_map<string, int> signatureCount;
-        dfs(root, signatureCount);
-
-        // Step 2: Reconstruct tree without duplicate subtrees
-        vector<vector<string>> result;
-        vector<string> currentPath;
-        for (const auto& [name, child] : root->children) {
-            dfs2(child, currentPath, result, signatureCount);
-        }
-
-        delete root; // Optional: cleanup root (no smart pointers used)
-        return result;
+      node->signature += sig;
     }
+
+    // Count how many times this signature has appeared
+    signatureCount[node->signature]++;
+  }
+
+  // Step 2: Second DFS to rebuild filtered tree
+  void dfs2(Node *node, vector<string> &currentPath,
+            vector<vector<string>> &result,
+            unordered_map<string, int> &signatureCount)
+  {
+
+    // If subtree is duplicate, don't add to result
+    if (!node->children.empty() && signatureCount[node->signature] >= 2)
+    {
+      return;
+    }
+
+    currentPath.push_back(node->name);
+    result.push_back(currentPath);
+
+    for (const auto &[name, child] : node->children)
+    {
+      dfs2(child, currentPath, result, signatureCount);
+    }
+
+    currentPath.pop_back(); // Backtrack
+  }
+
+  // Main function
+  vector<vector<string>> deleteDuplicateFolder(vector<vector<string>> &paths)
+  {
+    // Step 0: Build folder tree
+    Node *root = new Node("");
+    for (const auto &path : paths)
+    {
+      Node *curr = root;
+      for (const string &folder : path)
+      {
+        if (!curr->children.count(folder))
+        {
+          curr->children[folder] = new Node(folder);
+        }
+        curr = curr->children[folder];
+      }
+    }
+
+    // Step 1: Compute subtree signatures
+    unordered_map<string, int> signatureCount;
+    dfs(root, signatureCount);
+
+    // Step 2: Reconstruct tree without duplicate subtrees
+    vector<vector<string>> result;
+    vector<string> currentPath;
+    for (const auto &[name, child] : root->children)
+    {
+      dfs2(child, currentPath, result, signatureCount);
+    }
+
+    delete root; // Optional: cleanup root (no smart pointers used)
+    return result;
+  }
 };
 
 /* ============================================================================
@@ -1410,27 +1496,29 @@ public:
 class Solution
 {
 public:
-    string makeFancyString(string s)
+  string makeFancyString(string s)
+  {
+    // Handle edge case: single character
+    if (s.size() == 1)
+      return s;
+
+    string ans;
+    ans += s[0]; // Always take the first character
+
+    // Loop from 1 to n-2, checking for triplets
+    for (int i = 1; i < s.size() - 1; i++)
     {
-        // Handle edge case: single character
-        if (s.size() == 1)
-            return s;
-
-        string ans;
-        ans += s[0]; // Always take the first character
-
-        // Loop from 1 to n-2, checking for triplets
-        for (int i = 1; i < s.size() - 1; i++) {
-            // If current and both neighbors are the same, skip current
-            if (s[i - 1] == s[i] && s[i] == s[i + 1]) {
-                continue;
-            }
-            ans += s[i]; // Otherwise, keep it
-        }
-
-        ans += s[s.size() - 1]; // Always take the last character
-        return ans;
+      // If current and both neighbors are the same, skip current
+      if (s[i - 1] == s[i] && s[i] == s[i + 1])
+      {
+        continue;
+      }
+      ans += s[i]; // Otherwise, keep it
     }
+
+    ans += s[s.size() - 1]; // Always take the last character
+    return ans;
+  }
 };
 
 /* ==============================================================================
@@ -1452,34 +1540,37 @@ public:
 class Solution
 {
 public:
-    int maximumUniqueSubarray(vector<int>& nums)
+  int maximumUniqueSubarray(vector<int> &nums)
+  {
+    int n = nums.size();
+    int l = 0, r = 0;           // Left and right pointers
+    int sum = 0;                // Current window sum
+    int mx = -1;                // Maximum unique subarray sum
+    unordered_map<int, int> mp; // Frequency map of elements in window
+
+    while (r < n)
     {
-        int n = nums.size();
-        int l = 0, r = 0;           // Left and right pointers
-        int sum = 0;                // Current window sum
-        int mx = -1;                // Maximum unique subarray sum
-        unordered_map<int, int> mp; // Frequency map of elements in window
+      mp[nums[r]] += 1;
 
-        while (r < n) {
-            mp[nums[r]] += 1;
-
-            // If nums[r] is a duplicate, shrink the window from the left
-            if (mp[nums[r]] > 1) {
-                while (mp[nums[r]] > 1 && l <= r) {
-                    sum -= nums[l];
-                    mp[nums[l]] -= 1;
-                    l += 1;
-                }
-            }
-
-            // Add current element to sum and update max
-            sum += nums[r];
-            mx = max(mx, sum);
-            r += 1;
+      // If nums[r] is a duplicate, shrink the window from the left
+      if (mp[nums[r]] > 1)
+      {
+        while (mp[nums[r]] > 1 && l <= r)
+        {
+          sum -= nums[l];
+          mp[nums[l]] -= 1;
+          l += 1;
         }
+      }
 
-        return mx;
+      // Add current element to sum and update max
+      sum += nums[r];
+      mx = max(mx, sum);
+      r += 1;
     }
+
+    return mx;
+  }
 };
 
 /* ==============================================================================
@@ -1504,61 +1595,74 @@ public:
 class Solution
 {
 public:
-    int maximumGain(string s, int x, int y)
+  int maximumGain(string s, int x, int y)
+  {
+    int cnt1 = 0, cnt2 = 0; // Stack simulation counters
+    int score = 0;
+    int i = 0;
+
+    // Decide which pair to remove first based on value
+    while (i < s.size())
     {
-        int cnt1 = 0, cnt2 = 0; // Stack simulation counters
-        int score = 0;
-        int i = 0;
-
-        // Decide which pair to remove first based on value
-        while (i < s.size()) {
-            if (y >= x) {
-                // Prefer removing "ba" first (y is higher)
-                if (s[i] == 'b') {
-                    cnt2++;
-                }
-                else if (s[i] == 'a') {
-                    if (cnt2 > 0) {
-                        cnt2--;     // Match with previous 'b'
-                        score += y; // Add score for "ba"
-                    }
-                    else {
-                        cnt1++; // 'a' with no matching 'b'
-                    }
-                }
-                else {
-                    // Any non a/b character, reset and remove "ab" pairs
-                    score += (x * min(cnt1, cnt2));
-                    cnt1 = cnt2 = 0;
-                }
-            }
-            else {
-                // Prefer removing "ab" first (x is higher)
-                if (s[i] == 'a') {
-                    cnt2++;
-                }
-                else if (s[i] == 'b') {
-                    if (cnt2 > 0) {
-                        cnt2--;     // Match with previous 'a'
-                        score += x; // Add score for "ab"
-                    }
-                    else {
-                        cnt1++; // 'b' with no matching 'a'
-                    }
-                }
-                else {
-                    // Reset and remove "ba" pairs
-                    score += (y * min(cnt1, cnt2));
-                    cnt1 = cnt2 = 0;
-                }
-            }
-            i++;
+      if (y >= x)
+      {
+        // Prefer removing "ba" first (y is higher)
+        if (s[i] == 'b')
+        {
+          cnt2++;
         }
-
-        // Final leftover pair cleanup (secondary lower-valued pair)
-        score += min(x, y) * min(cnt1, cnt2);
-        return score;
+        else if (s[i] == 'a')
+        {
+          if (cnt2 > 0)
+          {
+            cnt2--;     // Match with previous 'b'
+            score += y; // Add score for "ba"
+          }
+          else
+          {
+            cnt1++; // 'a' with no matching 'b'
+          }
+        }
+        else
+        {
+          // Any non a/b character, reset and remove "ab" pairs
+          score += (x * min(cnt1, cnt2));
+          cnt1 = cnt2 = 0;
+        }
+      }
+      else
+      {
+        // Prefer removing "ab" first (x is higher)
+        if (s[i] == 'a')
+        {
+          cnt2++;
+        }
+        else if (s[i] == 'b')
+        {
+          if (cnt2 > 0)
+          {
+            cnt2--;     // Match with previous 'a'
+            score += x; // Add score for "ab"
+          }
+          else
+          {
+            cnt1++; // 'b' with no matching 'a'
+          }
+        }
+        else
+        {
+          // Reset and remove "ba" pairs
+          score += (y * min(cnt1, cnt2));
+          cnt1 = cnt2 = 0;
+        }
+      }
+      i++;
     }
+
+    // Final leftover pair cleanup (secondary lower-valued pair)
+    score += min(x, y) * min(cnt1, cnt2);
+    return score;
+  }
 };
 
 /* ==============================================================================
@@ -1582,89 +1686,101 @@ public:
 class Solution
 {
 public:
-    int minimumScore(vector<int>& nums, vector<vector<int>>& edges)
+  int minimumScore(vector<int> &nums, vector<vector<int>> &edges)
+  {
+    int n = nums.size();
+    vector<vector<int>> graph(n);
+    vector<unordered_set<int>> children(n);
+    vector<int> xor_val(nums);
+    vector<int> degree(n, 0);
+
+    // Build the tree graph
+    for (const auto &e : edges)
     {
-        int n = nums.size();
-        vector<vector<int>> graph(n);
-        vector<unordered_set<int>> children(n);
-        vector<int> xor_val(nums);
-        vector<int> degree(n, 0);
-
-        // Build the tree graph
-        for (const auto& e : edges) {
-            int u = e[0], v = e[1];
-            graph[u].push_back(v);
-            graph[v].push_back(u);
-            degree[u]++;
-            degree[v]++;
-        }
-
-        int total = 0;
-        queue<int> q;
-        vector<bool> seen(n, false);
-
-        // Initialize: XOR of all values, find all leaves
-        for (int i = 0; i < n; ++i) {
-            total ^= nums[i];
-            if (degree[i] == 1) {
-                q.push(i);
-                seen[i] = true;
-            }
-        }
-
-        // Bottom-up traversal to build children sets and xor_val
-        while (!q.empty()) {
-            int cur = q.front();
-            q.pop();
-            for (int next : graph[cur]) {
-                if (!seen[next]) {
-                    children[next].insert(cur);
-                    children[next].insert(children[cur].begin(), children[cur].end());
-                    xor_val[next] ^= xor_val[cur];
-                }
-                degree[next]--;
-                if (degree[next] == 1 && !seen[next]) {
-                    seen[next] = true;
-                    q.push(next);
-                }
-            }
-        }
-
-        int res = INT_MAX;
-        int m = edges.size();
-
-        // Try all edge pairs
-        for (int i = 0; i < m - 1; ++i) {
-            for (int j = i + 1; j < m; ++j) {
-                int a = edges[i][0], b = edges[i][1];
-                if (children[a].count(b))
-                    swap(a, b);
-
-                int c = edges[j][0], d = edges[j][1];
-                if (children[c].count(d))
-                    swap(c, d);
-
-                vector<int> vals;
-
-                // Classify relationship of subtrees and compute XOR partitions
-                if (children[a].count(c)) {
-                    vals = { xor_val[c], xor_val[a] ^ xor_val[c], total ^ xor_val[a] };
-                }
-                else if (children[c].count(a)) {
-                    vals = { xor_val[a], xor_val[c] ^ xor_val[a], total ^ xor_val[c] };
-                }
-                else {
-                    vals = { xor_val[a], xor_val[c], total ^ xor_val[a] ^ xor_val[c] };
-                }
-
-                int max_v = *max_element(vals.begin(), vals.end());
-                int min_v = *min_element(vals.begin(), vals.end());
-                res = min(res, max_v - min_v);
-            }
-        }
-
-        return res;
+      int u = e[0], v = e[1];
+      graph[u].push_back(v);
+      graph[v].push_back(u);
+      degree[u]++;
+      degree[v]++;
     }
+
+    int total = 0;
+    queue<int> q;
+    vector<bool> seen(n, false);
+
+    // Initialize: XOR of all values, find all leaves
+    for (int i = 0; i < n; ++i)
+    {
+      total ^= nums[i];
+      if (degree[i] == 1)
+      {
+        q.push(i);
+        seen[i] = true;
+      }
+    }
+
+    // Bottom-up traversal to build children sets and xor_val
+    while (!q.empty())
+    {
+      int cur = q.front();
+      q.pop();
+      for (int next : graph[cur])
+      {
+        if (!seen[next])
+        {
+          children[next].insert(cur);
+          children[next].insert(children[cur].begin(), children[cur].end());
+          xor_val[next] ^= xor_val[cur];
+        }
+        degree[next]--;
+        if (degree[next] == 1 && !seen[next])
+        {
+          seen[next] = true;
+          q.push(next);
+        }
+      }
+    }
+
+    int res = INT_MAX;
+    int m = edges.size();
+
+    // Try all edge pairs
+    for (int i = 0; i < m - 1; ++i)
+    {
+      for (int j = i + 1; j < m; ++j)
+      {
+        int a = edges[i][0], b = edges[i][1];
+        if (children[a].count(b))
+          swap(a, b);
+
+        int c = edges[j][0], d = edges[j][1];
+        if (children[c].count(d))
+          swap(c, d);
+
+        vector<int> vals;
+
+        // Classify relationship of subtrees and compute XOR partitions
+        if (children[a].count(c))
+        {
+          vals = {xor_val[c], xor_val[a] ^ xor_val[c], total ^ xor_val[a]};
+        }
+        else if (children[c].count(a))
+        {
+          vals = {xor_val[a], xor_val[c] ^ xor_val[a], total ^ xor_val[c]};
+        }
+        else
+        {
+          vals = {xor_val[a], xor_val[c], total ^ xor_val[a] ^ xor_val[c]};
+        }
+
+        int max_v = *max_element(vals.begin(), vals.end());
+        int min_v = *min_element(vals.begin(), vals.end());
+        res = min(res, max_v - min_v);
+      }
+    }
+
+    return res;
+  }
 };
 
 /* ==============================================================================
@@ -1686,28 +1802,31 @@ public:
 class Solution
 {
 public:
-    int maxSum(vector<int>& nums)
+  int maxSum(vector<int> &nums)
+  {
+    unordered_set<int> s;
+    int sum = 0, mx = INT_MIN;
+    bool allNegative = true;
+
+    for (int num : nums)
     {
-        unordered_set<int> s;
-        int sum = 0, mx = INT_MIN;
-        bool allNegative = true;
+      mx = max(mx, num);
+      int prevSize = s.size();
+      s.insert(num);
 
-        for (int num : nums) {
-            mx = max(mx, num);
-            int prevSize = s.size();
-            s.insert(num);
-
-            // If inserted (i.e., was unique)
-            if (s.size() != prevSize) {
-                if (num >= 0) {
-                    sum += num;
-                    allNegative = false;
-                }
-            }
+      // If inserted (i.e., was unique)
+      if (s.size() != prevSize)
+      {
+        if (num >= 0)
+        {
+          sum += num;
+          allNegative = false;
         }
-
-        return allNegative ? mx : sum;
+      }
     }
+
+    return allNegative ? mx : sum;
+  }
 };
 
 /* ==============================================================================
@@ -1732,54 +1851,60 @@ public:
 class Solution
 {
 public:
-    long long maxSubarrays(int n, std::vector<std::vector<int>>& conflictingPairs)
+  long long maxSubarrays(int n, std::vector<std::vector<int>> &conflictingPairs)
+  {
+    // Normalize each pair so the smaller index comes first
+    for (auto &pair : conflictingPairs)
     {
-        // Normalize each pair so the smaller index comes first
-        for (auto& pair : conflictingPairs) {
-            if (pair[1] < pair[0]) {
-                std::swap(pair[0], pair[1]);
-            }
-        }
-
-        // Sort pairs by the second index
-        std::sort(conflictingPairs.begin(), conflictingPairs.end(),
-            [](const std::vector<int>& a, const std::vector<int>& b)
-            {
-                return a[1] < b[1];
-            });
-
-        int m = conflictingPairs.size();
-        int max1 = 0, max2 = 0;
-        long long gain = 0, maxGain = 0, totalOccupied = 0;
-
-        for (int i = 0; i < m; ++i) {
-            int start = conflictingPairs[i][0];
-            int base = n + 1 - conflictingPairs[i][1];
-
-            // Adjust base if there’s a next conflict
-            if (i < m - 1) {
-                base = conflictingPairs[i + 1][1] - conflictingPairs[i][1];
-            }
-
-            // Update top two maximums
-            if (start > max1) {
-                max2 = max1;
-                max1 = start;
-                gain = 0;
-            }
-            else if (start > max2) {
-                max2 = start;
-            }
-
-            gain += static_cast<long long>(max1 - max2) * base;
-            totalOccupied += static_cast<long long>(max1) * base;
-
-            maxGain = std::max(maxGain, gain);
-        }
-
-        long long total = static_cast<long long>(n) * (n + 1) / 2;
-        return total - totalOccupied + maxGain;
+      if (pair[1] < pair[0])
+      {
+        std::swap(pair[0], pair[1]);
+      }
     }
+
+    // Sort pairs by the second index
+    std::sort(conflictingPairs.begin(), conflictingPairs.end(),
+              [](const std::vector<int> &a, const std::vector<int> &b)
+              {
+                return a[1] < b[1];
+              });
+
+    int m = conflictingPairs.size();
+    int max1 = 0, max2 = 0;
+    long long gain = 0, maxGain = 0, totalOccupied = 0;
+
+    for (int i = 0; i < m; ++i)
+    {
+      int start = conflictingPairs[i][0];
+      int base = n + 1 - conflictingPairs[i][1];
+
+      // Adjust base if there’s a next conflict
+      if (i < m - 1)
+      {
+        base = conflictingPairs[i + 1][1] - conflictingPairs[i][1];
+      }
+
+      // Update top two maximums
+      if (start > max1)
+      {
+        max2 = max1;
+        max1 = start;
+        gain = 0;
+      }
+      else if (start > max2)
+      {
+        max2 = start;
+      }
+
+      gain += static_cast<long long>(max1 - max2) * base;
+      totalOccupied += static_cast<long long>(max1) * base;
+
+      maxGain = std::max(maxGain, gain);
+    }
+
+    long long total = static_cast<long long>(n) * (n + 1) / 2;
+    return total - totalOccupied + maxGain;
+  }
 };
 
 /* ==============================================================================
@@ -1799,24 +1924,27 @@ public:
  * Space Complexity: O(1)
  * ============================================================================== */
 
-class Solution {
+class Solution
+{
 public:
-    int countHillValley(vector<int>& nums)
+  int countHillValley(vector<int> &nums)
+  {
+    int cnt = 0;
+    int j = 0;
+    int n = nums.size();
+
+    for (int i = 1; i < n - 1; ++i)
     {
-        int cnt = 0;
-        int j = 0;
-        int n = nums.size();
-
-        for (int i = 1; i < n - 1; ++i) {
-            if ((nums[j] < nums[i] && nums[i] > nums[i + 1]) ||  // Hill
-                (nums[j] > nums[i] && nums[i] < nums[i + 1])) {  // Valley
-                cnt++;
-                j = i;
-            }
-        }
-
-        return cnt;
+      if ((nums[j] < nums[i] && nums[i] > nums[i + 1]) || // Hill
+          (nums[j] > nums[i] && nums[i] < nums[i + 1]))
+      { // Valley
+        cnt++;
+        j = i;
+      }
     }
+
+    return cnt;
+  }
 };
 
 /* ================================================================
@@ -1837,94 +1965,98 @@ public:
  * SPACE COMPLEXITY: O(n) recursion depth (for backtracking)
  */
 
-class Solution {
+class Solution
+{
 public:
+  /* ---------------------------------------------------------------
+   * METHOD 1: Recursion (Brute-force all subsets)
+   * TIME: O(2^n)
+   * SPACE: O(n) recursion stack
+   * --------------------------------------------------------------- */
+  int recur(vector<int> &nums, int i, int currOR, int maxOR)
+  {
+    if (i == nums.size())
+      return currOR == maxOR ? 1 : 0;
 
-    /* ---------------------------------------------------------------
-     * METHOD 1: Recursion (Brute-force all subsets)
-     * TIME: O(2^n)
-     * SPACE: O(n) recursion stack
-     * --------------------------------------------------------------- */
-    int recur(vector<int>& nums, int i, int currOR, int maxOR)
+    int not_take = recur(nums, i + 1, currOR, maxOR);
+    int take = recur(nums, i + 1, currOR | nums[i], maxOR);
+
+    return not_take + take;
+  }
+
+  /* ---------------------------------------------------------------
+   * METHOD 2: Memoization (Top-Down DP with OR compression)
+   * TIME: O(n * 2^13)   [since max OR value for constraints is <= 2^13]
+   * SPACE: O(n * 2^13)
+   * --------------------------------------------------------------- */
+  int memo(int i, int currOR, vector<int> &nums, int maxOR, vector<vector<int>> &dp)
+  {
+    if (i == nums.size())
+      return currOR == maxOR ? 1 : 0;
+
+    if (dp[i][currOR] != -1)
+      return dp[i][currOR];
+
+    int not_take = memo(i + 1, currOR, nums, maxOR, dp);
+    int take = memo(i + 1, currOR | nums[i], nums, maxOR, dp);
+
+    return dp[i][currOR] = not_take + take;
+  }
+
+  /* ---------------------------------------------------------------
+   * METHOD 3: Tabulation (Bottom-Up DP)
+   * TIME: O(n * 2^13)
+   * SPACE: O(n * 2^13)
+   * --------------------------------------------------------------- */
+  int tabulation(vector<int> &nums)
+  {
+    int n = nums.size();
+    int maxOR = 0;
+    for (int num : nums)
+      maxOR |= num;
+
+    vector<vector<int>> dp(n + 1, vector<int>(1 << 13, 0));
+    dp[0][0] = 1;
+
+    for (int i = 0; i < n; i++)
     {
-        if (i == nums.size())
-            return currOR == maxOR ? 1 : 0;
-
-        int not_take = recur(nums, i + 1, currOR, maxOR);
-        int take = recur(nums, i + 1, currOR | nums[i], maxOR);
-
-        return not_take + take;
-    }
-
-    /* ---------------------------------------------------------------
-     * METHOD 2: Memoization (Top-Down DP with OR compression)
-     * TIME: O(n * 2^13)   [since max OR value for constraints is <= 2^13]
-     * SPACE: O(n * 2^13)
-     * --------------------------------------------------------------- */
-    int memo(int i, int currOR, vector<int>& nums, int maxOR, vector<vector<int>>& dp)
-    {
-        if (i == nums.size())
-            return currOR == maxOR ? 1 : 0;
-
-        if (dp[i][currOR] != -1)
-            return dp[i][currOR];
-
-        int not_take = memo(i + 1, currOR, nums, maxOR, dp);
-        int take = memo(i + 1, currOR | nums[i], nums, maxOR, dp);
-
-        return dp[i][currOR] = not_take + take;
-    }
-
-    /* ---------------------------------------------------------------
-     * METHOD 3: Tabulation (Bottom-Up DP)
-     * TIME: O(n * 2^13)
-     * SPACE: O(n * 2^13)
-     * --------------------------------------------------------------- */
-    int tabulation(vector<int>& nums)
-    {
-        int n = nums.size();
-        int maxOR = 0;
-        for (int num : nums) maxOR |= num;
-
-        vector<vector<int>> dp(n + 1, vector<int>(1 << 13, 0));
-        dp[0][0] = 1;
-
-        for (int i = 0; i < n; i++) {
-            for (int or_val = 0; or_val < (1 << 13); or_val++) {
-                if (dp[i][or_val]) {
-                    dp[i + 1][or_val] += dp[i][or_val];                        // not take
-                    dp[i + 1][or_val | nums[i]] += dp[i][or_val];             // take
-                }
-            }
+      for (int or_val = 0; or_val < (1 << 13); or_val++)
+      {
+        if (dp[i][or_val])
+        {
+          dp[i + 1][or_val] += dp[i][or_val];           // not take
+          dp[i + 1][or_val | nums[i]] += dp[i][or_val]; // take
         }
-
-        return dp[n][maxOR];
+      }
     }
 
-    /* ---------------------------------------------------------------
-     * METHOD 4: Optimized DFS (Final Submission)
-     * TIME: O(2^n)
-     * SPACE: O(n)
-     * --------------------------------------------------------------- */
-    int solve(vector<int>& nums, int i, int currOR, int maxOR)
-    {
-        if (i == nums.size())
-            return currOR == maxOR ? 1 : 0;
+    return dp[n][maxOR];
+  }
 
-        int not_take = solve(nums, i + 1, currOR, maxOR);
-        int take = solve(nums, i + 1, currOR | nums[i], maxOR);
+  /* ---------------------------------------------------------------
+   * METHOD 4: Optimized DFS (Final Submission)
+   * TIME: O(2^n)
+   * SPACE: O(n)
+   * --------------------------------------------------------------- */
+  int solve(vector<int> &nums, int i, int currOR, int maxOR)
+  {
+    if (i == nums.size())
+      return currOR == maxOR ? 1 : 0;
 
-        return not_take + take;
-    }
+    int not_take = solve(nums, i + 1, currOR, maxOR);
+    int take = solve(nums, i + 1, currOR | nums[i], maxOR);
 
-    int countMaxOrSubsets(vector<int>& nums)
-    {
-        int maxOR = 0;
-        for (int val : nums)
-            maxOR |= val;
+    return not_take + take;
+  }
 
-        return solve(nums, 0, 0, maxOR);
-    }
+  int countMaxOrSubsets(vector<int> &nums)
+  {
+    int maxOR = 0;
+    for (int val : nums)
+      maxOR |= val;
+
+    return solve(nums, 0, 0, maxOR);
+  }
 };
 
 /* ==============================================================================
@@ -1944,28 +2076,32 @@ public:
  * Space Complexity: O(30) = O(1)
  * ============================================================================== */
 
-class Solution {
+class Solution
+{
 public:
-    vector<int> smallestSubarrays(vector<int>& nums)
+  vector<int> smallestSubarrays(vector<int> &nums)
+  {
+    int n = nums.size();
+    vector<int> lastSeen(30, 0); // Last seen index for each bit (0 to 29)
+    vector<int> res(n, 1);       // Result: length of smallest subarray for each index
+
+    // Traverse from end to start
+    for (int i = n - 1; i >= 0; --i)
     {
-        int n = nums.size();
-        vector<int> lastSeen(30, 0);    // Last seen index for each bit (0 to 29)
-        vector<int> res(n, 1);          // Result: length of smallest subarray for each index
-
-        // Traverse from end to start
-        for (int i = n - 1; i >= 0; --i) {
-            for (int bit = 0; bit < 30; ++bit) {
-                if ((nums[i] & (1 << bit)) > 0) {
-                    lastSeen[bit] = i;
-                }
-
-                // Update subarray length to include this bit's last occurrence
-                res[i] = max(res[i], lastSeen[bit] - i + 1);
-            }
+      for (int bit = 0; bit < 30; ++bit)
+      {
+        if ((nums[i] & (1 << bit)) > 0)
+        {
+          lastSeen[bit] = i;
         }
 
-        return res;
+        // Update subarray length to include this bit's last occurrence
+        res[i] = max(res[i], lastSeen[bit] - i + 1);
+      }
     }
+
+    return res;
+  }
 };
 
 /* ==============================================================================
@@ -1984,26 +2120,30 @@ public:
  * Space Complexity: O(1)
  * ============================================================================= */
 
-class Solution {
+class Solution
+{
 public:
-    int longestSubarray(vector<int>& nums)
+  int longestSubarray(vector<int> &nums)
+  {
+    int maxx = *max_element(nums.begin(), nums.end()); // Find maximum element
+    int y = 0, maxy = 0;                               // y: current streak, maxy: longest streak
+
+    // Traverse the array
+    for (int num : nums)
     {
-        int maxx = *max_element(nums.begin(), nums.end());  // Find maximum element
-        int y = 0, maxy = 0;                                // y: current streak, maxy: longest streak
-
-        // Traverse the array
-        for (int num : nums) {
-            if (num == maxx) {
-                y++;
-                maxy = max(maxy, y);  // Update longest streak if needed
-            }
-            else {
-                y = 0;                // Reset streak
-            }
-        }
-
-        return maxy;
+      if (num == maxx)
+      {
+        y++;
+        maxy = max(maxy, y); // Update longest streak if needed
+      }
+      else
+      {
+        y = 0; // Reset streak
+      }
     }
+
+    return maxy;
+  }
 };
 
 /* ==============================================================================
@@ -2024,29 +2164,33 @@ public:
  * Space Complexity: O(n * 30)
  * ============================================================================= */
 
-class Solution {
+class Solution
+{
 public:
-    int subarrayBitwiseORs(vector<int>& arr)
+  int subarrayBitwiseORs(vector<int> &arr)
+  {
+    unordered_set<int> ans, curr;
+
+    for (int num : arr)
     {
-        unordered_set<int> ans, curr;
+      unordered_set<int> next;
+      next.insert(num);
 
-        for (int num : arr) {
-            unordered_set<int> next;
-            next.insert(num);
+      for (int i : curr)
+      {
+        next.insert(i | num); // OR with previous subarray values
+      }
 
-            for (int i : curr) {
-                next.insert(i | num);  // OR with previous subarray values
-            }
+      curr = next;
 
-            curr = next;
-
-            for (int i : curr) {
-                ans.insert(i);         // Add all OR results to answer set
-            }
-        }
-
-        return ans.size();
+      for (int i : curr)
+      {
+        ans.insert(i); // Add all OR results to answer set
+      }
     }
+
+    return ans.size();
+  }
 };
 
 /* ==============================================================================
@@ -2064,23 +2208,26 @@ public:
  * Space Complexity: O(numRows^2)
  * ============================================================================= */
 
-class Solution {
+class Solution
+{
 public:
-    vector<vector<int>> generate(int numRows)
+  vector<vector<int>> generate(int numRows)
+  {
+    vector<vector<int>> result(numRows);
+
+    for (int i = 0; i < numRows; ++i)
     {
-        vector<vector<int>> result(numRows);
+      result[i] = vector<int>(i + 1, 1); // Initialize row with 1s
 
-        for (int i = 0; i < numRows; ++i) {
-            result[i] = vector<int>(i + 1, 1);  // Initialize row with 1s
-
-            // Compute inner values using previous row
-            for (int j = 1; j < i; ++j) {
-                result[i][j] = result[i - 1][j - 1] + result[i - 1][j];
-            }
-        }
-
-        return result;
+      // Compute inner values using previous row
+      for (int j = 1; j < i; ++j)
+      {
+        result[i][j] = result[i - 1][j - 1] + result[i - 1][j];
+      }
     }
+
+    return result;
+  }
 };
 
 /* ==============================================================================
@@ -2103,40 +2250,47 @@ public:
  * Space Complexity: O(n)
  * ============================================================================= */
 
-class Solution {
+class Solution
+{
 public:
-    long long minCost(vector<int>& basket1, vector<int>& basket2)
+  long long minCost(vector<int> &basket1, vector<int> &basket2)
+  {
+    unordered_map<int, int> mpp;
+
+    // Frequency difference between baskets
+    for (int b : basket1)
+      mpp[b]++;
+    for (int b : basket2)
+      mpp[b]--;
+
+    int minEle = INT_MAX;
+    vector<int> temp;
+
+    // Collect excess elements (half of net imbalance)
+    for (auto &[val, freq] : mpp)
     {
-        unordered_map<int, int> mpp;
+      if (freq % 2 != 0)
+        return -1; // Impossible to balance
 
-        // Frequency difference between baskets
-        for (int b : basket1) mpp[b]++;
-        for (int b : basket2) mpp[b]--;
+      for (int i = 0; i < abs(freq) / 2; ++i)
+      {
+        temp.push_back(val);
+      }
 
-        int minEle = INT_MAX;
-        vector<int> temp;
-
-        // Collect excess elements (half of net imbalance)
-        for (auto& [val, freq] : mpp) {
-            if (freq % 2 != 0) return -1;  // Impossible to balance
-
-            for (int i = 0; i < abs(freq) / 2; ++i) {
-                temp.push_back(val);
-            }
-
-            minEle = min(minEle, val);     // Track minimum element overall
-        }
-
-        sort(temp.begin(), temp.end());
-        long long ans = 0;
-
-        // Greedily choose the minimum cost: direct swap vs double swap via minEle
-        for (int i = 0; i < temp.size() / 2; ++i) {
-            ans += min(temp[i], 2 * minEle);
-        }
-
-        return ans;
+      minEle = min(minEle, val); // Track minimum element overall
     }
+
+    sort(temp.begin(), temp.end());
+    long long ans = 0;
+
+    // Greedily choose the minimum cost: direct swap vs double swap via minEle
+    for (int i = 0; i < temp.size() / 2; ++i)
+    {
+      ans += min(temp[i], 2 * minEle);
+    }
+
+    return ans;
+  }
 };
 
 /* ==============================================================================
@@ -2158,33 +2312,37 @@ public:
  * Space Complexity: O(1) — since map size is bounded (max 3 entries)
  * ============================================================================= */
 
-class Solution {
+class Solution
+{
 public:
-    int totalFruit(vector<int>& fruits)
+  int totalFruit(vector<int> &fruits)
+  {
+    int n = fruits.size();
+    int l = 0, r = 0;
+    int maxLen = 0;
+    unordered_map<int, int> mp;
+
+    while (r < n)
     {
-        int n = fruits.size();
-        int l = 0, r = 0;
-        int maxLen = 0;
-        unordered_map<int, int> mp;
+      mp[fruits[r]]++; // Add current fruit type to the basket
 
-        while (r < n) {
-            mp[fruits[r]]++;  // Add current fruit type to the basket
-
-            // Shrink window if we exceed two types
-            while (mp.size() > 2) {
-                mp[fruits[l]]--;
-                if (mp[fruits[l]] == 0) {
-                    mp.erase(fruits[l]);
-                }
-                l++;
-            }
-
-            maxLen = max(maxLen, r - l + 1);  // Update max length
-            r++;
+      // Shrink window if we exceed two types
+      while (mp.size() > 2)
+      {
+        mp[fruits[l]]--;
+        if (mp[fruits[l]] == 0)
+        {
+          mp.erase(fruits[l]);
         }
+        l++;
+      }
 
-        return maxLen;
+      maxLen = max(maxLen, r - l + 1); // Update max length
+      r++;
     }
+
+    return maxLen;
+  }
 };
 
 /* ==============================================================================
@@ -2203,33 +2361,39 @@ public:
  * Space Complexity: O(n)
  * ============================================================================== */
 
-class Solution {
+class Solution
+{
 public:
-    int numOfUnplacedFruits(vector<int>& fruits, vector<int>& baskets)
+  int numOfUnplacedFruits(vector<int> &fruits, vector<int> &baskets)
+  {
+    int n = baskets.size();
+    vector<int> visited(n, -1); // -1: unused basket
+
+    // Try to place each fruit
+    for (int i = 0; i < n; i++)
     {
-        int n = baskets.size();
-        vector<int> visited(n, -1);  // -1: unused basket
-
-        // Try to place each fruit
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (visited[j] == -1 && baskets[j] >= fruits[i]) {
-                    visited[j] = 1;  // Mark basket as used
-                    break;
-                }
-            }
+      for (int j = 0; j < n; j++)
+      {
+        if (visited[j] == -1 && baskets[j] >= fruits[i])
+        {
+          visited[j] = 1; // Mark basket as used
+          break;
         }
-
-        // Count unvisited (unused) baskets
-        int cnt = 0;
-        for (int i = 0; i < n; i++) {
-            if (visited[i] == -1) {
-                cnt++;
-            }
-        }
-
-        return cnt;
+      }
     }
+
+    // Count unvisited (unused) baskets
+    int cnt = 0;
+    for (int i = 0; i < n; i++)
+    {
+      if (visited[i] == -1)
+      {
+        cnt++;
+      }
+    }
+
+    return cnt;
+  }
 };
 
 /* ==============================================================================
@@ -2254,81 +2418,91 @@ public:
  * Space Complexity : O(4n)
  * ============================================================================== */
 
-class Solution {
-    int n;
-    vector<int> seg; // Segment tree array
+class Solution
+{
+  int n;
+  vector<int> seg; // Segment tree array
 
-    // Utility: Update current node from its children
-    void Update(int p)
+  // Utility: Update current node from its children
+  void Update(int p)
+  {
+    seg[p] = max(seg[p << 1], seg[p << 1 | 1]);
+  }
+
+  // Build segment tree from baskets array
+  void Build(int p, int l, int r, vector<int> &baskets)
+  {
+    if (l == r)
     {
-        seg[p] = max(seg[p << 1], seg[p << 1 | 1]);
+      seg[p] = baskets[l];
+      return;
+    }
+    int mid = (l + r) >> 1;
+    Build(p << 1, l, mid, baskets);
+    Build(p << 1 | 1, mid + 1, r, baskets);
+    Update(p);
+  }
+
+  // Assign a value `v` to basket at position `x`
+  void Assign(int x, int v, int p, int l, int r)
+  {
+    if (x < l || x > r)
+      return;
+
+    if (l == r)
+    {
+      seg[p] = v;
+      return;
     }
 
-    // Build segment tree from baskets array
-    void Build(int p, int l, int r, vector<int>& baskets)
-    {
-        if (l == r) {
-            seg[p] = baskets[l];
-            return;
-        }
-        int mid = (l + r) >> 1;
-        Build(p << 1, l, mid, baskets);
-        Build(p << 1 | 1, mid + 1, r, baskets);
-        Update(p);
-    }
+    int mid = (l + r) >> 1;
+    Assign(x, v, p << 1, l, mid);
+    Assign(x, v, p << 1 | 1, mid + 1, r);
+    Update(p);
+  }
 
-    // Assign a value `v` to basket at position `x`
-    void Assign(int x, int v, int p, int l, int r)
-    {
-        if (x < l || x > r) return;
+  // Query: Find leftmost basket index with capacity ≥ v
+  int FirstLarger(int v, int p, int l, int r)
+  {
+    if (seg[p] < v)
+      return r + 1; // No such basket
 
-        if (l == r) {
-            seg[p] = v;
-            return;
-        }
+    if (l == r)
+      return r;
 
-        int mid = (l + r) >> 1;
-        Assign(x, v, p << 1, l, mid);
-        Assign(x, v, p << 1 | 1, mid + 1, r);
-        Update(p);
-    }
+    int mid = (l + r) >> 1;
+    int lf = FirstLarger(v, p << 1, l, mid);
+    if (lf <= mid)
+      return lf;
 
-    // Query: Find leftmost basket index with capacity ≥ v
-    int FirstLarger(int v, int p, int l, int r)
-    {
-        if (seg[p] < v) return r + 1; // No such basket
-
-        if (l == r) return r;
-
-        int mid = (l + r) >> 1;
-        int lf = FirstLarger(v, p << 1, l, mid);
-        if (lf <= mid) return lf;
-
-        return FirstLarger(v, p << 1 | 1, mid + 1, r);
-    }
+    return FirstLarger(v, p << 1 | 1, mid + 1, r);
+  }
 
 public:
-    int numOfUnplacedFruits(vector<int>& fruits, vector<int>& baskets)
+  int numOfUnplacedFruits(vector<int> &fruits, vector<int> &baskets)
+  {
+    n = fruits.size();
+    seg.assign(4 * n + 1, 0); // Initialize segment tree
+
+    Build(1, 0, n - 1, baskets); // Build tree from basket capacities
+
+    int res = 0; // Counter for unplaced fruits
+
+    for (const auto &x : fruits)
     {
-        n = fruits.size();
-        seg.assign(4 * n + 1, 0); // Initialize segment tree
-
-        Build(1, 0, n - 1, baskets); // Build tree from basket capacities
-
-        int res = 0; // Counter for unplaced fruits
-
-        for (const auto& x : fruits) {
-            int pos = FirstLarger(x, 1, 0, n - 1);
-            if (pos == n) {
-                res++; // No valid basket
-            }
-            else {
-                Assign(pos, 0, 1, 0, n - 1); // Use the basket
-            }
-        }
-
-        return res;
+      int pos = FirstLarger(x, 1, 0, n - 1);
+      if (pos == n)
+      {
+        res++; // No valid basket
+      }
+      else
+      {
+        Assign(pos, 0, 1, 0, n - 1); // Use the basket
+      }
     }
+
+    return res;
+  }
 };
 
 /* ==============================================================================
@@ -2364,38 +2538,42 @@ public:
  * Space Complexity : O(N^2)
  * ============================================================================== */
 
-class Solution {
+class Solution
+{
 public:
-    double soupServings(int n)
+  double soupServings(int n)
+  {
+    // Optimization: for large n, probability is ~1
+    if (n > 4450)
+      return 1;
+
+    // Convert ml to units of 25 ml (ceiling division)
+    int N = (n + 24) / 25;
+
+    // DP table: dp[i][j] → probability with i units of A, j units of B
+    vector<vector<double>> dp(N + 1, vector<double>(N + 1, 0.0));
+
+    // Base cases
+    dp[0][0] = 0.5; // Both empty at same time
+    for (int j = 1; j <= N; ++j)
+      dp[0][j] = 1.0; // A empty first
+    for (int i = 1; i <= N; ++i)
+      dp[i][0] = 0.0; // B empty first
+
+    // Fill table bottom-up
+    for (int i = 1; i <= N; ++i)
     {
-        // Optimization: for large n, probability is ~1
-        if (n > 4450) return 1;
-
-        // Convert ml to units of 25 ml (ceiling division)
-        int N = (n + 24) / 25;
-
-        // DP table: dp[i][j] → probability with i units of A, j units of B
-        vector<vector<double>> dp(N + 1, vector<double>(N + 1, 0.0));
-
-        // Base cases
-        dp[0][0] = 0.5;  // Both empty at same time
-        for (int j = 1; j <= N; ++j) dp[0][j] = 1.0; // A empty first
-        for (int i = 1; i <= N; ++i) dp[i][0] = 0.0; // B empty first
-
-        // Fill table bottom-up
-        for (int i = 1; i <= N; ++i) {
-            for (int j = 1; j <= N; ++j) {
-                dp[i][j] = 0.25 * (
-                    dp[max(0, i - 4)][j] +
-                    dp[max(0, i - 3)][max(0, j - 1)] +
-                    dp[max(0, i - 2)][max(0, j - 2)] +
-                    dp[max(0, i - 1)][max(0, j - 3)]
-                    );
-            }
-        }
-
-        return dp[N][N];
+      for (int j = 1; j <= N; ++j)
+      {
+        dp[i][j] = 0.25 * (dp[max(0, i - 4)][j] +
+                           dp[max(0, i - 3)][max(0, j - 1)] +
+                           dp[max(0, i - 2)][max(0, j - 2)] +
+                           dp[max(0, i - 1)][max(0, j - 3)]);
+      }
     }
+
+    return dp[N][N];
+  }
 };
 
 /* ==============================================================================
@@ -2417,42 +2595,48 @@ public:
  * Space Complexity : O(1) — Constant extra storage for frequency arrays.
  * ============================================================================== */
 
-class Solution {
+class Solution
+{
 private:
-    // Count digit frequency of an integer
-    vector<int> digitFreq(int n)
+  // Count digit frequency of an integer
+  vector<int> digitFreq(int n)
+  {
+    vector<int> freq(10, 0);
+    while (n > 0)
     {
-        vector<int> freq(10, 0);
-        while (n > 0) {
-            freq[n % 10]++;
-            n /= 10;
-        }
-        return freq;
+      freq[n % 10]++;
+      n /= 10;
     }
+    return freq;
+  }
 
-    // Compare two digit frequency arrays
-    bool equalFreq(const vector<int>& a, const vector<int>& b)
+  // Compare two digit frequency arrays
+  bool equalFreq(const vector<int> &a, const vector<int> &b)
+  {
+    for (int i = 0; i < 10; ++i)
     {
-        for (int i = 0; i < 10; ++i) {
-            if (a[i] != b[i]) return false;
-        }
-        return true;
-    }
-
-public:
-    bool reorderedPowerOf2(int N)
-    {
-        vector<int> target = digitFreq(N);
-
-        // Check all powers of 2 up to 2^30
-        for (int i = 0; i <= 30; ++i) {
-            int powerOf2 = (int)pow(2, i);
-            if (equalFreq(target, digitFreq(powerOf2))) {
-                return true;
-            }
-        }
+      if (a[i] != b[i])
         return false;
     }
+    return true;
+  }
+
+public:
+  bool reorderedPowerOf2(int N)
+  {
+    vector<int> target = digitFreq(N);
+
+    // Check all powers of 2 up to 2^30
+    for (int i = 0; i <= 30; ++i)
+    {
+      int powerOf2 = (int)pow(2, i);
+      if (equalFreq(target, digitFreq(powerOf2)))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
 };
 
 /* ==============================================================================
@@ -2467,7 +2651,7 @@ public:
  * }
  * ============================================================================== */
 
- // ============================================================================
+// ============================================================================
 // Problem: Product Queries of Powers
 // Approach:
 //   1. Extract all powers of 2 present in n's binary representation.
@@ -2478,35 +2662,40 @@ public:
 //   Space: O(log n) — storing extracted powers of 2.
 // ============================================================================
 
-class Solution {
+class Solution
+{
 public:
-    vector<int> productQueries(int n, vector<vector<int>>& queries)
+  vector<int> productQueries(int n, vector<vector<int>> &queries)
+  {
+    const int MOD = 1e9 + 7;
+    vector<long> powers; // Store the powers of 2 from n's binary form
+    vector<int> result;
+
+    // Extract all powers of 2 present in n
+    int bitIndex = 0;
+    while (n > 0)
     {
-        const int MOD = 1e9 + 7;
-        vector<long> powers;   // Store the powers of 2 from n's binary form
-        vector<int> result;
-
-        // Extract all powers of 2 present in n
-        int bitIndex = 0;
-        while (n > 0) {
-            if (n & 1) {
-                powers.push_back(1L << bitIndex);
-            }
-            n >>= 1;
-            bitIndex++;
-        }
-
-        // Process each query
-        for (auto& q : queries) {
-            long long product = 1;
-            for (int j = q[0]; j <= q[1]; j++) {
-                product = (product * powers[j]) % MOD;
-            }
-            result.push_back(static_cast<int>(product));
-        }
-
-        return result;
+      if (n & 1)
+      {
+        powers.push_back(1L << bitIndex);
+      }
+      n >>= 1;
+      bitIndex++;
     }
+
+    // Process each query
+    for (auto &q : queries)
+    {
+      long long product = 1;
+      for (int j = q[0]; j <= q[1]; j++)
+      {
+        product = (product * powers[j]) % MOD;
+      }
+      result.push_back(static_cast<int>(product));
+    }
+
+    return result;
+  }
 };
 
 /*
@@ -2534,78 +2723,90 @@ Complexity:
 ================================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    const int MOD = 1e9 + 7;
+  const int MOD = 1e9 + 7;
 
-    //--------------------------------------------------------------------------
-    // Helper: Compute integer power (base^exp)
-    //--------------------------------------------------------------------------
-    long long intPow(int base, int exp)
+  //--------------------------------------------------------------------------
+  // Helper: Compute integer power (base^exp)
+  //--------------------------------------------------------------------------
+  long long intPow(int base, int exp)
+  {
+    long long result = 1;
+    while (exp--)
     {
-        long long result = 1;
-        while (exp--) {
-            result *= base;
-        }
-        return result;
+      result *= base;
+    }
+    return result;
+  }
+
+  //--------------------------------------------------------------------------
+  // Recursive function with memoization
+  // n     -> remaining sum
+  // x     -> power to be used
+  // i     -> current base to consider
+  // memo  -> DP cache
+  //--------------------------------------------------------------------------
+  int recur(int n, int x, int i, vector<vector<int>> &memo)
+  {
+    if (n == 0)
+      return 1; // Exact sum found
+    if (n < 0 || i <= 0)
+      return 0; // Invalid path
+
+    if (memo[n][i] != -1)
+      return memo[n][i];
+
+    // Option 1: Do not take current base
+    int not_take = recur(n, x, i - 1, memo) % MOD;
+
+    // Option 2: Take current base (if possible)
+    int take = 0;
+    long long power = intPow(i, x);
+    if (n - power >= 0)
+    {
+      take = recur(n - power, x, i - 1, memo) % MOD;
     }
 
-    //--------------------------------------------------------------------------
-    // Recursive function with memoization
-    // n     -> remaining sum
-    // x     -> power to be used
-    // i     -> current base to consider
-    // memo  -> DP cache
-    //--------------------------------------------------------------------------
-    int recur(int n, int x, int i, vector<vector<int>>& memo)
+    return memo[n][i] = (take + not_take) % MOD;
+  }
+
+  //--------------------------------------------------------------------------
+  // Helper: Find max integer base whose x-th power <= n
+  //--------------------------------------------------------------------------
+  int maxBaseInt(int n, int x)
+  {
+    int lo = 1, hi = n;
+    while (lo <= hi)
     {
-        if (n == 0) return 1;               // Exact sum found
-        if (n < 0 || i <= 0) return 0;      // Invalid path
-
-        if (memo[n][i] != -1) return memo[n][i];
-
-        // Option 1: Do not take current base
-        int not_take = recur(n, x, i - 1, memo) % MOD;
-
-        // Option 2: Take current base (if possible)
-        int take = 0;
-        long long power = intPow(i, x);
-        if (n - power >= 0) {
-            take = recur(n - power, x, i - 1, memo) % MOD;
-        }
-
-        return memo[n][i] = (take + not_take) % MOD;
+      int mid = (lo + hi) / 2;
+      long long p = 1;
+      for (int i = 0; i < x; i++)
+      {
+        p *= mid;
+        if (p > n)
+          break;
+      }
+      if (p == n)
+        return mid;
+      if (p < n)
+        lo = mid + 1;
+      else
+        hi = mid - 1;
     }
+    return hi;
+  }
 
-    //--------------------------------------------------------------------------
-    // Helper: Find max integer base whose x-th power <= n
-    //--------------------------------------------------------------------------
-    int maxBaseInt(int n, int x)
-    {
-        int lo = 1, hi = n;
-        while (lo <= hi) {
-            int mid = (lo + hi) / 2;
-            long long p = 1;
-            for (int i = 0; i < x; i++) {
-                p *= mid;
-                if (p > n) break;
-            }
-            if (p == n) return mid;
-            if (p < n) lo = mid + 1;
-            else hi = mid - 1;
-        }
-        return hi;
-    }
-
-    //--------------------------------------------------------------------------
-    // Main Function
-    //--------------------------------------------------------------------------
-    int numberOfWays(int n, int x)
-    {
-        vector<vector<int>> memo(n + 1, vector<int>(n + 1, -1));
-        int maxBase = maxBaseInt(n, x);
-        return recur(n, x, maxBase, memo);
-    }
+  //--------------------------------------------------------------------------
+  // Main Function
+  //--------------------------------------------------------------------------
+  int numberOfWays(int n, int x)
+  {
+    vector<vector<int>> memo(n + 1, vector<int>(n + 1, -1));
+    int maxBase = maxBaseInt(n, x);
+    return recur(n, x, maxBase, memo);
+  }
 };
 
 /*
@@ -2633,18 +2834,21 @@ Complexity Analysis:
 ================================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    bool isPowerOfThree(int n)
+  bool isPowerOfThree(int n)
+  {
+    if (n <= 0)
+      return false; // Negative numbers & zero can't be powers of 3
+
+    while (n % 3 == 0)
     {
-        if (n <= 0) return false;  // Negative numbers & zero can't be powers of 3
-
-        while (n % 3 == 0) {
-            n /= 3; // Keep dividing by 3
-        }
-
-        return n == 1; // If reduced to 1 → it's a power of 3
+      n /= 3; // Keep dividing by 3
     }
+
+    return n == 1; // If reduced to 1 → it's a power of 3
+  }
 };
 
 /*
@@ -2687,24 +2891,28 @@ Complexity Analysis:
 ================================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    string largestGoodInteger(string num)
+  string largestGoodInteger(string num)
+  {
+    int largest = INT_MIN; // Track largest digit found
+    string result = "";
+
+    for (int i = 1; i < (int)num.length() - 1; i++)
     {
-        int largest = INT_MIN; // Track largest digit found
-        string result = "";
-
-        for (int i = 1; i < (int)num.length() - 1; i++) {
-            if (num[i - 1] == num[i] && num[i] == num[i + 1]) {
-                if (num[i] - '0' > largest) {
-                    largest = num[i] - '0';
-                    result = string(3, num[i]); // Create "xxx"
-                }
-            }
+      if (num[i - 1] == num[i] && num[i] == num[i + 1])
+      {
+        if (num[i] - '0' > largest)
+        {
+          largest = num[i] - '0';
+          result = string(3, num[i]); // Create "xxx"
         }
-
-        return (largest == INT_MIN) ? "" : result;
+      }
     }
+
+    return (largest == INT_MIN) ? "" : result;
+  }
 };
 
 /*
@@ -2748,19 +2956,23 @@ Complexity Analysis:
 ================================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    bool isPowerOfFour(int n)
-    {
-        if (n == 1) return true;  // 4^0 = 1
-        if (n < 4) return false;  // Cannot be a power of 4
+  bool isPowerOfFour(int n)
+  {
+    if (n == 1)
+      return true; // 4^0 = 1
+    if (n < 4)
+      return false; // Cannot be a power of 4
 
-        while (n % 4 == 0) {      // Keep dividing by 4
-            n /= 4;
-        }
-
-        return n == 1;
+    while (n % 4 == 0)
+    { // Keep dividing by 4
+      n /= 4;
     }
+
+    return n == 1;
+  }
 };
 
 /*
@@ -2809,36 +3021,41 @@ Complexity Analysis:
 ================================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    int maximum69Number(int num)
+  int maximum69Number(int num)
+  {
+    vector<int> digits;
+
+    // Extract digits from num
+    while (num != 0)
     {
-        vector<int> digits;
-
-        // Extract digits from num
-        while (num != 0) {
-            digits.push_back(num % 10);
-            num /= 10;
-        }
-
-        // Restore correct digit order
-        reverse(digits.begin(), digits.end());
-
-        // Change the first 6 → 9
-        for (int i = 0; i < digits.size(); i++) {
-            if (digits[i] == 6) {
-                digits[i] = 9;
-                break;
-            }
-        }
-
-        // Reconstruct the number
-        for (int i = 0; i < digits.size(); i++) {
-            num = num * 10 + digits[i];
-        }
-
-        return num;
+      digits.push_back(num % 10);
+      num /= 10;
     }
+
+    // Restore correct digit order
+    reverse(digits.begin(), digits.end());
+
+    // Change the first 6 → 9
+    for (int i = 0; i < digits.size(); i++)
+    {
+      if (digits[i] == 6)
+      {
+        digits[i] = 9;
+        break;
+      }
+    }
+
+    // Reconstruct the number
+    for (int i = 0; i < digits.size(); i++)
+    {
+      num = num * 10 + digits[i];
+    }
+
+    return num;
+  }
 };
 
 /*
@@ -2893,59 +3110,69 @@ Complexity Analysis:
 ================================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    bool judgePoint24(vector<int>& cards)
-    {
-        vector<double> nums(cards.begin(), cards.end());
-        return backtrack(nums);
-    }
+  bool judgePoint24(vector<int> &cards)
+  {
+    vector<double> nums(cards.begin(), cards.end());
+    return backtrack(nums);
+  }
 
 private:
-    // Recursive helper
-    bool backtrack(vector<double> nums)
+  // Recursive helper
+  bool backtrack(vector<double> nums)
+  {
+    // Base case: check if the last number is close to 24
+    if (nums.size() == 1)
     {
-        // Base case: check if the last number is close to 24
-        if (nums.size() == 1) {
-            return fabs(nums[0] - 24.0) < 1e-6;
-        }
-
-        int n = nums.size();
-        // Try all pairs of numbers
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                vector<double> newNums;
-
-                // Keep all numbers except i and j
-                for (int k = 0; k < n; k++) {
-                    if (k != i && k != j) newNums.push_back(nums[k]);
-                }
-
-                // Try all combinations of nums[i] and nums[j]
-                for (double x : combine(nums[i], nums[j])) {
-                    newNums.push_back(x);
-                    if (backtrack(newNums)) return true;
-                    newNums.pop_back(); // backtrack
-                }
-            }
-        }
-        return false;
+      return fabs(nums[0] - 24.0) < 1e-6;
     }
 
-    // Generate all possible results of combining a and b
-    unordered_set<double> combine(double a, double b)
+    int n = nums.size();
+    // Try all pairs of numbers
+    for (int i = 0; i < n; i++)
     {
-        unordered_set<double> res;
-        res.insert(a + b);
-        res.insert(a - b);
-        res.insert(b - a);
-        res.insert(a * b);
+      for (int j = i + 1; j < n; j++)
+      {
+        vector<double> newNums;
 
-        if (fabs(a) > 1e-6) res.insert(b / a);
-        if (fabs(b) > 1e-6) res.insert(a / b);
+        // Keep all numbers except i and j
+        for (int k = 0; k < n; k++)
+        {
+          if (k != i && k != j)
+            newNums.push_back(nums[k]);
+        }
 
-        return res;
+        // Try all combinations of nums[i] and nums[j]
+        for (double x : combine(nums[i], nums[j]))
+        {
+          newNums.push_back(x);
+          if (backtrack(newNums))
+            return true;
+          newNums.pop_back(); // backtrack
+        }
+      }
     }
+    return false;
+  }
+
+  // Generate all possible results of combining a and b
+  unordered_set<double> combine(double a, double b)
+  {
+    unordered_set<double> res;
+    res.insert(a + b);
+    res.insert(a - b);
+    res.insert(b - a);
+    res.insert(a * b);
+
+    if (fabs(a) > 1e-6)
+      res.insert(b / a);
+    if (fabs(b) > 1e-6)
+      res.insert(a / b);
+
+    return res;
+  }
 };
 
 /*
@@ -2997,24 +3224,28 @@ Complexity Analysis:
 ================================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    long long zeroFilledSubarray(vector<int>& nums)
-    {
-        long long cnt = 0;     // Total count of zero-filled subarrays
-        long long streak = 0;  // Length of current consecutive zero streak
+  long long zeroFilledSubarray(vector<int> &nums)
+  {
+    long long cnt = 0;    // Total count of zero-filled subarrays
+    long long streak = 0; // Length of current consecutive zero streak
 
-        for (int num : nums) {
-            if (num == 0) {
-                streak++;       // Extend streak
-                cnt += streak;  // Add all new subarrays ending here
-            }
-            else {
-                streak = 0;     // Reset streak
-            }
-        }
-        return cnt;
+    for (int num : nums)
+    {
+      if (num == 0)
+      {
+        streak++;      // Extend streak
+        cnt += streak; // Add all new subarrays ending here
+      }
+      else
+      {
+        streak = 0; // Reset streak
+      }
     }
+    return cnt;
+  }
 };
 
 /*
@@ -3073,31 +3304,37 @@ Complexity Analysis:
 ================================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    int countSquares(vector<vector<int>>& matrix)
+  int countSquares(vector<vector<int>> &matrix)
+  {
+    int m = matrix.size();
+    if (m == 0)
+      return 0;
+
+    int n = matrix[0].size();
+    int res = 0; // Total count of square submatrices
+
+    for (int i = 0; i < m; i++)
     {
-        int m = matrix.size();
-        if (m == 0) return 0;
-
-        int n = matrix[0].size();
-        int res = 0;  // Total count of square submatrices
-
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (matrix[i][j] == 1 && i > 0 && j > 0) {
-                    // Update current cell with max square size ending here
-                    matrix[i][j] = min({
-                        matrix[i - 1][j],     // Top
-                        matrix[i][j - 1],     // Left
-                        matrix[i - 1][j - 1]    // Top-left
-                        }) + 1;
-                }
-                res += matrix[i][j]; // Add all squares ending at (i, j)
-            }
+      for (int j = 0; j < n; j++)
+      {
+        if (matrix[i][j] == 1 && i > 0 && j > 0)
+        {
+          // Update current cell with max square size ending here
+          matrix[i][j] = min({
+                             matrix[i - 1][j],    // Top
+                             matrix[i][j - 1],    // Left
+                             matrix[i - 1][j - 1] // Top-left
+                         }) +
+                         1;
         }
-        return res;
+        res += matrix[i][j]; // Add all squares ending at (i, j)
+      }
     }
+    return res;
+  }
 };
 
 /*
@@ -3168,31 +3405,36 @@ Complexity Analysis:
 ================================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    int numSubmat(vector<vector<int>>& mat)
+  int numSubmat(vector<vector<int>> &mat)
+  {
+    int m = mat.size(), n = mat[0].size();
+    vector<int> h(n, 0); // histogram heights
+    int cnt = 0;         // total submatrices
+
+    for (int i = 0; i < m; i++)
     {
-        int m = mat.size(), n = mat[0].size();
-        vector<int> h(n, 0);   // histogram heights
-        int cnt = 0;           // total submatrices
+      // Step 1: update histogram heights for row i
+      for (int j = 0; j < n; j++)
+      {
+        h[j] = mat[i][j] ? h[j] + 1 : 0;
+      }
 
-        for (int i = 0; i < m; i++) {
-            // Step 1: update histogram heights for row i
-            for (int j = 0; j < n; j++) {
-                h[j] = mat[i][j] ? h[j] + 1 : 0;
-            }
-
-            // Step 2: count rectangles ending at row i
-            for (int j = 0; j < n; j++) {
-                int mn = h[j];
-                for (int k = j; k >= 0 && mn > 0; k--) {
-                    mn = min(mn, h[k]);   // minimum height across window
-                    cnt += mn;            // add possible submatrices
-                }
-            }
+      // Step 2: count rectangles ending at row i
+      for (int j = 0; j < n; j++)
+      {
+        int mn = h[j];
+        for (int k = j; k >= 0 && mn > 0; k--)
+        {
+          mn = min(mn, h[k]); // minimum height across window
+          cnt += mn;          // add possible submatrices
         }
-        return cnt;
+      }
     }
+    return cnt;
+  }
 };
 
 /*
@@ -3257,113 +3499,138 @@ Complexity:
 ==============================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    int minimumSum(vector<vector<int>>& grid)
+  int minimumSum(vector<vector<int>> &grid)
+  {
+    int n = grid.size(), m = grid[0].size();
+
+    // ---------------------------------------------------------------------
+    // Prefix sum for fast submatrix sum
+    // ---------------------------------------------------------------------
+    vector<vector<int>> pre(n + 1, vector<int>(m + 1, 0));
+    for (int i = 0; i < n; ++i)
+      for (int j = 0; j < m; ++j)
+        pre[i + 1][j + 1] = pre[i + 1][j] + pre[i][j + 1] - pre[i][j] + grid[i][j];
+
+    // Count number of 1s in submatrix [r1..r2][c1..c2]
+    auto countOnes = [&](int r1, int r2, int c1, int c2) -> int
     {
-        int n = grid.size(), m = grid[0].size();
+      if (r1 > r2 || c1 > c2)
+        return 0;
+      return pre[r2 + 1][c2 + 1] - pre[r1][c2 + 1] - pre[r2 + 1][c1] + pre[r1][c1];
+    };
 
-        // ---------------------------------------------------------------------
-        // Prefix sum for fast submatrix sum
-        // ---------------------------------------------------------------------
-        vector<vector<int>> pre(n + 1, vector<int>(m + 1, 0));
-        for (int i = 0; i < n; ++i)
-            for (int j = 0; j < m; ++j)
-                pre[i + 1][j + 1] = pre[i + 1][j] + pre[i][j + 1] - pre[i][j] + grid[i][j];
+    // Bounding rectangle area covering all 1s in submatrix
+    auto boundingArea = [&](int r1, int r2, int c1, int c2) -> int
+    {
+      int cnt = countOnes(r1, r2, c1, c2);
+      if (cnt == 0)
+        return 0;
 
-        // Count number of 1s in submatrix [r1..r2][c1..c2]
-        auto countOnes = [&](int r1, int r2, int c1, int c2) -> int {
-            if (r1 > r2 || c1 > c2) return 0;
-            return pre[r2 + 1][c2 + 1] - pre[r1][c2 + 1] - pre[r2 + 1][c1] + pre[r1][c1];
-            };
+      int top = r1, bottom = r2, left = c1, right = c2;
+      while (top <= r2 && countOnes(top, top, c1, c2) == 0)
+        ++top;
+      while (bottom >= r1 && countOnes(bottom, bottom, c1, c2) == 0)
+        --bottom;
+      while (left <= c2 && countOnes(r1, r2, left, left) == 0)
+        ++left;
+      while (right >= c1 && countOnes(r1, r2, right, right) == 0)
+        --right;
 
-        // Bounding rectangle area covering all 1s in submatrix
-        auto boundingArea = [&](int r1, int r2, int c1, int c2) -> int {
+      return (bottom - top + 1) * (right - left + 1);
+    };
+
+    // ---------------------------------------------------------------------
+    // Initialize 4D DP arrays: dp1, dp2, dp3
+    // ---------------------------------------------------------------------
+    auto make4D = [&](int init)
+    {
+      return vector(n, vector(n, vector(m, vector<int>(m, init))));
+    };
+    auto dp1 = make4D(0), dp2 = make4D(0), dp3 = make4D(0);
+
+    // ---------------------------------------------------------------------
+    // Iterate over all submatrices by height & width
+    // ---------------------------------------------------------------------
+    for (int h = 1; h <= n; ++h)
+    {
+      for (int r1 = 0; r1 + h - 1 < n; ++r1)
+      {
+        int r2 = r1 + h - 1;
+        for (int w = 1; w <= m; ++w)
+        {
+          for (int c1 = 0; c1 + w - 1 < m; ++c1)
+          {
+            int c2 = c1 + w - 1;
+
             int cnt = countOnes(r1, r2, c1, c2);
-            if (cnt == 0) return 0;
-
-            int top = r1, bottom = r2, left = c1, right = c2;
-            while (top <= r2 && countOnes(top, top, c1, c2) == 0) ++top;
-            while (bottom >= r1 && countOnes(bottom, bottom, c1, c2) == 0) --bottom;
-            while (left <= c2 && countOnes(r1, r2, left, left) == 0) ++left;
-            while (right >= c1 && countOnes(r1, r2, right, right) == 0) --right;
-
-            return (bottom - top + 1) * (right - left + 1);
-            };
-
-        // ---------------------------------------------------------------------
-        // Initialize 4D DP arrays: dp1, dp2, dp3
-        // ---------------------------------------------------------------------
-        auto make4D = [&](int init) {
-            return vector(n, vector(n, vector(m, vector<int>(m, init))));
-            };
-        auto dp1 = make4D(0), dp2 = make4D(0), dp3 = make4D(0);
-
-        // ---------------------------------------------------------------------
-        // Iterate over all submatrices by height & width
-        // ---------------------------------------------------------------------
-        for (int h = 1; h <= n; ++h) {
-            for (int r1 = 0; r1 + h - 1 < n; ++r1) {
-                int r2 = r1 + h - 1;
-                for (int w = 1; w <= m; ++w) {
-                    for (int c1 = 0; c1 + w - 1 < m; ++c1) {
-                        int c2 = c1 + w - 1;
-
-                        int cnt = countOnes(r1, r2, c1, c2);
-                        if (cnt == 0) {
-                            dp1[r1][r2][c1][c2] = dp2[r1][r2][c1][c2] = dp3[r1][r2][c1][c2] = 0;
-                            continue;
-                        }
-
-                        // Base: one rectangle
-                        int one = boundingArea(r1, r2, c1, c2);
-                        int best2 = one, best3 = one;
-
-                        // -----------------------------------------------------
-                        // Vertical splits
-                        // -----------------------------------------------------
-                        for (int mid = c1; mid < c2; ++mid) {
-                            int lcnt = countOnes(r1, r2, c1, mid);
-                            int rcnt = cnt - lcnt;
-
-                            best2 = min(best2, dp1[r1][r2][c1][mid] + dp1[r1][r2][mid + 1][c2]);
-                            if (rcnt == 0) best2 = min(best2, dp2[r1][r2][c1][mid]);
-                            if (lcnt == 0) best2 = min(best2, dp2[r1][r2][mid + 1][c2]);
-
-                            best3 = min(best3, dp2[r1][r2][c1][mid] + dp1[r1][r2][mid + 1][c2]);
-                            best3 = min(best3, dp1[r1][r2][c1][mid] + dp2[r1][r2][mid + 1][c2]);
-                            if (rcnt == 0) best3 = min(best3, dp3[r1][r2][c1][mid]);
-                            if (lcnt == 0) best3 = min(best3, dp3[r1][r2][mid + 1][c2]);
-                        }
-
-                        // -----------------------------------------------------
-                        // Horizontal splits
-                        // -----------------------------------------------------
-                        for (int mid = r1; mid < r2; ++mid) {
-                            int tcnt = countOnes(r1, mid, c1, c2);
-                            int bcnt = cnt - tcnt;
-
-                            best2 = min(best2, dp1[r1][mid][c1][c2] + dp1[mid + 1][r2][c1][c2]);
-                            if (bcnt == 0) best2 = min(best2, dp2[r1][mid][c1][c2]);
-                            if (tcnt == 0) best2 = min(best2, dp2[mid + 1][r2][c1][c2]);
-
-                            best3 = min(best3, dp2[r1][mid][c1][c2] + dp1[mid + 1][r2][c1][c2]);
-                            best3 = min(best3, dp1[r1][mid][c1][c2] + dp2[mid + 1][r2][c1][c2]);
-                            if (bcnt == 0) best3 = min(best3, dp3[r1][mid][c1][c2]);
-                            if (tcnt == 0) best3 = min(best3, dp3[mid + 1][r2][c1][c2]);
-                        }
-
-                        dp1[r1][r2][c1][c2] = one;
-                        dp2[r1][r2][c1][c2] = best2;
-                        dp3[r1][r2][c1][c2] = best3;
-                    }
-                }
+            if (cnt == 0)
+            {
+              dp1[r1][r2][c1][c2] = dp2[r1][r2][c1][c2] = dp3[r1][r2][c1][c2] = 0;
+              continue;
             }
-        }
 
-        // Final result: minimum sum using up to 3 rectangles
-        return dp3[0][n - 1][0][m - 1];
+            // Base: one rectangle
+            int one = boundingArea(r1, r2, c1, c2);
+            int best2 = one, best3 = one;
+
+            // -----------------------------------------------------
+            // Vertical splits
+            // -----------------------------------------------------
+            for (int mid = c1; mid < c2; ++mid)
+            {
+              int lcnt = countOnes(r1, r2, c1, mid);
+              int rcnt = cnt - lcnt;
+
+              best2 = min(best2, dp1[r1][r2][c1][mid] + dp1[r1][r2][mid + 1][c2]);
+              if (rcnt == 0)
+                best2 = min(best2, dp2[r1][r2][c1][mid]);
+              if (lcnt == 0)
+                best2 = min(best2, dp2[r1][r2][mid + 1][c2]);
+
+              best3 = min(best3, dp2[r1][r2][c1][mid] + dp1[r1][r2][mid + 1][c2]);
+              best3 = min(best3, dp1[r1][r2][c1][mid] + dp2[r1][r2][mid + 1][c2]);
+              if (rcnt == 0)
+                best3 = min(best3, dp3[r1][r2][c1][mid]);
+              if (lcnt == 0)
+                best3 = min(best3, dp3[r1][r2][mid + 1][c2]);
+            }
+
+            // -----------------------------------------------------
+            // Horizontal splits
+            // -----------------------------------------------------
+            for (int mid = r1; mid < r2; ++mid)
+            {
+              int tcnt = countOnes(r1, mid, c1, c2);
+              int bcnt = cnt - tcnt;
+
+              best2 = min(best2, dp1[r1][mid][c1][c2] + dp1[mid + 1][r2][c1][c2]);
+              if (bcnt == 0)
+                best2 = min(best2, dp2[r1][mid][c1][c2]);
+              if (tcnt == 0)
+                best2 = min(best2, dp2[mid + 1][r2][c1][c2]);
+
+              best3 = min(best3, dp2[r1][mid][c1][c2] + dp1[mid + 1][r2][c1][c2]);
+              best3 = min(best3, dp1[r1][mid][c1][c2] + dp2[mid + 1][r2][c1][c2]);
+              if (bcnt == 0)
+                best3 = min(best3, dp3[r1][mid][c1][c2]);
+              if (tcnt == 0)
+                best3 = min(best3, dp3[mid + 1][r2][c1][c2]);
+            }
+
+            dp1[r1][r2][c1][c2] = one;
+            dp2[r1][r2][c1][c2] = best2;
+            dp3[r1][r2][c1][c2] = best3;
+          }
+        }
+      }
     }
+
+    // Final result: minimum sum using up to 3 rectangles
+    return dp3[0][n - 1][0][m - 1];
+  }
 };
 
 //==============================================================================
@@ -3388,28 +3655,33 @@ public:
 #include <bits/stdc++.h>
 using namespace std;
 
-class Solution {
+class Solution
+{
 public:
-    int longestSubarray(vector<int>& nums)
+  int longestSubarray(vector<int> &nums)
+  {
+    int n = nums.size();
+    int zeros = 0, ans = 0;
+
+    for (int l = 0, r = 0; r < n; r++)
     {
-        int n = nums.size();
-        int zeros = 0, ans = 0;
+      // Include nums[r] into the window
+      if (nums[r] == 0)
+        zeros++;
 
-        for (int l = 0, r = 0; r < n; r++) {
-            // Include nums[r] into the window
-            if (nums[r] == 0) zeros++;
+      // Shrink window if more than 1 zero
+      while (zeros > 1)
+      {
+        if (nums[l] == 0)
+          zeros--;
+        l++;
+      }
 
-            // Shrink window if more than 1 zero
-            while (zeros > 1) {
-                if (nums[l] == 0) zeros--;
-                l++;
-            }
-
-            // Update max length (delete one element => r - l)
-            ans = max(ans, r - l);
-        }
-        return ans;
+      // Update max length (delete one element => r - l)
+      ans = max(ans, r - l);
     }
+    return ans;
+  }
 };
 
 //==============================================================================
@@ -3440,50 +3712,63 @@ public:
 #include <bits/stdc++.h>
 using namespace std;
 
-class Solution {
+class Solution
+{
 public:
-    vector<int> findDiagonalOrder(vector<vector<int>>& matrix)
+  vector<int> findDiagonalOrder(vector<vector<int>> &matrix)
+  {
+    // Edge case: empty matrix
+    if (matrix.empty() || matrix[0].empty())
+      return {};
+
+    int m = matrix.size();
+    int n = matrix[0].size();
+    vector<int> result(m * n);
+
+    int row = 0, col = 0;
+
+    for (int i = 0; i < m * n; i++)
     {
-        // Edge case: empty matrix
-        if (matrix.empty() || matrix[0].empty()) return {};
+      result[i] = matrix[row][col];
 
-        int m = matrix.size();
-        int n = matrix[0].size();
-        vector<int> result(m * n);
-
-        int row = 0, col = 0;
-
-        for (int i = 0; i < m * n; i++) {
-            result[i] = matrix[row][col];
-
-            // If sum of indices is even, move up-right
-            if ((row + col) % 2 == 0) {
-                if (col == n - 1) {
-                    row++;            // Hit right boundary → move down
-                }
-                else if (row == 0) {
-                    col++;            // Hit top boundary → move right
-                }
-                else {
-                    row--; col++;     // Normal move: up-right
-                }
-            }
-            // If sum of indices is odd, move down-left
-            else {
-                if (row == m - 1) {
-                    col++;            // Hit bottom boundary → move right
-                }
-                else if (col == 0) {
-                    row++;            // Hit left boundary → move down
-                }
-                else {
-                    row++; col--;     // Normal move: down-left
-                }
-            }
+      // If sum of indices is even, move up-right
+      if ((row + col) % 2 == 0)
+      {
+        if (col == n - 1)
+        {
+          row++; // Hit right boundary → move down
         }
-
-        return result;
+        else if (row == 0)
+        {
+          col++; // Hit top boundary → move right
+        }
+        else
+        {
+          row--;
+          col++; // Normal move: up-right
+        }
+      }
+      // If sum of indices is odd, move down-left
+      else
+      {
+        if (row == m - 1)
+        {
+          col++; // Hit bottom boundary → move right
+        }
+        else if (col == 0)
+        {
+          row++; // Hit left boundary → move down
+        }
+        else
+        {
+          row++;
+          col--; // Normal move: down-left
+        }
+      }
     }
+
+    return result;
+  }
 };
 
 //==============================================================================
@@ -3519,70 +3804,77 @@ public:
 #include <bits/stdc++.h>
 using namespace std;
 
-class Solution {
+class Solution
+{
 public:
-    int n, m;
-    vector<int> dx = { -1, 1, 1, -1 };  // diagonal row movements
-    vector<int> dy = { 1, 1, -1, -1 };  // diagonal col movements
+  int n, m;
+  vector<int> dx = {-1, 1, 1, -1}; // diagonal row movements
+  vector<int> dy = {1, 1, -1, -1}; // diagonal col movements
 
-    //------------------------------------------------------------------------------
-    // Recursive DFS to find longest diagonal path
-    //------------------------------------------------------------------------------
-    int f(int x, int y, int dirNo, int turns, vector<vector<int>>& grid)
+  //------------------------------------------------------------------------------
+  // Recursive DFS to find longest diagonal path
+  //------------------------------------------------------------------------------
+  int f(int x, int y, int dirNo, int turns, vector<vector<int>> &grid)
+  {
+    int nx, ny;
+
+    // Case 1: Continue in the same direction (turnOff)
+    int turnOff = 1;
+    nx = x + dx[dirNo];
+    ny = y + dy[dirNo];
+    if (nx >= 0 && ny >= 0 && nx < n && ny < m && abs(grid[x][y] - grid[nx][ny]) == 2)
     {
-        int nx, ny;
-
-        // Case 1: Continue in the same direction (turnOff)
-        int turnOff = 1;
-        nx = x + dx[dirNo];
-        ny = y + dy[dirNo];
-        if (nx >= 0 && ny >= 0 && nx < n && ny < m && abs(grid[x][y] - grid[nx][ny]) == 2) {
-            turnOff = 1 + f(nx, ny, dirNo, turns, grid);
-        }
-
-        // Case 2: Turn to next diagonal direction (turnOn) if no turn used yet
-        int turnOn = 1;
-        nx = x + dx[(dirNo + 1) % 4];
-        ny = y + dy[(dirNo + 1) % 4];
-        if (turns == 0 && nx >= 0 && ny >= 0 && nx < n && ny < m && abs(grid[x][y] - grid[nx][ny]) == 2) {
-            turnOn = 1 + f(nx, ny, (dirNo + 1) % 4, turns + 1, grid);
-        }
-
-        return max(turnOff, turnOn);
+      turnOff = 1 + f(nx, ny, dirNo, turns, grid);
     }
 
-    //------------------------------------------------------------------------------
-    // Main function to compute maximum V-diagonal length
-    //------------------------------------------------------------------------------
-    int lenOfVDiagonal(vector<vector<int>>& grid)
+    // Case 2: Turn to next diagonal direction (turnOn) if no turn used yet
+    int turnOn = 1;
+    nx = x + dx[(dirNo + 1) % 4];
+    ny = y + dy[(dirNo + 1) % 4];
+    if (turns == 0 && nx >= 0 && ny >= 0 && nx < n && ny < m && abs(grid[x][y] - grid[nx][ny]) == 2)
     {
-        n = grid.size();
-        m = grid[0].size();
-        int maxi = 0;
-
-        // Iterate through all cells to find valid starting points
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (grid[i][j] == 1) {
-                    maxi = max(maxi, 1);
-
-                    // Try all 4 diagonal directions
-                    for (int dirNo = 0; dirNo < 4; dirNo++) {
-                        int nx = i + dx[dirNo];
-                        int ny = j + dy[dirNo];
-
-                        // Check if valid diagonal move
-                        if (nx < 0 || ny < 0 || nx >= n || ny >= m || grid[nx][ny] <= 1)
-                            continue;
-
-                        int val = 1 + f(nx, ny, dirNo, 0, grid);
-                        maxi = max(maxi, val);
-                    }
-                }
-            }
-        }
-        return maxi;
+      turnOn = 1 + f(nx, ny, (dirNo + 1) % 4, turns + 1, grid);
     }
+
+    return max(turnOff, turnOn);
+  }
+
+  //------------------------------------------------------------------------------
+  // Main function to compute maximum V-diagonal length
+  //------------------------------------------------------------------------------
+  int lenOfVDiagonal(vector<vector<int>> &grid)
+  {
+    n = grid.size();
+    m = grid[0].size();
+    int maxi = 0;
+
+    // Iterate through all cells to find valid starting points
+    for (int i = 0; i < n; i++)
+    {
+      for (int j = 0; j < m; j++)
+      {
+        if (grid[i][j] == 1)
+        {
+          maxi = max(maxi, 1);
+
+          // Try all 4 diagonal directions
+          for (int dirNo = 0; dirNo < 4; dirNo++)
+          {
+            int nx = i + dx[dirNo];
+            int ny = j + dy[dirNo];
+
+            // Check if valid diagonal move
+            if (nx < 0 || ny < 0 || nx >= n || ny >= m || grid[nx][ny] <= 1)
+              continue;
+
+            int val = 1 + f(nx, ny, dirNo, 0, grid);
+            maxi = max(maxi, val);
+          }
+        }
+      }
+    }
+    return maxi;
+  }
 };
 
 //==============================================================================
@@ -3611,12 +3903,13 @@ public:
 // - This simplifies to (n * m) / 2.
 //==============================================================================
 
-class Solution {
+class Solution
+{
 public:
-    long long flowerGame(int n, int m)
-    {
-        return (1LL * n * m) / 2;
-    }
+  long long flowerGame(int n, int m)
+  {
+    return (1LL * n * m) / 2;
+  }
 };
 
 //==============================================================================
@@ -3656,39 +3949,44 @@ public:
 // marginal gain, ensuring optimal distribution (greedy strategy).
 //==============================================================================
 
-class Solution {
+class Solution
+{
 public:
-    double maxAverageRatio(vector<vector<int>>& classes, int extraStudents)
+  double maxAverageRatio(vector<vector<int>> &classes, int extraStudents)
+  {
+    // Helper lambda to compute gain from adding one student
+    auto gain = [](int p, int t)
     {
-        // Helper lambda to compute gain from adding one student
-        auto gain = [](int p, int t) {
-            return (double)(p + 1) / (t + 1) - (double)p / t;
-            };
+      return (double)(p + 1) / (t + 1) - (double)p / t;
+    };
 
-        // Max heap storing (gain, pass, total)
-        priority_queue<tuple<double, int, int>> pq;
-        for (auto& c : classes) {
-            pq.push({ gain(c[0], c[1]), c[0], c[1] });
-        }
-
-        // Distribute extra students
-        while (extraStudents--) {
-            auto [g, p, t] = pq.top();
-            pq.pop();
-            p++, t++;  // add student
-            pq.push({ gain(p, t), p, t });
-        }
-
-        // Compute total average
-        double total = 0.0;
-        while (!pq.empty()) {
-            auto [g, p, t] = pq.top();
-            pq.pop();
-            total += (double)p / t;
-        }
-
-        return total / classes.size();
+    // Max heap storing (gain, pass, total)
+    priority_queue<tuple<double, int, int>> pq;
+    for (auto &c : classes)
+    {
+      pq.push({gain(c[0], c[1]), c[0], c[1]});
     }
+
+    // Distribute extra students
+    while (extraStudents--)
+    {
+      auto [g, p, t] = pq.top();
+      pq.pop();
+      p++, t++; // add student
+      pq.push({gain(p, t), p, t});
+    }
+
+    // Compute total average
+    double total = 0.0;
+    while (!pq.empty())
+    {
+      auto [g, p, t] = pq.top();
+      pq.pop();
+      total += (double)p / t;
+    }
+
+    return total / classes.size();
+  }
 };
 
 //==============================================================================
@@ -3733,38 +4031,43 @@ public:
 // - Greedily count valid j’s where y_j is between (bot, top].
 //==============================================================================
 
-class Solution {
+class Solution
+{
 public:
-    int numberOfPairs(vector<vector<int>>& points)
-    {
-        // Sort by x ascending, if tie then y descending
-        sort(points.begin(), points.end(), [](const auto& a, const auto& b) {
+  int numberOfPairs(vector<vector<int>> &points)
+  {
+    // Sort by x ascending, if tie then y descending
+    sort(points.begin(), points.end(), [](const auto &a, const auto &b)
+         {
             if (a[0] == b[0]) return a[1] > b[1];
-            return a[0] < b[0];
-            });
+            return a[0] < b[0]; });
 
-        int n = points.size();
-        int result = 0;
+    int n = points.size();
+    int result = 0;
 
-        // Traverse each point as potential "top" bound
-        for (int i = 0; i < n; i++) {
-            int top = points[i][1];
-            int bot = INT_MIN;
+    // Traverse each point as potential "top" bound
+    for (int i = 0; i < n; i++)
+    {
+      int top = points[i][1];
+      int bot = INT_MIN;
 
-            // Check subsequent points
-            for (int j = i + 1; j < n; j++) {
-                int y = points[j][1];
+      // Check subsequent points
+      for (int j = i + 1; j < n; j++)
+      {
+        int y = points[j][1];
 
-                if (bot < y && y <= top) {
-                    result++;
-                    bot = y;  // update lower bound
-                    if (bot == top) break;  // optimization
-                }
-            }
+        if (bot < y && y <= top)
+        {
+          result++;
+          bot = y; // update lower bound
+          if (bot == top)
+            break; // optimization
         }
-
-        return result;
+      }
     }
+
+    return result;
+  }
 };
 
 //==============================================================================
@@ -3798,17 +4101,21 @@ public:
 // - Return result based on which distance is smaller.
 //==============================================================================
 
-class Solution {
+class Solution
+{
 public:
-    int findClosest(int x, int y, int z)
-    {
-        int x_dist = abs(z - x);
-        int y_dist = abs(z - y);
+  int findClosest(int x, int y, int z)
+  {
+    int x_dist = abs(z - x);
+    int y_dist = abs(z - y);
 
-        if (x_dist < y_dist) return 1;   // x is closer
-        else if (x_dist > y_dist) return 2;  // y is closer
-        else return 0;   // equally close
-    }
+    if (x_dist < y_dist)
+      return 1; // x is closer
+    else if (x_dist > y_dist)
+      return 2; // y is closer
+    else
+      return 0; // equally close
+  }
 };
 
 //==============================================================================
@@ -3851,25 +4158,29 @@ cout << sol.findClosest(10, 2, 6);  // Output: 0 (both equally close)
 //
 //==============================================================================
 
-class Solution {
+class Solution
+{
 public:
-    int makeTheIntegerZero(int num1, int num2)
+  int makeTheIntegerZero(int num1, int num2)
+  {
+    for (int k = 1; k <= 60; k++)
     {
-        for (int k = 1; k <= 60; k++) {
-            long long x = num1 - 1LL * num2 * k;
+      long long x = num1 - 1LL * num2 * k;
 
-            // Condition: x must be >= k
-            if (x < k) {
-                return -1;
-            }
-
-            // Check if x can be split into exactly k powers of 2
-            if (k >= __builtin_popcountll(x)) {
-                return k;
-            }
-        }
+      // Condition: x must be >= k
+      if (x < k)
+      {
         return -1;
+      }
+
+      // Check if x can be split into exactly k powers of 2
+      if (k >= __builtin_popcountll(x))
+      {
+        return k;
+      }
     }
+    return -1;
+  }
 };
 
 //==============================================================================
@@ -3884,4 +4195,109 @@ Example Usage:
 Solution sol;
 cout << sol.makeTheIntegerZero(12, 2); // Output: 2
 cout << sol.makeTheIntegerZero(5, 3);  // Output: -1
+*/
+
+//==============================================================================
+// Problem: Minimum Operations on Ranges (Custom Problem)
+//
+// Task:
+// Given a set of queries where each query is a range [st, end], calculate the
+// minimum operations required based on certain rules involving powers of 4
+// and multipliers. For each query:
+// - Compute contributions from segments defined by powers of 4.
+// - Weight contributions by a multiplier (mul), which increases with each step.
+// - Sum the contributions and add half of it (rounded up) to the total answer.
+//
+// Key Observations:
+// - Multiplier (mul) starts from (log2(st - 1) / 2) + 1 if st > 1, else 1.
+// - Ranges are divided into blocks of length 4^k.
+// - For partial blocks at the end, only the portion up to `end` is considered.
+// - Each block contributes its length * multiplier to the sum.
+// - Final contribution for each query is ceil(sum / 2).
+//
+// Approach:
+// 1. For each query [st, end]:
+//    - Initialize multiplier based on st.
+//    - Find the first complete block starting from st.
+//    - Add contributions from partial block before beg.
+//    - Iterate through full blocks until end.
+//    - Add final partial block contribution if necessary.
+// 2. Return accumulated total across all queries.
+//
+//==============================================================================
+
+class Solution
+{
+public:
+  long long minOperations(vector<vector<int>> &queries)
+  {
+    long long ans = 0;
+
+    for (auto &x : queries)
+    {
+      long long sum = 0;
+      int st = x[0];
+      int end = x[1];
+
+      // Base multiplier depends on st
+      int base = 0;
+      if (st > 1)
+        base = log2(st - 1) / 2;
+
+      long long mul = base + 1;
+      long long beg = pow(4, base + 1);
+
+      // If the first block already exceeds 'end'
+      if (beg > end)
+      {
+        ans += ceil(((end - st + 1) * mul) / 2.0);
+        continue;
+      }
+
+      // Partial block contribution before beg
+      sum += (beg - st) * mul;
+
+      // Traverse through full blocks
+      while (true)
+      {
+        long long next = beg * 4;
+        mul++;
+
+        if (next - 1 >= end)
+        {
+          // Final partial block
+          sum += (end - beg + 1) * mul;
+          break;
+        }
+        else
+        {
+          // Full block contribution
+          sum += (next - beg) * mul;
+        }
+
+        beg *= 4;
+      }
+
+      // Add ceil(sum / 2) to result
+      ans += ceil(sum / 2.0);
+    }
+
+    return ans;
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(Q * logN), where Q is number of queries, N is the largest `end`.
+//   Each query may traverse ~log4(N) blocks.
+// - Space: O(1), constant extra space used.
+//
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+vector<vector<int>> queries = {{1, 10}, {5, 20}};
+cout << sol.minOperations(queries); // Output depends on rules
 */
