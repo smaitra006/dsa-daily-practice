@@ -4301,3 +4301,64 @@ Solution sol;
 vector<vector<int>> queries = {{1, 10}, {5, 20}};
 cout << sol.minOperations(queries); // Output depends on rules
 */
+
+//==============================================================================
+// Problem: Find N Unique Integers Sum up to Zero (LeetCode 1304)
+//
+// Task:
+// Given an integer n, return any array of n unique integers such that
+// they sum up to 0.
+//
+// Key Observations:
+// - For every positive integer i, we can add its negative counterpart -i.
+// - If n is odd, we must also include 0 to balance the sum.
+// - If n is even, pairs (i, -i) are enough to ensure sum = 0.
+//
+// Approach:
+// 1. Initialize an empty result vector.
+// 2. If n is odd, add 0 first.
+// 3. Loop from 1 to n/2:
+//    - Push back i and -i as a pair.
+// 4. Return the constructed vector.
+//
+//==============================================================================
+
+class Solution
+{
+public:
+  vector<int> sumZero(int n)
+  {
+    vector<int> result;
+
+    // Handle odd n by adding 0
+    if (n % 2 != 0)
+    {
+      result.push_back(0);
+    }
+
+    // Add pairs (i, -i)
+    for (int i = 1; i <= n / 2; i++)
+    {
+      result.push_back(i);
+      result.push_back(-i);
+    }
+
+    return result;
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(n), constructing n elements.
+// - Space: O(n), storing the result array.
+//
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+int n = 5;
+vector<int> ans = sol.sumZero(n);
+// Example Output: {0, 1, -1, 2, -2}  (any valid order is acceptable)
+*/
