@@ -4362,3 +4362,72 @@ int n = 5;
 vector<int> ans = sol.sumZero(n);
 // Example Output: {0, 1, -1, 2, -2}  (any valid order is acceptable)
 */
+
+//==============================================================================
+// Problem: Convert Integer to the Sum of Two No-Zero Integers (LeetCode 1317)
+//
+// Task:
+// Given an integer n, return a list of two integers [a, b] such that:
+// - a + b = n
+// - Both a and b are no-zero integers (no digit contains '0').
+//
+// Key Observations:
+// - We can iterate over possible values of a and check if both a and n - a
+//   are valid no-zero integers.
+// - Checking validity requires ensuring no digit equals 0.
+//
+// Approach:
+// 1. Define a helper function isValid(num):
+//    - Returns false if any digit of num is 0.
+//    - Otherwise, returns true.
+// 2. Iterate a from 1 to n - 1:
+//    - Compute b = n - a.
+//    - If both a and b are valid, return {a, b}.
+// 3. If no such pair exists (though guaranteed by the problem), return {}.
+//
+//==============================================================================
+
+class Solution
+{
+public:
+  // Helper function: check if number contains no zero digits
+  bool isValid(int num)
+  {
+    while (num > 0)
+    {
+      if (num % 10 == 0)
+        return false; // digit '0' found
+      num /= 10;
+    }
+    return true;
+  }
+
+  // Main function: find two no-zero integers that sum to n
+  vector<int> getNoZeroIntegers(int n)
+  {
+    for (int a = 1; a < n; a++)
+    {
+      int b = n - a;
+      if (isValid(a) && isValid(b))
+      {
+        return {a, b};
+      }
+    }
+    return {}; // fallback, though problem guarantees a solution exists
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(n * log(n)), as we check up to n values and each check scans digits.
+// - Space: O(1), only using constant extra memory.
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+int n = 11;
+vector<int> ans = sol.getNoZeroIntegers(n);
+// Example Output: {2, 9} or {3, 8}, etc. (any valid pair is acceptable)
+*/
