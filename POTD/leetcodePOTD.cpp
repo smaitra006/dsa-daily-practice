@@ -4431,3 +4431,73 @@ int n = 11;
 vector<int> ans = sol.getNoZeroIntegers(n);
 // Example Output: {2, 9} or {3, 8}, etc. (any valid pair is acceptable)
 */
+
+//==============================================================================
+// Problem: Number of People Aware of a Secret (LeetCode 2327)
+//
+// Task:
+// A secret is shared by one person on day 1. Each person who knows the secret:
+//   - Starts sharing it with one new person per day starting at `delay` days
+//     after they learn it.
+//   - Stops sharing (forgets it) after `forget` days.
+// Given integers n, delay, and forget, return the number of people aware of the
+// secret at day n. Answer modulo 1e9+7.
+//
+// Key Observations:
+// - Dynamic Programming can be used to simulate the process.
+// - dp[t] = number of people who *learn* the secret on day t.
+// - share = running count of people who are currently eligible to share.
+// - We add dp[t - delay] when they become eligible to share.
+// - We subtract dp[t - forget] when they forget the secret.
+// - Finally, sum the number of people who *still know* the secret by day n.
+//
+// Approach:
+// 1. Initialize dp[1] = 1 (one person knows secret on day 1).
+// 2. For each day t from 2 to n:
+//    - Add people who become eligible at (t - delay).
+//    - Remove people who forget at (t - forget).
+//    - Set dp[t] = number of new people learning on day t.
+// 3. At the end, sum dp[i] for last `forget` days to count those who still know.
+//==============================================================================
+
+class Solution
+{
+public:
+  int peopleAwareOfSecret(int n, int delay, int forget)
+  {
+    vector<long long> dp(n + 1, 0);
+    dp[1] = 1; // Day 1: one person knows the secret
+    long long share = 0, MOD = 1000000007;
+
+    for (int t = 2; t <= n; t++)
+    {
+      if (t - delay > 0)
+        share = (share + dp[t - delay] + MOD) % MOD; // new sharers
+      if (t - forget > 0)
+        share = (share - dp[t - forget] + MOD) % MOD; // forgetters
+      dp[t] = share;
+    }
+
+    long long know = 0;
+    for (int i = n - forget + 1; i <= n; i++)
+    {
+      know = (know + dp[i]) % MOD; // sum up last active people
+    }
+    return (int)know;
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(n), iterating over each day up to n.
+// - Space: O(n), storing dp values for each day.
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+int n = 6, delay = 2, forget = 4;
+int result = sol.peopleAwareOfSecret(n, delay, forget);
+// Expected Output: 5
+*/
