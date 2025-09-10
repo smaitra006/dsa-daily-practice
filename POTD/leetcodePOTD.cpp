@@ -4501,3 +4501,114 @@ int n = 6, delay = 2, forget = 4;
 int result = sol.peopleAwareOfSecret(n, delay, forget);
 // Expected Output: 5
 */
+
+//==============================================================================
+// Problem: Minimum Number of People to Teach (LeetCode 1733)
+//
+// Task:
+// There are `n` users and `totalLanguages` languages. Each user may know
+// multiple languages. A friendship exists between some pairs of users.
+// Two users can communicate if they share at least one common language.
+// You may teach one language to some users. Return the minimum number of users
+// that must be taught so that *all friends* can communicate.
+//
+// Key Observations:
+// - For each friendship, check if the pair can already communicate.
+// - If not, both users become candidates for teaching.
+// - Then, try teaching each possible language and count how many of the
+//   "users-to-teach" still don’t know it.
+// - The minimum across all languages is the answer.
+//
+// Approach:
+// 1. Iterate over friendships, mark pairs who cannot communicate.
+// 2. Gather all such users into a `usersToTeach` set.
+// 3. For each language `L`:
+//    - Count how many users in `usersToTeach` don’t know `L`.
+//    - Track the minimum count.
+// 4. Return the minimum count as the answer.
+//==============================================================================
+
+class Solution
+{
+public:
+  int minimumTeachings(int totalLanguages, vector<vector<int>> &userLanguages, vector<vector<int>> &friendships)
+  {
+    unordered_set<int> usersToTeach;
+
+    // Step 1: Identify users in friendships who cannot communicate
+    for (auto &friendship : friendships)
+    {
+      int user1 = friendship[0] - 1;
+      int user2 = friendship[1] - 1;
+      bool canCommunicate = false;
+
+      for (int lang1 : userLanguages[user1])
+      {
+        for (int lang2 : userLanguages[user2])
+        {
+          if (lang1 == lang2)
+          {
+            canCommunicate = true;
+            break;
+          }
+        }
+        if (canCommunicate)
+          break;
+      }
+
+      if (!canCommunicate)
+      {
+        usersToTeach.insert(user1);
+        usersToTeach.insert(user2);
+      }
+    }
+
+    // Step 2: Try teaching each language
+    int minUsersToTeach = userLanguages.size() + 1;
+
+    for (int language = 1; language <= totalLanguages; language++)
+    {
+      int count = 0;
+
+      for (int user : usersToTeach)
+      {
+        bool knowsLanguage = false;
+        for (int lang : userLanguages[user])
+        {
+          if (lang == language)
+          {
+            knowsLanguage = true;
+            break;
+          }
+        }
+        if (!knowsLanguage)
+          count++;
+      }
+
+      minUsersToTeach = min(minUsersToTeach, count);
+    }
+
+    return minUsersToTeach;
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(F * L + N * L), where
+//   F = number of friendships, L = average languages per user, N = number of users.
+//   Checking communication = O(F * L^2).
+//   Teaching simulation = O(N * L).
+// - Space: O(N), storing candidate users to teach.
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+int totalLanguages = 3;
+vector<vector<int>> userLanguages = {{2}, {1,3}, {1,2}, {3}};
+vector<vector<int>> friendships = {{1,4}, {1,2}, {3,4}, {2,3}};
+
+int result = sol.minimumTeachings(totalLanguages, userLanguages, friendships);
+// Expected Output: 2
+*/
