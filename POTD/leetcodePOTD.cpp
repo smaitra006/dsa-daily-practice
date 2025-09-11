@@ -4612,3 +4612,92 @@ vector<vector<int>> friendships = {{1,4}, {1,2}, {3,4}, {2,3}};
 int result = sol.minimumTeachings(totalLanguages, userLanguages, friendships);
 // Expected Output: 2
 */
+
+//==============================================================================
+// Problem: Sort Vowels in a String (LeetCode 2785)
+//
+// Task:
+// Given a string `s`, sort only the vowels in the string while keeping all
+// other characters in their original positions. Return the modified string.
+//
+// Key Observations:
+// - Only vowels ('a', 'e', 'i', 'o', 'u' in both cases) are affected.
+// - Extract all vowels, sort them, and then reinsert them in order.
+// - Non-vowel characters remain untouched.
+//
+// Approach:
+// 1. Traverse the string and collect all vowels into a vector.
+// 2. Sort the vowel vector alphabetically.
+// 3. Traverse the string again, replacing each vowel with the next one
+//    from the sorted list.
+//==============================================================================
+
+class Solution
+{
+public:
+  // Helper function to check if a character is a vowel
+  bool isVowel(char c)
+  {
+    switch (c)
+    {
+    case 'A':
+    case 'E':
+    case 'I':
+    case 'O':
+    case 'U':
+    case 'a':
+    case 'e':
+    case 'i':
+    case 'o':
+    case 'u':
+      return true;
+    default:
+      return false;
+    }
+  }
+
+  string sortVowels(string s)
+  {
+    vector<char> vowels;
+
+    // Step 1: Extract all vowels
+    for (char c : s)
+    {
+      if (isVowel(c))
+      {
+        vowels.push_back(c);
+      }
+    }
+
+    // Step 2: Sort the vowels
+    sort(vowels.begin(), vowels.end());
+
+    // Step 3: Reinsert vowels in sorted order
+    int idx = 0;
+    for (char &c : s)
+    {
+      if (isVowel(c))
+      {
+        c = vowels[idx++];
+      }
+    }
+
+    return s;
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(N + V log V), where N = length of the string, V = number of vowels.
+//   Extracting vowels = O(N), sorting vowels = O(V log V), reinserting = O(N).
+// - Space: O(V), storing extracted vowels.
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+string s = "lEetcOde";
+string result = sol.sortVowels(s);
+// Expected Output: "lEOtcede"
+*/
