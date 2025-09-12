@@ -4701,3 +4701,47 @@ string s = "lEetcOde";
 string result = sol.sortVowels(s);
 // Expected Output: "lEOtcede"
 */
+
+//==============================================================================
+// Problem: Check if Alice Wins
+//
+// Task:
+// Given a string `s`, determine if Alice wins. Alice wins if the string
+// contains at least one vowel ('a', 'e', 'i', 'o', 'u').
+//
+// Approach:
+// - Iterate through each character in the string.
+// - If any character is a vowel, return true.
+// - If no vowels are found, return false.
+//==============================================================================
+
+class Solution
+{
+public:
+  bool doesAliceWin(string s)
+  {
+    for (char c : s)
+    {
+      if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(N), where N = length of the string (single traversal).
+// - Space: O(1), no extra storage apart from variables.
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+string s = "leetcode";
+bool result = sol.doesAliceWin(s);
+// Expected Output: true (since vowels exist in the string)
+*/
