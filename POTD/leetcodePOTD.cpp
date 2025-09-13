@@ -4745,3 +4745,71 @@ string s = "leetcode";
 bool result = sol.doesAliceWin(s);
 // Expected Output: true (since vowels exist in the string)
 */
+
+//==============================================================================
+// Problem: Maximum Frequency Sum
+//
+// Task:
+// Given a string `s`, find the maximum frequency of any vowel plus the maximum
+// frequency of any consonant in the string.
+//
+// Approach:
+// 1. Use an unordered_map to count the frequency of each character.
+// 2. Track the highest frequency among vowels and the highest frequency among consonants.
+// 3. Return their sum.
+//
+// Notes:
+// - Vowels considered: 'a', 'e', 'i', 'o', 'u'.
+//==============================================================================
+
+class Solution
+{
+public:
+  int maxFreqSum(string s)
+  {
+    unordered_map<char, int> mp;
+
+    // Count frequencies of all characters
+    for (char ch : s)
+    {
+      mp[ch]++;
+    }
+
+    int vowel_cnt = 0, conso_cnt = 0;
+
+    // Find max frequency of vowels and consonants
+    for (auto item : mp)
+    {
+      char ch = item.first;
+      int cnt = item.second;
+
+      if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u')
+      {
+        vowel_cnt = max(vowel_cnt, cnt);
+      }
+      else
+      {
+        conso_cnt = max(conso_cnt, cnt);
+      }
+    }
+
+    return vowel_cnt + conso_cnt;
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(N), where N = length of string (counting + scanning map).
+// - Space: O(K), where K = number of unique characters (bounded by 26 for lowercase).
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+string s = "leetcode";
+int result = sol.maxFreqSum(s);
+// Frequencies: l=1, e=3, t=1, c=1, o=1, d=1
+// Max vowel = 3 (e), Max consonant = 1 (any of l,t,c,d)
+// Expected Output: 4
+*/
