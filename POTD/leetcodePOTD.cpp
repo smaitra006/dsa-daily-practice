@@ -4813,3 +4813,132 @@ int result = sol.maxFreqSum(s);
 // Max vowel = 3 (e), Max consonant = 1 (any of l,t,c,d)
 // Expected Output: 4
 */
+
+//==============================================================================
+// Problem: Vowel Spellchecker
+//
+// Task:
+// Implement a spellchecker with the following rules applied in order of priority:
+// 1. **Exact Match**: If the query matches exactly with a word in the wordlist.
+// 2. **Case-Insensitive Match**: If the lowercase form of the query matches a
+//    word in the wordlist.
+// 3. **Vowel-Insensitive Match**: If after replacing all vowels ('a','e','i','o','u')
+//    with '*', the query matches a word in the wordlist.
+// 4. If none of the above match, return an empty string for that query.
+//
+// Approach:
+// - Use an unordered_set for exact matches.
+// - Use an unordered_map for case-insensitive matches (first occurrence priority).
+// - Use another unordered_map for vowel-insensitive matches (first occurrence priority).
+// - Normalize vowels by replacing them with '*'.
+// - For each query, check in order: exact -> case-insensitive -> vowel-insensitive.
+//
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution
+{
+public:
+  vector<string> spellchecker(vector<string> &wordlist, vector<string> &queries)
+  {
+    // Exact matches
+    unordered_set<string> exactMatchSet(wordlist.begin(), wordlist.end());
+
+    // Case-insensitive and vowel-insensitive maps
+    unordered_map<string, string> caseInsensitiveMap;
+    unordered_map<string, string> vowelInsensitiveMap;
+
+    // Helper lambda: replace vowels with '*'
+    auto normalizeVowels = [](const string &word)
+    {
+      string res = word;
+      for (char &c : res)
+      {
+        if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
+        {
+          c = '*';
+        }
+      }
+      return res;
+    };
+
+    // Build maps
+    for (string &word : wordlist)
+    {
+      string lowerWord = word;
+      transform(lowerWord.begin(), lowerWord.end(), lowerWord.begin(), ::tolower);
+
+      // Store first occurrence for case-insensitive match
+      if (!caseInsensitiveMap.count(lowerWord))
+      {
+        caseInsensitiveMap[lowerWord] = word;
+      }
+
+      // Store first occurrence for vowel-insensitive match
+      string vowelNormalized = normalizeVowels(lowerWord);
+      if (!vowelInsensitiveMap.count(vowelNormalized))
+      {
+        vowelInsensitiveMap[vowelNormalized] = word;
+      }
+    }
+
+    vector<string> results;
+
+    // Process queries
+    for (string &query : queries)
+    {
+      // Rule 1: Exact match
+      if (exactMatchSet.count(query))
+      {
+        results.push_back(query);
+        continue;
+      }
+
+      // Rule 2: Case-insensitive match
+      string lowerQuery = query;
+      transform(lowerQuery.begin(), lowerQuery.end(), lowerQuery.begin(), ::tolower);
+      if (caseInsensitiveMap.count(lowerQuery))
+      {
+        results.push_back(caseInsensitiveMap[lowerQuery]);
+        continue;
+      }
+
+      // Rule 3: Vowel-insensitive match
+      string vowelNormalized = normalizeVowels(lowerQuery);
+      if (vowelInsensitiveMap.count(vowelNormalized))
+      {
+        results.push_back(vowelInsensitiveMap[vowelNormalized]);
+        continue;
+      }
+
+      // Rule 4: No match
+      results.push_back("");
+    }
+
+    return results;
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Preprocessing (wordlist):
+//   Time: O(W * L), Space: O(W * L)
+//   where W = number of words, L = average word length.
+// - Query processing:
+//   Time: O(Q * L), Space: O(1)
+//   where Q = number of queries.
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+vector<string> wordlist = {"KiTe","kite","hare","Hare"};
+vector<string> queries = {"kite","Kite","KiTe","Hare","HARE","Hear","hear","keti","keet","keto"};
+vector<string> result = sol.spellchecker(wordlist, queries);
+
+// Expected Output:
+// ["kite","KiTe","KiTe","Hare","hare","","","KiTe","","KiTe"]
+*/
