@@ -4942,3 +4942,69 @@ vector<string> result = sol.spellchecker(wordlist, queries);
 // Expected Output:
 // ["kite","KiTe","KiTe","Hare","hare","","","KiTe","","KiTe"]
 */
+
+//==============================================================================
+// Problem: Maximum Number of Words You Can Type
+//
+// Task:
+// Given a string `text` representing a sentence and a string `brokenLetters`
+// representing broken keyboard letters, return the number of words in `text`
+// that can be typed fully without using broken letters.
+//
+// Approach:
+// 1. Store all broken letters in an unordered_set for O(1) lookup.
+// 2. Split the text into words using stringstream.
+// 3. For each word, check if it contains any broken letter.
+//    - If yes, mark the word as "broken" and skip it.
+//    - If no, increment the count.
+// 4. Return the total count.
+//
+//==============================================================================
+
+class Solution
+{
+public:
+  int canBeTypedWords(string text, string brokenLetters)
+  {
+    stringstream ss(text);
+    unordered_set<char> brokenSet(brokenLetters.begin(), brokenLetters.end());
+
+    string word;
+    int count = 0;
+
+    while (ss >> word)
+    {
+      bool broken = false;
+      for (char ch : word)
+      {
+        if (brokenSet.find(ch) != brokenSet.end())
+        { // FIXED condition
+          broken = true;
+          break;
+        }
+      }
+      if (!broken)
+        count++;
+    }
+
+    return count;
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(N + M), where N = total characters in text, M = brokenLetters length
+// - Space: O(M), for the unordered_set of broken letters
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+string text = "hello world leetcode";
+string brokenLetters = "ad";
+int result = sol.canBeTypedWords(text, brokenLetters);
+
+// Expected Output: 1
+// Only "world" can be typed fully.
+*/
