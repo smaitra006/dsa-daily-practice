@@ -5008,3 +5008,81 @@ int result = sol.canBeTypedWords(text, brokenLetters);
 // Expected Output: 1
 // Only "world" can be typed fully.
 */
+
+//==============================================================================
+// Problem: Replace Non-Coprime Numbers in Array
+//
+// Task:
+// You are given an array of integers `nums`. Replace adjacent non-coprime
+// numbers with their LCM until no such adjacent pair remains.
+// Return the final array.
+//
+// Approach:
+// 1. Use a stack to maintain processed numbers.
+// 2. For each number in `nums`:
+//    - While the stack is not empty and the top of stack shares a gcd > 1
+//      with the current number, merge them into their LCM.
+//    - Push the merged number back into the stack.
+// 3. At the end, the stack contains the final array.
+//
+// Key Idea:
+// - Adjacent non-coprimes can "cascade" merges, so we keep merging backwards
+//   until no gcd > 1 remains.
+// - LCM(a, b) = (a / gcd(a, b)) * b.
+//
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution
+{
+public:
+  // Utility function to compute gcd
+  int gcd(int a, int b)
+  {
+    return b == 0 ? a : gcd(b, a % b);
+  }
+
+  vector<int> replaceNonCoprimes(vector<int> &nums)
+  {
+    vector<int> st;
+    for (int num : nums)
+    {
+      // Keep merging until gcd == 1
+      while (!st.empty())
+      {
+        int top = st.back();
+        int g = gcd(top, num);
+        if (g == 1)
+          break;
+
+        st.pop_back();
+        long long merged = (long long)top / g * num; // avoid overflow
+        num = (int)merged;
+      }
+      st.push_back(num);
+    }
+    return st;
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Time: O(N log A), where N = nums.size(), A = max element (due to gcd calls).
+// - Space: O(N), for the stack.
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Solution sol;
+vector<int> nums = {6, 4, 3, 2, 7, 6, 2};
+vector<int> result = sol.replaceNonCoprimes(nums);
+
+// Expected Output: [12, 7, 6]
+// Explanation:
+// (6, 4) → merge into 12
+// (12, 3, 2) → merge (12, 3) → 12; merge (12, 2) → 12
+// Leftover sequence → [12, 7, 6]
+*/
