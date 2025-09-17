@@ -5086,3 +5086,42 @@ vector<int> result = sol.replaceNonCoprimes(nums);
 // (12, 3, 2) → merge (12, 3) → 12; merge (12, 2) → 12
 // Leftover sequence → [12, 7, 6]
 */
+
+class FoodRatings
+{
+  unordered_map<string, string> foodToCuisine;                  // food -> cuisine
+  unordered_map<string, int> foodToRating;                      // food -> rating
+  unordered_map<string, set<pair<int, string>>> cuisineToFoods; // cuisine -> set of { -rating, food }
+
+public:
+  // Constructor
+  FoodRatings(vector<string> &foods, vector<string> &cuisines, vector<int> &ratings)
+  {
+    for (int i = 0; i < foods.size(); ++i)
+    {
+      foodToCuisine[foods[i]] = cuisines[i];
+      foodToRating[foods[i]] = ratings[i];
+      cuisineToFoods[cuisines[i]].insert({-ratings[i], foods[i]});
+    }
+  }
+
+  // Change the rating of a given food
+  void changeRating(string food, int newRating)
+  {
+    string cuisine = foodToCuisine[food];
+    int oldRating = foodToRating[food];
+
+    // Remove old entry
+    cuisineToFoods[cuisine].erase({-oldRating, food});
+
+    // Insert new entry
+    cuisineToFoods[cuisine].insert({-newRating, food});
+    foodToRating[food] = newRating;
+  }
+
+  // Return the highest rated food for a cuisine
+  string highestRated(string cuisine)
+  {
+    return cuisineToFoods[cuisine].begin()->second;
+  }
+};
