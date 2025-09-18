@@ -5125,3 +5125,111 @@ public:
     return cuisineToFoods[cuisine].begin()->second;
   }
 };
+
+//==============================================================================
+// Problem: Task Manager
+//
+// Task:
+// Implement a task manager that supports the following operations:
+// 1. Initialize with a list of tasks (each with userId, taskId, priority).
+// 2. Add a new task.
+// 3. Edit the priority of an existing task.
+// 4. Remove a task.
+// 5. Execute the highest-priority task.
+//
+// Approach:
+// - Use a max-heap (`priority_queue`) to always retrieve the task with the
+//   highest priority quickly.
+// - Maintain hash maps:
+//   * taskPriority[taskId] → current priority (or -1 if removed).
+//   * taskOwner[taskId]   → user who owns the task.
+// - Lazy deletion: when popping from the heap, check if the priority matches
+//   the latest one in `taskPriority`. If not, skip it.
+// - This avoids costly heap updates.
+//
+// Key Idea:
+// - The heap may store outdated entries due to edits/removals.
+// - Validity is ensured by checking `taskPriority` when popping.
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class TaskManager
+{
+  priority_queue<pair<int, int>> tasks; // (priority, taskId)
+  unordered_map<int, int> taskPriority; // taskId → priority
+  unordered_map<int, int> taskOwner;    // taskId → userId
+
+public:
+  // Constructor: initialize from list of tasks
+  TaskManager(vector<vector<int>> &tasksList)
+  {
+    for (const auto &task : tasksList)
+    {
+      add(task[0], task[1], task[2]);
+    }
+  }
+
+  // Add a new task
+  void add(int userId, int taskId, int priority)
+  {
+    tasks.push({priority, taskId});
+    taskPriority[taskId] = priority;
+    taskOwner[taskId] = userId;
+  }
+
+  // Edit priority of an existing task
+  void edit(int taskId, int newPriority)
+  {
+    tasks.push({newPriority, taskId});
+    taskPriority[taskId] = newPriority;
+  }
+
+  // Remove a task (mark as invalid)
+  void rmv(int taskId)
+  {
+    taskPriority[taskId] = -1;
+  }
+
+  // Execute the highest-priority valid task
+  int execTop()
+  {
+    while (!tasks.empty())
+    {
+      const auto task = tasks.top();
+      tasks.pop();
+
+      if (task.first == taskPriority[task.second])
+      {
+        taskPriority[task.second] = -1; // mark as executed
+        return taskOwner[task.second];
+      }
+    }
+    return -1; // No valid task left
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - Add/Edit: O(log N) for heap insertion
+// - Remove: O(1) (lazy removal)
+// - Execute: O(log N) amortized (skips outdated tasks as needed)
+// - Space: O(N) for heap + hash maps
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+vector<vector<int>> tasks = {
+  {1, 101, 5},   // user 1, task 101, priority 5
+  {2, 102, 3},   // user 2, task 102, priority 3
+  {1, 103, 7}    // user 1, task 103, priority 7
+};
+
+TaskManager tm(tasks);
+tm.add(3, 104, 6);       // Add new task
+tm.edit(101, 8);         // Update priority of task 101
+cout << tm.execTop();    // Executes task 101 (priority 8) → outputs 1 (userId)
+*/
+//==============================================================================
