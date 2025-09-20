@@ -5234,44 +5234,80 @@ cout << tm.execTop();    // Executes task 101 (priority 8) → outputs 1 (userId
 */
 //==============================================================================
 
+//==============================================================================
+// Problem: Router Packet Manager
+//
+// Task:
+// Design a Router class with limited memory to manage packets. It should support:
+// 1. addPacket(source, destination, timestamp) → Add a new packet.
+//    - Reject duplicate packets.
+//    - If memory is full, forward (remove) the oldest packet first.
+// 2. forwardPacket() → Remove and return the oldest packet in memory.
+// 3. getCount(destination, startTime, endTime) →
+//    Return the count of packets sent to `destination` whose timestamps
+//    fall within the inclusive range [startTime, endTime].
+//
+// Approach:
+// - Encode (source, destination, timestamp) into a unique key using bit shifting.
+// - Maintain:
+//   * `packets`: stores packet metadata mapped by unique key.
+//   * `counts[destination]`: maintains sorted timestamps of packets per destination.
+//   * `q`: queue to track packet insertion order (for FIFO forwarding).
+// - Use binary search (`lower_bound`, `upper_bound`) to efficiently count timestamps
+//   within a given time window.
+//
+// Key Idea:
+// - Packets are uniquely identified by (source, destination, timestamp).
+// - Memory management follows FIFO (queue).
+// - Efficient timestamp queries achieved via binary search on sorted lists.
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
 class Router
 {
 private:
-  int size;
-  unordered_map<long long, vector<int>> packets;
-  unordered_map<int, vector<int>> counts;
-  queue<long long> q;
+  int size;                                      // memory limit
+  unordered_map<long long, vector<int>> packets; // key → {source, destination, timestamp}
+  unordered_map<int, vector<int>> counts;        // destination → timestamps
+  queue<long long> q;                            // maintain FIFO order
 
+  // Encode (source, destination, timestamp) into a 64-bit key
   long long encode(int source, int destination, int timestamp)
   {
     return ((long long)source << 40) | ((long long)destination << 20) | timestamp;
   }
 
+  // Lower bound helper
   int lowerBound(vector<int> &list, int target)
   {
     return (int)(lower_bound(list.begin(), list.end(), target) - list.begin());
   }
 
+  // Upper bound helper
   int upperBound(vector<int> &list, int target)
   {
     return (int)(upper_bound(list.begin(), list.end(), target) - list.begin());
   }
 
 public:
+  // Constructor
   Router(int memoryLimit)
   {
     size = memoryLimit;
   }
 
+  // Add a new packet
   bool addPacket(int source, int destination, int timestamp)
   {
     long long key = encode(source, destination, timestamp);
 
     if (packets.find(key) != packets.end())
-      return false;
+      return false; // duplicate packet
 
     if ((int)packets.size() >= size)
-      forwardPacket();
+      forwardPacket(); // memory full → forward oldest
 
     packets[key] = {source, destination, timestamp};
     q.push(key);
@@ -5280,6 +5316,7 @@ public:
     return true;
   }
 
+  // Forward (remove) the oldest packet
   vector<int> forwardPacket()
   {
     if (packets.empty())
@@ -5297,6 +5334,7 @@ public:
     return packet;
   }
 
+  // Get count of packets for a destination in a time window
   int getCount(int destination, int startTime, int endTime)
   {
     auto it = counts.find(destination);
@@ -5311,3 +5349,28 @@ public:
     return right - left;
   }
 };
+
+//==============================================================================
+// Complexity Analysis:
+// - addPacket: O(1) average (hash map insert) + O(1) amortized for queue
+// - forwardPacket: O(1) average (hash erase) + O(1) for queue
+// - getCount: O(log N) per query (binary search)
+// - Space: O(N) for storing packets and timestamps
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+Router router(3);
+
+router.addPacket(1, 2, 10);   // true
+router.addPacket(2, 3, 15);   // true
+router.addPacket(1, 2, 20);   // true
+router.addPacket(3, 4, 25);   // true (evicts oldest: {1,2,10})
+
+cout << router.getCount(2, 5, 30) << endl; // Output: 1 (only timestamp 20 remains)
+
+vector<int> pkt = router.forwardPacket();
+// pkt = {2, 3, 15} (oldest remaining packet)
+*/
+//==============================================================================
