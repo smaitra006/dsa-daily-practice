@@ -5374,3 +5374,139 @@ vector<int> pkt = router.forwardPacket();
 // pkt = {2, 3, 15} (oldest remaining packet)
 */
 //==============================================================================
+
+//==============================================================================
+// Problem: Movie Renting System
+//
+// Task:
+// Design a system to manage renting and reporting of movies across shops.
+// Implement the following operations:
+// 1. search(movie) → Return up to 5 shops offering the movie at the lowest price.
+//    - If tie: choose shop with smaller id.
+// 2. rent(shop, movie) → Mark the movie as rented from the shop.
+// 3. drop(shop, movie) → Mark the movie as returned to the shop.
+// 4. report() → Return up to 5 rented movies sorted by:
+//    - Lowest price, then shop id, then movie id.
+//
+// Approach:
+// - Define a `Node` struct with fields (shop, movie, price) and custom comparator.
+// - Maintain:
+//   * `byPair`: mapping (shop, movie) → Node
+//   * `availableByMovie`: map from movie id → set of available shops (sorted by Node rules)
+//   * `rentedSet`: global set of rented movies (sorted by Node rules)
+//
+// Key Idea:
+// - Use `set<Node>` to maintain sorted order for both available movies per title
+//   and globally rented movies.
+// - Use a unique key encoding `(shop, movie)` for O(1) lookup in maps.
+//==============================================================================
+struct Node
+{
+  int shop, movie, price;
+  bool operator<(const Node &other) const
+  {
+    if (price != other.price)
+      return price < other.price;
+    if (shop != other.shop)
+      return shop < other.shop;
+    return movie < other.movie;
+  }
+};
+
+class MovieRentingSystem
+{
+  unordered_map<long long, Node> byPair;          // (shop, movie) → Node
+  unordered_map<int, set<Node>> availableByMovie; // movie → set of available shops
+  set<Node> rentedSet;                            // globally rented movies
+
+  // Encode (shop, movie) pair into unique 64-bit key
+  long long key(int shop, int movie)
+  {
+    return ((long long)shop << 32) ^ movie;
+  }
+
+public:
+  // Constructor: load all entries
+  MovieRentingSystem(int n, vector<vector<int>> &entries)
+  {
+    for (auto &e : entries)
+    {
+      int shop = e[0], movie = e[1], price = e[2];
+      Node node{shop, movie, price};
+      byPair[key(shop, movie)] = node;
+      availableByMovie[movie].insert(node);
+    }
+  }
+
+  // Search top 5 cheapest shops for a given movie
+  vector<int> search(int movie)
+  {
+    vector<int> res;
+    if (availableByMovie.count(movie) == 0)
+      return res;
+
+    auto &s = availableByMovie[movie];
+    int count = 0;
+    for (auto it = s.begin(); it != s.end() && count < 5; ++it, ++count)
+    {
+      res.push_back(it->shop);
+    }
+    return res;
+  }
+
+  // Rent a movie from a shop
+  void rent(int shop, int movie)
+  {
+    long long k = key(shop, movie);
+    Node node = byPair[k];
+    availableByMovie[movie].erase(node);
+    rentedSet.insert(node);
+  }
+
+  // Drop (return) a movie to a shop
+  void drop(int shop, int movie)
+  {
+    long long k = key(shop, movie);
+    Node node = byPair[k];
+    rentedSet.erase(node);
+    availableByMovie[movie].insert(node);
+  }
+
+  // Report top 5 rented movies
+  vector<vector<int>> report()
+  {
+    vector<vector<int>> res;
+    int count = 0;
+    for (auto it = rentedSet.begin(); it != rentedSet.end() && count < 5; ++it, ++count)
+    {
+      res.push_back({it->shop, it->movie});
+    }
+    return res;
+  }
+};
+
+//==============================================================================
+// Complexity Analysis:
+// - search: O(log N + K), where K ≤ 5 (top results).
+// - rent/drop: O(log N), due to set insert/erase.
+// - report: O(K), where K ≤ 5.
+// - Space: O(N), storing all movies in maps and sets.
+//==============================================================================
+
+/*
+Example Usage:
+--------------
+vector<vector<int>> entries = {
+    {0, 1, 5}, {0, 2, 6}, {0, 3, 7},
+    {1, 1, 4}, {1, 2, 7}, {2, 1, 5}
+};
+
+MovieRentingSystem system(3, entries);
+
+system.search(1);       // → [1, 0, 2]  (sorted by price then shop)
+system.rent(1, 1);      // rent movie 1 from shop 1
+system.report();        // → [[1, 1]]   (shop 1, movie 1)
+system.drop(1, 1);      // return movie 1 to shop 1
+system.search(1);       // → [1, 0, 2]
+*/
+//==============================================================================
