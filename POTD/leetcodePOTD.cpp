@@ -1377,18 +1377,18 @@ public:
  * SPACE COMPLEXITY: O(N * L)
  * ========================================================================= */
 
-struct Node
-{
-  string name;
-  unordered_map<string, Node *> children;
-  string signature;
-
-  Node(string name) : name(name) {}
-};
-
 class Solution
 {
 public:
+  struct Node
+  {
+    string name;
+    unordered_map<string, Node *> children;
+    string signature;
+
+    Node(string name) : name(name) {}
+  };
+
   // Step 1: First DFS to compute unique subtree signatures
   void dfs(Node *node, unordered_map<string, int> &signatureCount)
   {
@@ -5152,9 +5152,6 @@ public:
 // - Validity is ensured by checking `taskPriority` when popping.
 //==============================================================================
 
-#include <bits/stdc++.h>
-using namespace std;
-
 class TaskManager
 {
   priority_queue<pair<int, int>> tasks; // (priority, taskId)
@@ -5261,9 +5258,6 @@ cout << tm.execTop();    // Executes task 101 (priority 8) → outputs 1 (userId
 // - Memory management follows FIFO (queue).
 // - Efficient timestamp queries achieved via binary search on sorted lists.
 //==============================================================================
-
-#include <bits/stdc++.h>
-using namespace std;
 
 class Router
 {
@@ -5509,4 +5503,56 @@ system.report();        // → [[1, 1]]   (shop 1, movie 1)
 system.drop(1, 1);      // return movie 1 to shop 1
 system.search(1);       // → [1, 0, 2]
 */
+//==============================================================================
+
+//==============================================================================
+// Problem: Maximum Frequency Elements
+// Task   : Given an integer array `nums`, return the sum of the frequencies
+//          of the most frequent elements.
+// Approach:
+//   - Use a frequency array (since constraints are small, values ≤ 100).
+//   - Track max frequency as we count.
+//   - Maintain running sum of elements having that max frequency.
+// Complexity:
+//   - Time: O(n) where n = nums.size()
+//   - Space: O(1) since frequency array size is constant (101).
+//==============================================================================
+
+class Solution
+{
+public:
+  int maxFrequencyElements(vector<int> &nums)
+  {
+    uint8_t freq[101] = {0}; // frequency array for values [0..100]
+    uint8_t maxFreq = 0;     // track maximum frequency
+    uint8_t result = 0;      // sum of frequencies of max elements
+
+    for (int n : nums)
+    {
+      uint8_t f = ++freq[n]; // increment frequency of element
+      if (f > maxFreq)
+      {
+        maxFreq = f; // new maximum frequency found
+        result = f;  // reset result to current frequency
+      }
+      else if (f == maxFreq)
+      {
+        result += f; // add to result if frequency matches max
+      }
+    }
+
+    return result;
+  }
+};
+
+//==============================================================================
+// Example Usage:
+//
+// Input: nums = [1,2,2,3,1,4]
+// Output: 4
+// Explanation:
+//   - Frequencies: 1 -> 2, 2 -> 2, 3 -> 1, 4 -> 1
+//   - Max frequency = 2
+//   - Elements with max frequency: 1 and 2
+//   - Result = 2 + 2 = 4
 //==============================================================================
