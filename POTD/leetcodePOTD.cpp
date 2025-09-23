@@ -5556,3 +5556,62 @@ public:
 //   - Elements with max frequency: 1 and 2
 //   - Result = 2 + 2 = 4
 //==============================================================================
+
+//==============================================================================
+// Problem: Compare Version Numbers
+// Task   : Given two version numbers version1 and version2, compare them.
+//          Return:
+//             -1 if version1 < version2
+//              1 if version1 > version2
+//              0 if they are equal.
+// Approach:
+//   - Use stringstream to split both version strings by '.'.
+//   - Compare each corresponding integer part.
+//   - Treat missing parts as 0.
+//   - If a difference is found, return immediately.
+//   - Otherwise, return 0 at the end.
+// Complexity:
+//   - Time: O(n + m), where n and m are lengths of version1 and version2.
+//   - Space: O(1) (only uses a few variables).
+//==============================================================================
+
+class Solution
+{
+public:
+  int compareVersion(string version1, string version2)
+  {
+    stringstream s1(version1), s2(version2);
+    string token1, token2;
+
+    // Process until both streams are exhausted
+    while (getline(s1, token1, '.') || getline(s2, token2, '.'))
+    {
+      int num1 = token1.empty() ? 0 : stoi(token1);
+      int num2 = token2.empty() ? 0 : stoi(token2);
+
+      if (num1 < num2)
+        return -1;
+      if (num1 > num2)
+        return 1;
+
+      // reset tokens for next iteration
+      token1.clear();
+      token2.clear();
+    }
+    return 0;
+  }
+};
+
+//==============================================================================
+// Example Usage:
+//
+// Input: version1 = "1.01", version2 = "1.001"
+// Output: 0
+// Explanation: Both represent the same version (1.1).
+//
+// Input: version1 = "1.0", version2 = "1.0.0"
+// Output: 0
+//
+// Input: version1 = "0.1", version2 = "1.1"
+// Output: -1
+//==============================================================================
