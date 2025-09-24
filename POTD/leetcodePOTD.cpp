@@ -5615,3 +5615,87 @@ public:
 // Input: version1 = "0.1", version2 = "1.1"
 // Output: -1
 //==============================================================================
+
+//==============================================================================
+// Problem: Fraction to Recurring Decimal
+// Task   : Given two integers numerator and denominator, return the fraction's
+//          decimal string representation. If the fractional part is repeating,
+//          enclose the repeating part in parentheses.
+// Approach:
+//   1. Handle sign separately (negative if numerator and denominator differ).
+//   2. Use long long to avoid overflow when taking abs().
+//   3. Append integer part: dividend / divisor.
+//   4. If remainder = 0, return result (no fractional part).
+//   5. Otherwise, process fractional part:
+//        - Use a hash map to store each remainder’s position in the string.
+//        - If remainder repeats, we found the recurring cycle → insert "(" and append ")".
+//   6. Continue until remainder becomes 0 or repetition is detected.
+// Complexity:
+//   - Time: O(n), where n is the length of the recurring cycle (bounded by divisor).
+//   - Space: O(n) for the hash map storing remainders.
+//==============================================================================
+
+class Solution
+{
+public:
+  std::string fractionToDecimal(int numerator, int denominator)
+  {
+    if (numerator == 0)
+      return "0";
+
+    std::string fraction;
+
+    // Handle sign
+    if ((numerator < 0) ^ (denominator < 0))
+      fraction += "-";
+
+    // Convert to long long to handle abs(INT_MIN)
+    long long dividend = std::llabs((long long)numerator);
+    long long divisor = std::llabs((long long)denominator);
+
+    // Append integer part
+    fraction += std::to_string(dividend / divisor);
+
+    long long remainder = dividend % divisor;
+    if (remainder == 0)
+    {
+      return fraction;
+    }
+
+    // Process fractional part
+    fraction += ".";
+    std::unordered_map<long long, int> seen;
+
+    while (remainder != 0)
+    {
+      if (seen.count(remainder))
+      {
+        fraction.insert(seen[remainder], "(");
+        fraction += ")";
+        break;
+      }
+      seen[remainder] = fraction.size();
+      remainder *= 10;
+      fraction += std::to_string(remainder / divisor);
+      remainder %= divisor;
+    }
+
+    return fraction;
+  }
+};
+
+//==============================================================================
+// Example Usage:
+//
+// Input: numerator = 1, denominator = 2
+// Output: "0.5"
+//
+// Input: numerator = 2, denominator = 3
+// Output: "0.(6)"
+//
+// Input: numerator = 4, denominator = 333
+// Output: "0.(012)"
+//
+// Input: numerator = 1, denominator = 5
+// Output: "0.2"
+//==============================================================================
