@@ -5699,3 +5699,57 @@ public:
 // Input: numerator = 1, denominator = 5
 // Output: "0.2"
 //==============================================================================
+
+//==============================================================================
+// Problem: Triangle Minimum Path Sum
+// Task   : Given a triangle array, return the minimum path sum from top to
+//          bottom. At each step, you may move to an adjacent number in the
+//          row below.
+// Approach (Bottom-Up DP):
+//   1. Initialize a DP table of size n x n.
+//   2. Base case: Fill the last row of DP with the last row of the triangle.
+//   3. Transition:
+//        dp[r][c] = triangle[r][c] + min(dp[r+1][c], dp[r+1][c+1])
+//   4. Iterate from bottom to top, computing the minimal path sums.
+//   5. Result: dp[0][0] contains the minimum path sum.
+// Complexity:
+//   - Time: O(n^2), where n is the number of rows in the triangle.
+//   - Space: O(n^2) for the DP table.
+//==============================================================================
+
+class Solution
+{
+public:
+  int minimumTotal(vector<vector<int>> &triangle)
+  {
+    int n = triangle.size();
+    vector<vector<int>> dp(n, vector<int>(n, 0));
+
+    // Base case: last row
+    for (int j = 0; j < triangle[n - 1].size(); ++j)
+    {
+      dp[n - 1][j] = triangle[n - 1][j];
+    }
+
+    // Bottom-up DP
+    for (int r = n - 2; r >= 0; --r)
+    {
+      for (int c = 0; c < triangle[r].size(); ++c)
+      {
+        int down = dp[r + 1][c];
+        int diag = dp[r + 1][c + 1];
+        dp[r][c] = triangle[r][c] + min(down, diag);
+      }
+    }
+
+    return dp[0][0];
+  }
+};
+
+//==============================================================================
+// Example Usage:
+//
+// Input: triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]
+// Output: 11
+// Explanation: The path 2 → 3 → 5 → 1 gives the minimum sum = 11.
+//==============================================================================
