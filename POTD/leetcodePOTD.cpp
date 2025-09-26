@@ -5753,3 +5753,68 @@ public:
 // Output: 11
 // Explanation: The path 2 → 3 → 5 → 1 gives the minimum sum = 11.
 //==============================================================================
+
+//==============================================================================
+// Problem: Valid Triangle Number
+//
+// Task:
+// Given an integer array `nums`, return the number of triplets chosen from the
+// array that can form a triangle if we take them as side lengths.
+//
+// Approach (Two Pointers + Sorting):
+// 1. Sort the array in non-decreasing order.
+// 2. Fix the largest element of the triplet (nums[i]) by iterating from the end.
+// 3. Use two pointers (`left`, `right`) to find valid pairs such that:
+//       nums[left] + nums[right] > nums[i]
+//    - If true, all elements between left and right form valid pairs with nums[i].
+//      Increase count by (right - left), then move `right--`.
+//    - Otherwise, move `left++`.
+// 4. Continue until all triplets are checked.
+//
+// Key Idea:
+// - After sorting, only need to check triangle inequality for the largest side.
+//
+// Complexity:
+// - Time: O(n^2), where n = nums.size()
+//   (Sorting O(n log n) + Two-pointer iteration O(n^2))
+// - Space: O(1), in-place operations.
+//==============================================================================
+
+class Solution
+{
+public:
+  int triangleNumber(vector<int> &nums)
+  {
+    sort(nums.begin(), nums.end());
+    int n = nums.size();
+    int count = 0;
+
+    // Fix the largest element nums[i]
+    for (int i = n - 1; i >= 2; i--)
+    {
+      int left = 0, right = i - 1;
+      while (left < right)
+      {
+        if (nums[left] + nums[right] > nums[i])
+        {
+          // All elements between left and right form valid triangles
+          count += right - left;
+          right--;
+        }
+        else
+        {
+          left++;
+        }
+      }
+    }
+    return count;
+  }
+};
+
+//==============================================================================
+// Example Usage:
+//
+// Input: nums = [2, 2, 3, 4]
+// Output: 3
+// Explanation: Valid triangles are: (2,3,4), (2,3,4), (2,2,3)
+//==============================================================================
