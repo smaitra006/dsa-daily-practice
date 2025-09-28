@@ -5818,3 +5818,61 @@ public:
 // Output: 3
 // Explanation: Valid triangles are: (2,3,4), (2,3,4), (2,2,3)
 //==============================================================================
+
+//==============================================================================
+// Problem: Largest Perimeter Triangle
+//
+// Task:
+// Given an integer array `nums`, return the largest perimeter of a triangle with
+// a non-zero area, formed from three of these numbers. If it is impossible to
+// form any triangle, return 0.
+//
+// Approach:
+// 1. Sort the array in descending order.
+// 2. Iterate through the array, checking consecutive triples (nums[i], nums[i+1], nums[i+2]).
+// 3. For a valid triangle, the sum of the two smaller sides must be greater
+//    than the largest side: nums[i+1] + nums[i+2] > nums[i].
+// 4. The first valid triple encountered (since sorted descending) gives the
+//    maximum possible perimeter.
+// 5. If no valid triple is found, return 0.
+//
+// Key Idea:
+// - Sorting descending ensures that the first valid triangle found has the
+//   largest possible perimeter.
+//
+// Complexity:
+// - Time: O(n log n), due to sorting.
+// - Space: O(1), in-place sorting and checks.
+//==============================================================================
+
+class Solution
+{
+public:
+  int largestPerimeter(vector<int> &nums)
+  {
+    // Sort in descending order
+    sort(nums.begin(), nums.end(), greater<int>());
+
+    // Check consecutive triples
+    for (int i = 0; i < nums.size() - 2; i++)
+    {
+      if (nums[i + 1] + nums[i + 2] > nums[i])
+      {
+        return nums[i] + nums[i + 1] + nums[i + 2];
+      }
+    }
+    return 0;
+  }
+};
+
+//==============================================================================
+// Example Usage:
+//
+// Input: nums = [2, 1, 2]
+// Output: 5
+// Explanation: The numbers 2, 1, and 2 can form a triangle with perimeter 5.
+//
+// Input: nums = [1, 2, 1]
+// Output: 0
+// Explanation: No valid triangle can be formed.
+//==============================================================================
