@@ -5876,3 +5876,65 @@ public:
 // Output: 0
 // Explanation: No valid triangle can be formed.
 //==============================================================================
+
+//==============================================================================
+// Problem: Minimum Score Triangulation of Polygon
+//
+// Task:
+// You are given an integer array `values` of length n, representing the vertices
+// of a convex polygon. The vertices are numbered in order, and the value of each
+// vertex is values[i]. The score of a triangle is the product of its three vertices.
+// Return the minimum total score achievable by triangulating the polygon.
+//
+// Approach (DP - Memoization):
+// 1. Use recursion with memoization (`dp[i][j]`) to store the minimum score of
+//    triangulating the subpolygon from vertex i to j.
+// 2. Base case: If there are less than 3 vertices (j - i < 2), no triangle can be formed.
+// 3. Transition:
+//    - For each possible middle point `k` between `i` and `j`, form a triangle (i, k, j).
+//    - Compute: dp[i][j] = min(dp[i][j], dp[i][k] + values[i]*values[k]*values[j] + dp[k][j]).
+// 4. The answer is dp[0][n-1].
+//
+// Key Idea:
+// - Divide-and-conquer approach: pick one triangle (i, k, j), then recursively solve the two sub-polygons.
+// - Memoization ensures overlapping subproblems are solved only once.
+//
+// Complexity:
+// - Time: O(n³), since we try every pair (i, j) with every possible k in between.
+// - Space: O(n²), for the dp table.
+//==============================================================================
+
+class Solution
+{
+public:
+  int dp[50][50] = {}; // memoization table
+
+  int minScoreTriangulation(vector<int> &values, int i = 0, int j = 0, int res = 0)
+  {
+    if (j == 0)
+      j = values.size() - 1; // initialize j on first call
+    if (dp[i][j] != 0)
+      return dp[i][j];
+
+    for (int k = i + 1; k < j; ++k)
+    {
+      res = min(res == 0 ? INT_MAX : res,
+                minScoreTriangulation(values, i, k) +
+                    values[i] * values[k] * values[j] +
+                    minScoreTriangulation(values, k, j));
+    }
+    return dp[i][j] = res;
+  }
+};
+
+//==============================================================================
+// Example Usage:
+//
+// Input: values = [1,2,3]
+// Output: 6
+// Explanation: Only one triangle can be formed: 1*2*3 = 6
+//
+// Input: values = [3,7,4,5]
+// Output: 144
+// Explanation: Minimum triangulation is (3,4,5) + (3,7,5) = 60 + 84 = 144
+//==============================================================================
