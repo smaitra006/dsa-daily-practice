@@ -5938,3 +5938,64 @@ public:
 // Output: 144
 // Explanation: Minimum triangulation is (3,4,5) + (3,7,5) = 60 + 84 = 144
 //==============================================================================
+
+//==============================================================================
+// Problem: Triangular Sum of an Array
+//
+// Task:
+// You are given an integer array `nums`. Repeatedly replace each element with
+// the sum of itself and the next element, modulo 10, until only one element remains.
+// Return that single element.
+//
+// Example:
+// Input: nums = [1,2,3,4,5]
+// Process:
+//   [1,2,3,4,5]
+//   [3,5,7,9]
+//   [8,2,6]
+//   [0,8]
+//   [8]
+// Output: 8
+//
+// Approach (Simulation):
+// 1. Start with the given array `nums`.
+// 2. At each step, update nums[i] = (nums[i] + nums[i+1]) % 10 for all valid i.
+// 3. Shrink the array size by 1 each time.
+// 4. Continue until size reduces to 1.
+// 5. Return nums[0] as the triangular sum.
+//
+// Key Idea:
+// - This is a straightforward simulation problem.
+// - We overwrite elements in-place to save space.
+//
+// Complexity:
+// - Time: O(n²), since we perform (n-1) updates in the first pass, (n-2) in the next, etc.
+// - Space: O(1), as the computation is done in-place.
+//==============================================================================
+
+#include <vector>
+using namespace std;
+
+class Solution
+{
+public:
+  int triangularSum(vector<int> &nums)
+  {
+    int n = nums.size();
+    for (int size = n; size > 1; --size)
+    {
+      for (int i = 0; i < size - 1; ++i)
+      {
+        nums[i] = (nums[i] + nums[i + 1]) % 10;
+      }
+    }
+    return nums[0];
+  }
+};
+
+//==============================================================================
+// Example Usage:
+// Solution sol;
+// vector<int> nums = {1,2,3,4,5};
+// int result = sol.triangularSum(nums); // Output: 8
+//==============================================================================
