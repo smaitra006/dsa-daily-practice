@@ -5999,3 +5999,68 @@ public:
 // vector<int> nums = {1,2,3,4,5};
 // int result = sol.triangularSum(nums); // Output: 8
 //==============================================================================
+
+//==============================================================================
+// Problem: Maximum Bottles Drunk
+//
+// Task:
+// You are given two integers:
+// - `numBottles`: the number of full bottles initially.
+// - `x`: the number of empty bottles required to exchange for one full bottle.
+//
+// Rules:
+// - You can drink a full bottle, which gives you one empty bottle.
+// - You can exchange exactly `x` empty bottles for one new full bottle.
+// - After each exchange, `x` increases by 1 (making the next exchange harder).
+//
+// Return the maximum number of bottles you can drink.
+//
+// Example:
+// Input: numBottles = 13, x = 6
+// Process:
+//   - Drink 13 bottles → 13 empties
+//   - Exchange 6 empties for 1 full → 8 empties left, x = 7
+//   - Drink 1 full → 9 empties
+//   - Exchange 7 empties for 1 full → 2 empties left, x = 8
+//   - Drink 1 full → 3 empties, cannot exchange further
+// Total = 15
+// Output: 15
+//
+// Approach (Simulation):
+// 1. Start with `ans = numBottles` (all initially full bottles drunk).
+// 2. While you can still exchange (`numBottles >= x`):
+//    - Subtract (x - 1) from `numBottles` (since you give x empties and gain back 1).
+//    - Increment `x` (exchange requirement grows).
+//    - Increment `ans` (another bottle drunk).
+// 3. Return total drunk bottles.
+//
+// Complexity:
+// - Time: O(numBottles / x) worst-case, since exchanges reduce bottles gradually.
+// - Space: O(1), constant extra space.
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution
+{
+public:
+  int maxBottlesDrunk(int numBottles, int x)
+  {
+    int ans = numBottles;
+    while (numBottles >= x)
+    {
+      numBottles -= (x - 1); // exchange x, get 1 back
+      x++;
+      ans++;
+    }
+    return ans;
+  }
+};
+
+//==============================================================================
+// Example Usage:
+// Solution sol;
+// int result = sol.maxBottlesDrunk(13, 6);
+// // Output: 15
+//==============================================================================
