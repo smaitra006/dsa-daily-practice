@@ -6224,3 +6224,78 @@ private:
 // int result = sol.trapRainWater(heightMap);
 // // Output: 4
 //==============================================================================
+
+//==============================================================================
+// Problem: Container With Most Water
+//
+// Task:
+// You are given an integer array `height` of length n. There are n vertical lines
+// drawn such that the two endpoints of the i-th line are (i, 0) and (i, height[i]).
+// Find two lines that together with the x-axis form a container such that it holds
+// the maximum amount of water.
+//
+// Note: You may not slant the container.
+//
+// Example:
+// Input:  height = [1,8,6,2,5,4,8,3,7]
+// Output: 49
+//
+// Explanation:
+// The lines at indices 1 and 8 form the container with the largest area:
+// width = 8 - 1 = 7, height = min(8, 7) = 7 → area = 49.
+//
+// Approach (Two Pointers):
+// 1. Start with two pointers: one at the leftmost index and one at the rightmost.
+// 2. Compute area = width * min(height[left], height[right]).
+// 3. Update maxArea if this area is larger.
+// 4. Move the pointer with the smaller height inward (since moving the taller
+//    one cannot increase the area).
+// 5. Repeat until pointers meet.
+//
+// Complexity:
+// - Time: O(n), since each pointer moves at most n steps.
+// - Space: O(1).
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution
+{
+public:
+  int maxArea(vector<int> &height)
+  {
+    int maxArea = 0;
+    int left = 0;
+    int right = height.size() - 1;
+
+    while (left < right)
+    {
+      // Calculate the area formed by the two pointers
+      int width = right - left;
+      int h = min(height[left], height[right]);
+      maxArea = max(maxArea, width * h);
+
+      // Move the pointer at the smaller height inward
+      if (height[left] < height[right])
+      {
+        left++;
+      }
+      else
+      {
+        right--;
+      }
+    }
+
+    return maxArea;
+  }
+};
+
+//==============================================================================
+// Example Usage:
+//
+// Solution sol;
+// vector<int> height = {1,8,6,2,5,4,8,3,7};
+// int result = sol.maxArea(height);
+// // Output: 49
+//==============================================================================
