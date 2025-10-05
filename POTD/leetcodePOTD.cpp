@@ -6299,3 +6299,127 @@ public:
 // int result = sol.maxArea(height);
 // // Output: 49
 //==============================================================================
+
+//==============================================================================
+// Problem: Pacific Atlantic Water Flow
+//
+// Task:
+// Given an m x n matrix of non-negative integers `heights`, where heights[r][c]
+// represents the height of each cell, determine the list of coordinates where
+// water can flow to both the Pacific and Atlantic oceans.
+//
+// The Pacific ocean touches the left and top edges of the matrix,
+// and the Atlantic ocean touches the right and bottom edges.
+//
+// Water can only flow from a cell to another with height equal or lower.
+//
+// Example:
+// Input: heights = [
+//   [1,2,2,3,5],
+//   [3,2,3,4,4],
+//   [2,4,5,3,1],
+//   [6,7,1,4,5],
+//   [5,1,1,2,4]
+// ]
+// Output: [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]
+//
+// Approach (Reverse DFS):
+// 1. Instead of simulating flow from each cell to the oceans, we reverse the flow.
+// 2. Start DFS from all Pacific-border cells and mark cells reachable from Pacific.
+// 3. Do the same for Atlantic-border cells.
+// 4. Cells visited in both Pacific and Atlantic traversals are the result.
+//
+// Complexity:
+// - Time: O(m * n) — Each cell is visited at most twice.
+// - Space: O(m * n) — For visited matrices and recursion stack.
+//
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution
+{
+public:
+  int m, n;
+  vector<vector<int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+  vector<vector<int>> pacificAtlantic(vector<vector<int>> &heights)
+  {
+    m = heights.size();
+    n = heights[0].size();
+
+    // Track visited cells for both oceans
+    vector<vector<bool>> pacific(m, vector<bool>(n, false));
+    vector<vector<bool>> atlantic(m, vector<bool>(n, false));
+
+    // Run DFS for Pacific (top and left edges)
+    for (int j = 0; j < n; j++)
+      dfs(0, j, heights, pacific);
+    for (int i = 0; i < m; i++)
+      dfs(i, 0, heights, pacific);
+
+    // Run DFS for Atlantic (bottom and right edges)
+    for (int j = 0; j < n; j++)
+      dfs(m - 1, j, heights, atlantic);
+    for (int i = 0; i < m; i++)
+      dfs(i, n - 1, heights, atlantic);
+
+    // Find common cells that can reach both oceans
+    vector<vector<int>> result;
+    for (int i = 0; i < m; i++)
+    {
+      for (int j = 0; j < n; j++)
+      {
+        if (pacific[i][j] && atlantic[i][j])
+        {
+          result.push_back({i, j});
+        }
+      }
+    }
+
+    return result;
+  }
+
+private:
+  //==============================================================================
+  // DFS Helper: Mark all reachable cells from the given ocean
+  //==============================================================================
+  void dfs(int i, int j, vector<vector<int>> &heights, vector<vector<bool>> &visited)
+  {
+    visited[i][j] = true;
+
+    for (auto &d : directions)
+    {
+      int x = i + d[0];
+      int y = j + d[1];
+
+      // Skip invalid or already visited cells
+      if (x < 0 || x >= m || y < 0 || y >= n)
+        continue;
+      if (visited[x][y])
+        continue;
+
+      // Water can only flow from lower to higher or equal height
+      if (heights[x][y] < heights[i][j])
+        continue;
+
+      dfs(x, y, heights, visited);
+    }
+  }
+};
+
+//==============================================================================
+// Example Usage:
+//
+// Solution sol;
+// vector<vector<int>> heights = {
+//     {1,2,2,3,5},
+//     {3,2,3,4,4},
+//     {2,4,5,3,1},
+//     {6,7,1,4,5},
+//     {5,1,1,2,4}
+// };
+// vector<vector<int>> result = sol.pacificAtlantic(heights);
+// // Expected Output: [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]
+//==============================================================================
