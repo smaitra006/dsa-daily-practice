@@ -6423,3 +6423,104 @@ private:
 // vector<vector<int>> result = sol.pacificAtlantic(heights);
 // // Expected Output: [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]
 //==============================================================================
+
+//==============================================================================
+// Problem: Swim in Rising Water
+//
+// Task:
+// You are given an n x n integer matrix `grid` where each value represents
+// the elevation at that cell. Initially, at time t = 0, you are at the
+// top-left cell (0,0). At every time t, you can swim to a neighboring cell
+// if the elevation of both the current and target cell is ≤ t.
+//
+// You must return the minimum time t such that you can reach the bottom-right
+// cell (n-1, n-1).
+//
+// Approach (Kruskal’s MST / Union-Find):
+// 1. Treat each cell as a node in a graph.
+// 2. Create edges between adjacent cells with weights = max(height1, height2).
+// 3. Sort all edges by weight.
+// 4. Use Union-Find to connect cells by increasing elevation.
+// 5. The first time the start and end become connected, that weight is the answer.
+//
+// Complexity:
+// - Time: O(n² log n²) = O(n² log n)
+// - Space: O(n²)
+//
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution
+{
+public:
+  int swimInWater(vector<vector<int>> &grid)
+  {
+    int m = grid.size();
+    int n = grid[0].size();
+
+    vector<tuple<int, int, int>> edges; // {cost, u, v}
+
+    //======================================================================
+    // Step 1: Build all possible edges between adjacent cells
+    //======================================================================
+    for (int i = 0; i < m; i++)
+    {
+      for (int j = 0; j < n; j++)
+      {
+        if (i > 0)
+          edges.push_back({max(grid[i][j], grid[i - 1][j]), i * n + j, (i - 1) * n + j});
+        if (j > 0)
+          edges.push_back({max(grid[i][j], grid[i][j - 1]), i * n + j, i * n + j - 1});
+      }
+    }
+
+    //======================================================================
+    // Step 2: Sort edges by elevation cost
+    //======================================================================
+    sort(edges.begin(), edges.end());
+
+    //======================================================================
+    // Step 3: Initialize Union-Find (Disjoint Set Union)
+    //======================================================================
+    vector<int> parent(m * n);
+    iota(parent.begin(), parent.end(), 0);
+
+    function<int(int)> find = [&](int x) -> int
+    {
+      return parent[x] == x ? x : parent[x] = find(parent[x]);
+    };
+
+    auto unite = [&](int x, int y)
+    {
+      parent[find(x)] = find(y);
+    };
+
+    //======================================================================
+    // Step 4: Connect edges in increasing order of cost
+    //======================================================================
+    for (auto [cost, u, v] : edges)
+    {
+      unite(u, v);
+      // If start (0) and end (m*n-1) are connected, return current cost
+      if (find(0) == find(m * n - 1))
+        return cost;
+    }
+
+    // Edge case: single cell
+    return grid[0][0];
+  }
+};
+
+//==============================================================================
+// Example Usage:
+//
+// Solution sol;
+// vector<vector<int>> grid = {
+//     {0, 2},
+//     {1, 3}
+// };
+// int result = sol.swimInWater(grid);
+// // Expected Output: 3
+//==============================================================================
