@@ -6524,3 +6524,135 @@ public:
 // int result = sol.swimInWater(grid);
 // // Expected Output: 3
 //==============================================================================
+
+//==============================================================================
+// Problem: Avoid Flood in The City
+//
+// Task:
+// You are given an array `rain` where:
+// - rain[i] > 0 → lake rain[i] gets rain on day i.
+// - rain[i] == 0 → you may choose one lake to dry that day.
+//
+// Return an array representing the action taken each day:
+// - res[i] = -1 if it rains on day i.
+// - res[i] = lake number to dry on that day if no rain.
+// If it’s impossible to prevent flooding, return an empty array.
+//
+// Approach (Union-Find Optimization):
+// ----------------------------------
+// - We use Union-Find to efficiently find the *next available dry day*.
+// - When it rains on lake X:
+//     • If lake X has been filled before, find the next dry day after that
+//       previous rain day using Union-Find.
+//     • If no dry day is available → flood occurs → return {}.
+// - Each time a day is used (either raining or drying), we mark it as “used”
+//   by uniting it with the next day.
+//
+// Complexity:
+// - Time: O(N α(N)), where α(N) is the inverse Ackermann (almost constant)
+// - Space: O(N)
+//
+//==============================================================================
+
+#include <bits/stdc++.h>
+using namespace std;
+
+//==============================================================================
+// Union-Find Data Structure to Manage Available Dry Days
+//==============================================================================
+class UnionFind
+{
+public:
+  vector<int> parent;
+
+  UnionFind(int size) : parent(size + 1)
+  {
+    iota(parent.begin(), parent.end(), 0);
+  }
+
+  // Path Compression
+  int find(int i)
+  {
+    if (i == parent[i])
+      return i;
+    return parent[i] = find(parent[i]);
+  }
+
+  // Mark a day as used (link it to next day)
+  void unite(int i)
+  {
+    parent[i] = find(i + 1);
+  }
+};
+
+//==============================================================================
+// Solution Class
+//==============================================================================
+class Solution
+{
+public:
+  vector<int> avoidFlood(vector<int> &rain)
+  {
+    int n = rain.size();
+    UnionFind uf(n + 1);
+    unordered_map<int, int> lastRainDay; // lake → last rained index
+    vector<int> res(n, 1);               // default = 1 for dry days
+
+    //======================================================================
+    // Main Simulation Loop
+    //======================================================================
+    for (int i = 0; i < n; i++)
+    {
+      int lake = rain[i];
+
+      // Case 1: Dry day → skip for now (default res[i] = 1)
+      if (lake == 0)
+        continue;
+
+      // Case 2: It rains today
+      res[i] = -1;
+      uf.unite(i); // mark this day as used
+
+      // If this lake has rained before, we must dry it before now
+      if (lastRainDay.count(lake))
+      {
+        int prev = lastRainDay[lake];
+        int dryDay = uf.find(prev + 1);
+
+        // If no available dry day exists before today → flood
+        if (dryDay >= i)
+          return {};
+
+        // Use the found dry day to dry this lake
+        res[dryDay] = lake;
+        uf.unite(dryDay); // mark dry day as used
+        lastRainDay[lake] = i;
+      }
+      else
+      {
+        lastRainDay[lake] = i;
+      }
+    }
+
+    return res;
+  }
+};
+
+//==============================================================================
+// Example Usage:
+//==============================================================================
+//
+// Solution sol;
+// vector<int> rain = {1, 2, 0, 0, 2, 1};
+// vector<int> res = sol.avoidFlood(rain);
+//
+// Expected Output: [-1, -1, 2, 1, -1, -1]
+// Explanation:
+// - Day 0: Lake 1 fills.
+// - Day 1: Lake 2 fills.
+// - Day 2: Dry lake 2.
+// - Day 3: Dry lake 1.
+// - Day 4: Lake 2 refills safely.
+// - Day 5: Lake 1 refills safely.
+//
+//==============================================================================
