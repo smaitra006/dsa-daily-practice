@@ -6656,3 +6656,74 @@ public:
 // - Day 5: Lake 1 refills safely.
 //
 //==============================================================================
+
+//==============================================================================
+// Problem: Successful Pairs of Spells and Potions
+//------------------------------------------------------------------------------
+// You are given two integer arrays `spells` and `potions`, and an integer
+// `success`. A pair (spell, potion) is considered successful if
+// spell * potion >= success.
+//
+// For each spell, find how many potions form a successful pair with it.
+//
+// Approach:
+// - Sort the potions array.
+// - For each spell, use binary search to find the smallest potion
+//   that satisfies the condition spell * potion >= success.
+// - The count of valid potions = total potions - index found.
+//
+// Complexity Analysis:
+// - Time:  O(n log m) where n = spells.size(), m = potions.size()
+// - Space: O(1)
+//==============================================================================
+
+class Solution
+{
+public:
+  vector<int> successfulPairs(vector<int> &spells, vector<int> &potions, long long success)
+  {
+    // Sort the potions to apply binary search
+    sort(potions.begin(), potions.end());
+
+    int n = spells.size();
+    vector<int> ans(n);
+
+    for (int i = 0; i < n; i++)
+    {
+      int idx = binarySearch(potions, spells[i], success);
+      if (idx != -1)
+        ans[i] = potions.size() - idx;
+      else
+        ans[i] = 0;
+    }
+
+    return ans;
+  }
+
+private:
+  //------------------------------------------------------------------------------
+  // Helper Function: Binary Search
+  // Finds the first index where potions[mid] * strength >= success
+  //------------------------------------------------------------------------------
+  int binarySearch(vector<int> &potions, long long strength, long long success)
+  {
+    int low = 0, high = potions.size() - 1, idx = -1;
+
+    while (low <= high)
+    {
+      int mid = low + (high - low) / 2;
+
+      if (1LL * potions[mid] * strength >= success)
+      {
+        idx = mid;
+        high = mid - 1; // Try to find a smaller potion that still works
+      }
+      else
+      {
+        low = mid + 1;
+      }
+    }
+
+    return idx;
+  }
+};
