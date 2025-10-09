@@ -6727,3 +6727,60 @@ private:
     return idx;
   }
 };
+
+//==============================================================================
+// Problem: Minimum Time to Complete All Skills
+//------------------------------------------------------------------------------
+// You are given two integer arrays:
+//   - skill[]: represents the skill value of each task.
+//   - mana[] : represents the multiplier (or effort/time factor) for each round.
+//
+// Each round j contributes to increasing the cumulative time for each skill i
+// based on: done[i + 1] = max(done[i + 1], done[i]) + (mana[j] * skill[i])
+//
+// After each round, adjustments are made by iterating backward to ensure
+// the proper ordering and dependency between tasks.
+//
+// The final answer is done[n] after processing all rounds.
+//
+//------------------------------------------------------------------------------
+// Approach:
+// - Initialize a `done` array to store cumulative results.
+// - For each mana round:
+//     → Forward pass: accumulate increasing time costs.
+//     → Backward pass: balance dependencies in reverse order.
+// - Return the total cumulative time done[n].
+//
+//------------------------------------------------------------------------------
+// Complexity Analysis:
+// - Time:  O(m * n)    → double nested loop over skills and mana
+// - Space: O(n)        → single vector for DP state
+//==============================================================================
+
+class Solution
+{
+public:
+  long long minTime(vector<int> &skill, vector<int> &mana)
+  {
+    int n = skill.size(), m = mana.size();
+    vector<long long> done(n + 1, 0); // DP array to store cumulative time
+
+    // Process each mana level (round)
+    for (int j = 0; j < m; ++j)
+    {
+      // Forward accumulation pass
+      for (int i = 0; i < n; ++i)
+      {
+        done[i + 1] = max(done[i + 1], done[i]) + 1LL * mana[j] * skill[i];
+      }
+
+      // Backward balancing pass
+      for (int i = n - 1; i > 0; --i)
+      {
+        done[i] = done[i + 1] - 1LL * mana[j] * skill[i];
+      }
+    }
+
+    return done[n];
+  }
+};

@@ -18,41 +18,48 @@ using namespace std;
  * Space Complexity : O(1)    (only variables used, no extra structures)
  * ============================================================================== */
 
-class Solution {
+class Solution
+{
 public:
-    int threeSumClosest(vector<int>& nums, int target)
+  int threeSumClosest(vector<int> &nums, int target)
+  {
+    sort(nums.begin(), nums.end()); // Sort array for two-pointer logic
+
+    // Initialize result with the sum of the first three elements
+    int result = nums[0] + nums[1] + nums[2];
+
+    // Iterate fixing one number at a time
+    for (int i = 0; i < nums.size() - 2; i++)
     {
-        sort(nums.begin(), nums.end());  // Sort array for two-pointer logic
+      int left = i + 1;
+      int right = nums.size() - 1;
 
-        // Initialize result with the sum of the first three elements
-        int result = nums[0] + nums[1] + nums[2];
+      while (left < right)
+      {
+        int sum = nums[i] + nums[left] + nums[right];
 
-        // Iterate fixing one number at a time
-        for (int i = 0; i < nums.size() - 2; i++) {
-            int left = i + 1;
-            int right = nums.size() - 1;
-
-            while (left < right) {
-                int sum = nums[i] + nums[left] + nums[right];
-
-                // Update result if this sum is closer to target
-                if (abs(target - sum) < abs(target - result)) {
-                    result = sum;
-                }
-
-                // Move pointers based on comparison
-                if (sum == target) {
-                    return target; // Perfect match found
-                }
-                else if (sum < target) {
-                    left++;
-                }
-                else {
-                    right--;
-                }
-            }
+        // Update result if this sum is closer to target
+        if (abs(target - sum) < abs(target - result))
+        {
+          result = sum;
         }
 
-        return result;
+        // Move pointers based on comparison
+        if (sum == target)
+        {
+          return target; // Perfect match found
+        }
+        else if (sum < target)
+        {
+          left++;
+        }
+        else
+        {
+          right--;
+        }
+      }
     }
+
+    return result;
+  }
 };
