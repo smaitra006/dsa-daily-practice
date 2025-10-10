@@ -6784,3 +6784,45 @@ public:
     return done[n];
   }
 };
+
+//==============================================================================
+// ⚡ Problem: Maximum Energy
+//------------------------------------------------------------------------------
+// You are given an integer array `energy` and an integer `k`.
+// You can move from index `i` to `i + k` repeatedly, collecting the total sum
+// of energies along the way. The goal is to determine the maximum total energy
+// that can be collected starting from any index.
+//
+//------------------------------------------------------------------------------
+// Approach:
+// - Start iterating from the end of the array backward.
+// - For each index `i`, if `i + k` is within bounds, accumulate the energy
+//   from `energy[i + k]` to `energy[i]`.
+// - Track the maximum accumulated value during traversal.
+//
+//------------------------------------------------------------------------------
+// Complexity Analysis:
+// - Time:  O(n)    → single reverse traversal
+// - Space: O(1)    → in-place update of the `energy` array
+//==============================================================================
+
+class Solution
+{
+public:
+  int maximumEnergy(vector<int> &energy, int k)
+  {
+    int n = energy.size();
+    int max_energy = INT_MIN;
+
+    // Traverse array in reverse and accumulate jump-based energy
+    for (int i = n - 1; i >= 0; i--)
+    {
+      if (i + k < n)
+        energy[i] += energy[i + k];
+
+      max_energy = max(max_energy, energy[i]);
+    }
+
+    return max_energy;
+  }
+};
