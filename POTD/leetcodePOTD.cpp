@@ -6826,3 +6826,78 @@ public:
     return max_energy;
   }
 };
+
+//==============================================================================
+// ⚔️ Problem: Maximum Total Damage
+//------------------------------------------------------------------------------
+// You are given an array `power` representing the attack power of enemies.
+// When you attack enemies with power `x`, all enemies with power `x - 2`,
+// `x - 1`, `x + 1`, and `x + 2` are also affected (cannot be attacked again).
+// Your task is to choose attacks to maximize the total damage dealt.
+//
+//------------------------------------------------------------------------------
+// 🔹 Approach:
+// 1. Aggregate all enemies with the same power — store the total damage
+//    for each unique power in a map: `mp[power] += power`.
+// 2. Convert the map into a sorted vector of `{power, total_damage}` pairs.
+// 3. Use recursion with memoization (Top-Down DP):
+//    - Either skip the current power value.
+//    - Or take it and jump to the next valid index `j` such that
+//      `v[j].first > v[idx].first + 2` (since adjacent powers are blocked).
+// 4. Return the maximum of both choices.
+//
+//------------------------------------------------------------------------------
+// ⏱️ Complexity Analysis:
+// - Time:  O(n log n) → due to sorting and map operations
+// - Space: O(n)       → for recursion stack and DP memoization
+//==============================================================================
+
+class Solution
+{
+public:
+  // Recursive DP function to compute maximum total damage
+  long long solve(int idx, vector<pair<long long, long long>> &v, vector<long long> &dp)
+  {
+    if (idx >= v.size())
+      return 0;
+
+    if (dp[idx] != -1)
+      return dp[idx];
+
+    // Option 1: Skip current element
+    long long skip = solve(idx + 1, v, dp);
+
+    // Option 2: Take current element and move to next valid index
+    int j = idx + 1;
+    while (j < v.size() && v[j].first <= v[idx].first + 2)
+      j++;
+
+    long long consider = v[idx].second + solve(j, v, dp);
+
+    // Store and return the best option
+    return dp[idx] = max(skip, consider);
+  }
+
+  long long maximumTotalDamage(vector<int> &power)
+  {
+    int n = power.size();
+    map<long long, long long> mp;
+
+    // Aggregate total damage for each unique power
+    for (int i = 0; i < n; i++)
+      mp[power[i]] += power[i];
+
+    // Convert map to sorted vector
+    vector<pair<long long, long long>> v;
+    for (auto it : mp)
+      v.push_back({it.first, it.second});
+
+    sort(v.begin(), v.end());
+
+    // DP memoization array
+    vector<long long> dp(v.size(), -1);
+
+    // Compute maximum total damage
+    return solve(0, v, dp);
+  }
+};
