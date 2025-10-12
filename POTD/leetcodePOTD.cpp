@@ -6901,3 +6901,143 @@ public:
     return solve(0, v, dp);
   }
 };
+
+//==============================================================================
+//  Problem: Magical Sum
+//------------------------------------------------------------------------------
+// You are given integers `m`, `k`, and an array `nums`.
+// The task is to compute a "magical sum" based on the following recursive
+// process involving binary carries, combinatorial coefficients, and modular
+// arithmetic.
+//
+// The exact meaning of the problem depends on its hidden mathematical
+// formulation (like summing bit-carry configurations). However, the given code
+// essentially computes — under modular arithmetic — the total number of
+// configurations where exactly `k` ones appear in the binary representation of
+// the result of combining terms based on `nums[i]^cnt`, with total exponent sum
+// `m`.
+//
+//------------------------------------------------------------------------------
+//  Key Ideas / Steps:
+// 1. **Precompute Powers:**
+//    For every `nums[i]`, precompute `nums[i]^j` for all `j ≤ m` (mod MOD).
+//
+// 2. **Precompute Combinations (nCr):**
+//    Using Pascal’s Triangle to efficiently compute binomial coefficients
+//    modulo MOD.
+//
+// 3. **4D Dynamic Programming with Memoization:**
+//    DP state: `dp[pos][carry][used][ones]`
+//    - `pos`   → current index in `nums`
+//    - `carry` → carry-over bits from binary sum
+//    - `used`  → how many powers have been used so far
+//    - `ones`  → number of 1-bits accumulated so far
+//
+// 4. **Recursive DFS Transition:**
+//    Try all possible counts `cnt` of times to use `nums[pos]`,
+//    update carry and bits, multiply by combination counts and power terms.
+//
+//------------------------------------------------------------------------------
+//  Complexity Analysis:
+// - Time:  O(n * m³) in worst case (since 4D DP with bounded ranges)
+// - Space: O(n * m³) due to dp and visited arrays
+//------------------------------------------------------------------------------
+// ⚡ Constants:
+// - MOD = 1e9 + 7
+//==============================================================================
+
+#define ll long long
+const int MOD = 1e9 + 7;
+
+class Solution
+{
+public:
+  int magicalSum(int m, int k, vector<int> &nums)
+  {
+    int n = nums.size();
+
+    //--------------------------------------------------------------------------
+    // STEP 1: Precompute all powers nums[i]^j (mod MOD)
+    //--------------------------------------------------------------------------
+    vector<vector<ll>> powNum(n, vector<ll>(m + 1, 1));
+    for (int i = 0; i < n; i++)
+    {
+      for (int j = 1; j <= m; j++)
+      {
+        powNum[i][j] = (powNum[i][j - 1] * nums[i]) % MOD;
+      }
+    }
+
+    //--------------------------------------------------------------------------
+    // STEP 2: Precompute binomial coefficients C[i][j] = i choose j (mod MOD)
+    //--------------------------------------------------------------------------
+    vector<vector<ll>> C(m + 1, vector<ll>(m + 1, 0));
+    for (int i = 0; i <= m; i++)
+    {
+      C[i][0] = C[i][i] = 1;
+      for (int j = 1; j < i; j++)
+      {
+        C[i][j] = (C[i - 1][j - 1] + C[i - 1][j]) % MOD;
+      }
+    }
+
+    //--------------------------------------------------------------------------
+    // STEP 3: DP memoization arrays
+    //--------------------------------------------------------------------------
+    static ll dp[55][35][35][35];
+    static bool vis[55][35][35][35];
+    memset(vis, 0, sizeof(vis));
+
+    //--------------------------------------------------------------------------
+    // STEP 4: Recursive DFS with memoization
+    //--------------------------------------------------------------------------
+    function<ll(int, int, int, int)> dfs = [&](int pos, int carry, int used, int ones) -> ll
+    {
+      // Base Case: All elements processed
+      if (pos == n)
+      {
+        int extra = 0;
+        int c = carry;
+        while (c)
+        {
+          if (c & 1)
+            extra++;
+          c >>= 1;
+        }
+        return (used == m && ones + extra == k) ? 1 : 0;
+      }
+
+      // Memoized result
+      if (vis[pos][carry][used][ones])
+        return dp[pos][carry][used][ones];
+      vis[pos][carry][used][ones] = 1;
+
+      ll ans = 0;
+
+      // Try all possible counts for current number
+      for (int cnt = 0; cnt + used <= m; cnt++)
+      {
+        int total = carry + cnt;
+        int bit = total & 1;
+        int ncarry = total >> 1;
+        int nones = ones + bit;
+
+        ll sub = dfs(pos + 1, ncarry, used + cnt, nones);
+        if (!sub)
+          continue;
+
+        ll ways = C[m - used][cnt];
+        ll prod = powNum[pos][cnt];
+
+        ans = (ans + sub * ways % MOD * prod) % MOD;
+      }
+
+      return dp[pos][carry][used][ones] = ans;
+    };
+
+    //--------------------------------------------------------------------------
+    // STEP 5: Compute and return result
+    //--------------------------------------------------------------------------
+    return static_cast<int>(dfs(0, 0, 0, 0));
+  }
+};
