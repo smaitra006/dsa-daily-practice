@@ -7041,3 +7041,60 @@ public:
     return static_cast<int>(dfs(0, 0, 0, 0));
   }
 };
+
+//==============================================================================
+//  Problem: Remove Anagrams
+//------------------------------------------------------------------------------
+// Given an array of words, remove consecutive words that are anagrams of each
+// other. Return the resulting array after all such removals.
+//
+// Example:
+// Input  : ["abba", "baba", "bbaa", "cd", "cd"]
+// Output : ["abba", "cd"]
+//
+//------------------------------------------------------------------------------
+//  Approach:
+// 1. Maintain a frequency map (26-length vector) for each word.
+// 2. Compare the frequency map of the current word with the last accepted one.
+// 3. If they are the same, skip (as it’s an anagram of the previous).
+// 4. Otherwise, push it into the result and update the reference frequency map.
+//
+//------------------------------------------------------------------------------
+//  Complexity Analysis:
+// Time  : O(N * K)  — where N = number of words, K = average word length
+// Space : O(26) ≈ O(1)
+//==============================================================================
+
+class Solution
+{
+public:
+  vector<string> removeAnagrams(vector<string> &words)
+  {
+    vector<int> prevFreq(26, 0), currFreq(26, 0);
+    vector<string> result;
+
+    // Iterate through each word
+    for (auto &word : words)
+    {
+      // Compute frequency count of the current word
+      for (auto ch : word)
+        currFreq[ch - 'a']++;
+
+      // Compare with previous frequency map
+      if (currFreq == prevFreq)
+      {
+        // Same as previous → anagram → skip
+        fill(currFreq.begin(), currFreq.end(), 0);
+      }
+      else
+      {
+        // New unique word → accept
+        prevFreq = currFreq;
+        result.push_back(word);
+        fill(currFreq.begin(), currFreq.end(), 0);
+      }
+    }
+
+    return result;
+  }
+};
