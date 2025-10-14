@@ -7098,3 +7098,45 @@ public:
     return result;
   }
 };
+
+// ============================================================================
+//  💡 Problem: Has Increasing Subarrays (LeetCode)
+//  🧩 Task:
+//      Given an integer array nums and an integer k, check whether there exist
+//      two increasing subarrays of length k such that the second subarray
+//      starts after the first ends.
+//
+//  🧠 Approach:
+//      1️⃣ Use a DP-like array `inc[i]` to store the length of the current
+//          increasing subarray ending at index i.
+//      2️⃣ Traverse the array once to fill `inc`.
+//      3️⃣ Then, check if there exist two segments of length ≥ k separated by k.
+//
+//  ⏱️ Time Complexity:  O(n)
+//  💾 Space Complexity: O(n)
+// ============================================================================
+
+class Solution
+{
+public:
+  bool hasIncreasingSubarrays(vector<int> &nums, int k)
+  {
+    int n = nums.size();
+    if (n < 2 * k)
+      return false;
+
+    vector<int> inc(n, 1);
+
+    // Build increasing subarray lengths
+    for (int i = 1; i < n; i++)
+      if (nums[i] > nums[i - 1])
+        inc[i] = inc[i - 1] + 1;
+
+    // Check for two valid increasing subarrays
+    for (int i = k - 1; i + k < n; i++)
+      if (inc[i] >= k && inc[i + k] >= k)
+        return true;
+
+    return false;
+  }
+};
