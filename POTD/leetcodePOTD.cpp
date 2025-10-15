@@ -7140,3 +7140,53 @@ public:
     return false;
   }
 };
+
+// ============================================================================
+//  💡 Problem: Maximum Increasing Subarrays (LeetCode)
+//  🧩 Task:
+//      Given an integer array `nums`, find the maximum possible length `k`
+//      such that there exist two increasing subarrays of length `k` where
+//      the second subarray starts immediately after the first ends.
+//
+//  🧠 Approach:
+//      1️⃣ Maintain two counters:
+//          - `up`: length of the current increasing sequence.
+//          - `preUp`: length of the previous increasing sequence.
+//      2️⃣ When the increasing order breaks, store `up` into `preUp` and reset.
+//      3️⃣ For every step, the possible valid length `k` can be:
+//          - `half = up / 2` (if a single long increasing run exists), or
+//          - `min(preUp, up)` (if two adjacent runs exist).
+//      4️⃣ Track the maximum among these candidates.
+//
+//  ⏱️ Time Complexity:  O(n)
+//  💾 Space Complexity: O(1)
+// ============================================================================
+
+class Solution
+{
+public:
+  int maxIncreasingSubarrays(vector<int> &nums)
+  {
+    int n = nums.size();
+    int up = 1, preUp = 0, res = 0;
+
+    for (int i = 1; i < n; i++)
+    {
+      if (nums[i] > nums[i - 1])
+        up++;
+      else
+      {
+        preUp = up;
+        up = 1;
+      }
+
+      int half = up >> 1;           // half of current sequence
+      int m = min(preUp, up);       // adjacent sequence overlap
+      int candidate = max(half, m); // best possible segment length
+
+      res = max(res, candidate);
+    }
+
+    return res;
+  }
+};
