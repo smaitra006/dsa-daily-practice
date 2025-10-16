@@ -7190,3 +7190,47 @@ public:
     return res;
   }
 };
+
+// ============================================================================
+//  💡 Problem: Find the Smallest Integer in Array After Operations (LeetCode)
+//  🧩 Task:
+//      You are given an integer array `nums` and an integer `value`.
+//      You can add or subtract `value` from any element of `nums` any number of times.
+//      Return the smallest non-negative integer that cannot be represented as a
+//      possible result of any number after the allowed operations.
+//
+//  🧠 Approach:
+//      1️⃣ Each number `x` is equivalent to its remainder modulo `value`.
+//          Normalize as: (x % value + value) % value  → handles negatives too.
+//      2️⃣ Count the frequency of each remainder.
+//      3️⃣ Starting from `i = 0`, check remainder `i % value`:
+//          - If frequency of that remainder is 0 → return `i`.
+//          - Otherwise, use one instance (decrement count) and continue.
+//
+//  ⏱️ Time Complexity:  O(n)
+//  💾 Space Complexity: O(value)
+// ============================================================================
+
+class Solution
+{
+public:
+  int findSmallestInteger(vector<int> &nums, int value)
+  {
+    unordered_map<int, int> freq;
+
+    // Step 1: Compute frequency of each remainder (normalized)
+    for (auto x : nums)
+      freq[(x % value + value) % value]++;
+
+    // Step 2: Find smallest i that cannot be represented
+    for (int i = 0;; i++)
+    {
+      int rem = i % value;
+
+      if (freq[rem] == 0)
+        return i;
+
+      freq[rem]--; // use one occurrence of this remainder
+    }
+  }
+};
