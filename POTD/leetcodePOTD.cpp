@@ -7323,3 +7323,69 @@ public:
     return x;
   }
 };
+
+// ============================================================================
+//  💡 Problem: Maximize Frequency After Limited Operations
+//  🧩 Task:
+//      You are given an array `nums`, and two integers `k` and `numOperations`.
+//      You can perform at most `numOperations` operations, where each operation
+//      allows you to change a number `x` to any value within the range `[x - k, x + k]`.
+//      Your goal is to maximize the frequency of any number after performing these operations.
+//
+//  🧠 Approach:
+//      1️⃣ Determine the maximum possible element value after adding `k` to the largest element.
+//      2️⃣ Build a frequency array `freq` to count occurrences of each number up to `max_ele`.
+//      3️⃣ Compute prefix sums over `freq` to allow range frequency queries in O(1).
+//      4️⃣ For each potential target value `t`:
+//          - Compute its valid range `[t - k, t + k]`.
+//          - Count how many elements can be converted to `t` (using prefix sums).
+//          - Calculate the result as:
+//              `current_frequency + min(numOperations, convertible_count - current_frequency)`
+//      5️⃣ Track the maximum achievable frequency.
+//
+//  ⏱️ Time Complexity:  O(M)   (where M = max_element + k)
+//  💾 Space Complexity: O(M)
+// ============================================================================
+
+class Solution
+{
+public:
+  int maxFrequency(vector<int> &nums, int k, int numOperations)
+  {
+    // Step 1️⃣: Precompute max possible element value
+    int max_ele = *max_element(begin(nums), end(nums)) + k;
+
+    // Step 2️⃣: Build frequency array
+    vector<int> freq(max_ele + 1, 0);
+    for (int &num : nums)
+      freq[num]++;
+
+    // Step 3️⃣: Prefix sum of frequencies
+    for (int i = 1; i <= max_ele; i++)
+      freq[i] += freq[i - 1];
+
+    // Step 4️⃣: Iterate over possible targets
+    int ans = 0;
+    for (int target = 0; target <= max_ele; target++)
+    {
+      if (freq[target] == 0)
+        continue;
+
+      // Define range that can be converted into target
+      int l = max(0, target - k);
+      int r = min(max_ele, target + k);
+
+      // Total elements within range [l, r]
+      int cnt = freq[r] - ((l > 0) ? freq[l - 1] : 0);
+
+      // Frequency of the exact target
+      int target_cnt = freq[target] - ((target > 0) ? freq[target - 1] : 0);
+
+      // Step 5️⃣: Compute max achievable frequency for this target
+      int res = target_cnt + min(numOperations, cnt - target_cnt);
+      ans = max(ans, res);
+    }
+
+    return ans;
+  }
+};
