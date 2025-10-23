@@ -7389,3 +7389,31 @@ public:
     return ans;
   }
 };
+
+class Solution
+{
+public:
+  string solve(string s)
+  {
+    int n = s.length();
+    string ans = "";
+    for (int i = 0; i < n - 1; i++)
+    {
+      ans += (((s[i] - '0') + (s[i + 1] - '0')) % 10);
+    }
+    return ans;
+  }
+
+  bool hasSameDigits(string s)
+  {
+    int n = s.length();
+    string ans = s;
+    while (1)
+    {
+      if (ans.length() == 2)
+        break;
+      ans = solve(ans);
+    }
+    return ((ans[0] == ans[1]) ? true : false);
+  }
+};
