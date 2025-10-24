@@ -7417,3 +7417,33 @@ public:
     return ((ans[0] == ans[1]) ? true : false);
   }
 };
+
+class Solution
+{
+public:
+  bool is_balanced(int n)
+  {
+    vector<int> freq(10, 0);
+    while (n != 0)
+    {
+      freq[n % 10]++;
+      n /= 10;
+    }
+    for (int i = 0; i < 10; i++)
+    {
+      if (freq[i] > 0 && freq[i] != i)
+        return false;
+    }
+    return true;
+  }
+
+  int nextBeautifulNumber(int n)
+  {
+    for (int i = n + 1; i <= 1224444; i++)
+    {
+      if (is_balanced(i))
+        return i;
+    }
+    return -1;
+  }
+};
