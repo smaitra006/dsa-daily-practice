@@ -40,35 +40,39 @@ Space Complexity: O(n) - recursion stack
 ==============================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    int recur(vector<int>& cost, int n, int i)
+  int recur(vector<int> &cost, int n, int i)
+  {
+    // Base case: reached the top
+    if (i == n)
+      return 0;
+
+    // Cost of taking 1 step
+    int step1 = INT_MAX;
+    if (i + 1 <= n)
     {
-        // Base case: reached the top
-        if (i == n) return 0;
-
-        // Cost of taking 1 step
-        int step1 = INT_MAX;
-        if (i + 1 <= n) {
-            step1 = cost[i] + recur(cost, n, i + 1);
-        }
-
-        // Cost of taking 2 steps
-        int step2 = INT_MAX;
-        if (i + 2 <= n) {
-            step2 = cost[i] + recur(cost, n, i + 2);
-        }
-
-        return min(step1, step2);
+      step1 = cost[i] + recur(cost, n, i + 1);
     }
 
-    int minCostClimbingStairs(vector<int>& cost)
+    // Cost of taking 2 steps
+    int step2 = INT_MAX;
+    if (i + 2 <= n)
     {
-        int n = cost.size();
-        int start0 = recur(cost, n, 0);
-        int start1 = recur(cost, n, 1);
-        return min(start0, start1);
+      step2 = cost[i] + recur(cost, n, i + 2);
     }
+
+    return min(step1, step2);
+  }
+
+  int minCostClimbingStairs(vector<int> &cost)
+  {
+    int n = cost.size();
+    int start0 = recur(cost, n, 0);
+    int start1 = recur(cost, n, 1);
+    return min(start0, start1);
+  }
 };
 
 /*
@@ -80,32 +84,37 @@ Space Complexity: O(n) - dp array + recursion stack
 ==============================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    int recur(vector<int>& cost, int n, int i, vector<int>& memo)
+  int recur(vector<int> &cost, int n, int i, vector<int> &memo)
+  {
+    if (i == n)
+      return 0;
+    if (memo[i] != -1)
+      return memo[i];
+
+    int step1 = INT_MAX, step2 = INT_MAX;
+    if (i + 1 <= n)
     {
-        if (i == n) return 0;
-        if (memo[i] != -1) return memo[i];
-
-        int step1 = INT_MAX, step2 = INT_MAX;
-        if (i + 1 <= n) {
-            step1 = cost[i] + recur(cost, n, i + 1, memo);
-        }
-        if (i + 2 <= n) {
-            step2 = cost[i] + recur(cost, n, i + 2, memo);
-        }
-
-        return memo[i] = min(step1, step2);
+      step1 = cost[i] + recur(cost, n, i + 1, memo);
+    }
+    if (i + 2 <= n)
+    {
+      step2 = cost[i] + recur(cost, n, i + 2, memo);
     }
 
-    int minCostClimbingStairs(vector<int>& cost)
-    {
-        int n = cost.size();
-        vector<int> memo(n + 1, -1);
-        int start0 = recur(cost, n, 0, memo);
-        int start1 = recur(cost, n, 1, memo);
-        return min(start0, start1);
-    }
+    return memo[i] = min(step1, step2);
+  }
+
+  int minCostClimbingStairs(vector<int> &cost)
+  {
+    int n = cost.size();
+    vector<int> memo(n + 1, -1);
+    int start0 = recur(cost, n, 0, memo);
+    int start1 = recur(cost, n, 1, memo);
+    return min(start0, start1);
+  }
 };
 
 /*
@@ -117,21 +126,23 @@ Space Complexity: O(n)
 ==============================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    int minCostClimbingStairs(vector<int>& cost)
+  int minCostClimbingStairs(vector<int> &cost)
+  {
+    int n = cost.size();
+    vector<int> dp(n + 1, 0); // dp[i] = min cost to reach step i
+
+    for (int i = 2; i <= n; i++)
     {
-        int n = cost.size();
-        vector<int> dp(n + 1, 0); // dp[i] = min cost to reach step i
-
-        for (int i = 2; i <= n; i++) {
-            int oneStep = dp[i - 1] + cost[i - 1];
-            int twoStep = dp[i - 2] + cost[i - 2];
-            dp[i] = min(oneStep, twoStep);
-        }
-
-        return dp[n];
+      int oneStep = dp[i - 1] + cost[i - 1];
+      int twoStep = dp[i - 2] + cost[i - 2];
+      dp[i] = min(oneStep, twoStep);
     }
+
+    return dp[n];
+  }
 };
 
 /*
@@ -143,22 +154,24 @@ Space Complexity: O(1)
 ==============================================================================
 */
 
-class Solution {
+class Solution
+{
 public:
-    int minCostClimbingStairs(vector<int>& cost)
+  int minCostClimbingStairs(vector<int> &cost)
+  {
+    int n = cost.size();
+    int prev2 = 0; // dp[i-2]
+    int prev1 = 0; // dp[i-1]
+
+    for (int i = 2; i <= n; i++)
     {
-        int n = cost.size();
-        int prev2 = 0; // dp[i-2]
-        int prev1 = 0; // dp[i-1]
-
-        for (int i = 2; i <= n; i++) {
-            int curr = min(prev1 + cost[i - 1], prev2 + cost[i - 2]);
-            prev2 = prev1;
-            prev1 = curr;
-        }
-
-        return prev1;
+      int curr = min(prev1 + cost[i - 1], prev2 + cost[i - 2]);
+      prev2 = prev1;
+      prev1 = curr;
     }
+
+    return prev1;
+  }
 };
 
 /*
