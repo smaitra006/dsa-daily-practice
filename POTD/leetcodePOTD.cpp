@@ -7447,3 +7447,102 @@ public:
     return -1;
   }
 };
+
+// ============================================================================
+// 💡 Problem: Design a Bank System
+// ----------------------------------------------------------------------------
+// 🧩 Task:
+//      Implement a Bank system that supports the following operations:
+//        1️⃣ transfer(from, to, amount)  → transfer money between accounts
+//        2️⃣ deposit(account, amount)    → deposit money into an account
+//        3️⃣ withdraw(account, amount)   → withdraw money from an account
+//
+//      Return `true` if the operation succeeds, otherwise `false`.
+//
+// ----------------------------------------------------------------------------
+// 🧠 Approach:
+//      • Maintain account balances in a vector `bal`.
+//      • Validate all account numbers before performing operations.
+//      • Ensure sufficient balance before transfers and withdrawals.
+//      • Indexing: accounts are 1-indexed externally, but 0-indexed internally.
+//
+// ----------------------------------------------------------------------------
+// ⏱️ Time Complexity:  O(1) per operation
+// 💾 Space Complexity: O(n) for storing balances
+// ============================================================================
+
+class Bank
+{
+private:
+  // ------------------------------------------------------------------------
+  // 🔹 Data Members
+  // ------------------------------------------------------------------------
+  vector<long long> bal; // Account balances
+  int n;                 // Total number of accounts
+
+  // ------------------------------------------------------------------------
+  // 🔸 Helper Function: Validate account index
+  // ------------------------------------------------------------------------
+  bool valid(int acc)
+  {
+    return acc > 0 && acc <= n;
+  }
+
+public:
+  // ------------------------------------------------------------------------
+  // 🏦 Constructor: Initialize bank with balances
+  // ------------------------------------------------------------------------
+  Bank(vector<long long> &balance)
+  {
+    bal = balance;
+    n = balance.size();
+  }
+
+  // ------------------------------------------------------------------------
+  // 💸 Operation 1: Transfer amount from one account to another
+  // ------------------------------------------------------------------------
+  bool transfer(int from, int to, long long amt)
+  {
+    if (!valid(from) || !valid(to) || bal[from - 1] < amt)
+      return false;
+
+    bal[from - 1] -= amt;
+    bal[to - 1] += amt;
+    return true;
+  }
+
+  // ------------------------------------------------------------------------
+  // 💰 Operation 2: Deposit amount into an account
+  // ------------------------------------------------------------------------
+  bool deposit(int acc, long long amt)
+  {
+    if (!valid(acc))
+      return false;
+
+    bal[acc - 1] += amt;
+    return true;
+  }
+
+  // ------------------------------------------------------------------------
+  // 💳 Operation 3: Withdraw amount from an account
+  // ------------------------------------------------------------------------
+  bool withdraw(int acc, long long amt)
+  {
+    if (!valid(acc) || bal[acc - 1] < amt)
+      return false;
+
+    bal[acc - 1] -= amt;
+    return true;
+  }
+};
+
+// ============================================================================
+// ✅ Example Usage:
+//
+//   vector<long long> balance = {1000, 500, 200};
+//   Bank bank(balance);
+//
+//   bank.deposit(2, 300);          // Account 2 → +300
+//   bank.withdraw(1, 200);         // Account 1 → -200
+//   bank.transfer(2, 3, 400);      // Transfer 400 from 2 → 3
+// ============================================================================
