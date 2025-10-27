@@ -7546,3 +7546,22 @@ public:
 //   bank.withdraw(1, 200);         // Account 1 → -200
 //   bank.transfer(2, 3, 400);      // Transfer 400 from 2 → 3
 // ============================================================================
+
+class Solution
+{
+public:
+  int numberOfBeams(vector<string> &bank)
+  {
+    int ans = 0, prev = 0;
+    for (auto &row : bank)
+    {
+      int device = count(row.begin(), row.end(), '1');
+      if (device > 0)
+      {
+        ans += device * prev;
+        prev = device;
+      }
+    }
+    return ans;
+  }
+};
