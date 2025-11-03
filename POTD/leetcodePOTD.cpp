@@ -7667,3 +7667,39 @@ public:
     return cnt;
   }
 };
+
+class Solution
+{
+public:
+  int minCost(string colors, vector<int> &neededTime)
+  {
+    int n = colors.length();
+    int time = 0;
+    priority_queue<int, vector<int>, greater<int>> pq;
+    pq.push(neededTime[0]);
+    for (int i = 1; i < n; i++)
+    {
+      if (colors[i] != colors[i - 1])
+      {
+        int size = pq.size();
+        for (int i = 0; i < size - 1; i++)
+        {
+          int x = pq.top();
+          time += x;
+          pq.pop();
+        }
+        pq.pop();
+      }
+      pq.push(neededTime[i]);
+    }
+    int size = pq.size();
+    for (int i = 0; i < size - 1; i++)
+    {
+      int x = pq.top();
+      time += x;
+      pq.pop();
+    }
+    pq.pop();
+    return time;
+  }
+};
