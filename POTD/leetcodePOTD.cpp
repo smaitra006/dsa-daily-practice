@@ -8014,3 +8014,26 @@ public:
     return ret;
   }
 };
+
+class Solution
+{
+public:
+  int MOD = 1000000007;
+  int numSub(string s)
+  {
+    long long len = 0, res = 0;
+    int i = 0;
+    while (i < s.size())
+    {
+      while (i < s.size() && s[i] == '1')
+      {
+        len++;
+        i++;
+      }
+      res += (((len) * (len + 1) % MOD) / 2);
+      len = 0;
+      i++;
+    }
+    return res % MOD;
+  }
+};
