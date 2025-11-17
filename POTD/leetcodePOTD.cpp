@@ -8037,3 +8037,21 @@ public:
     return res % MOD;
   }
 };
+
+class Solution
+{
+public:
+  bool kLengthApart(vector<int> &nums, int k)
+  {
+    int n = nums.size();
+    int last_one = -1;
+    for (int i = 0; i < n; i++)
+    {
+      if (last_one != -1 && nums[i] == 1 && (i - last_one - 1) < k)
+        return false;
+      if (nums[i] == 1)
+        last_one = i;
+    }
+    return true;
+  }
+};
