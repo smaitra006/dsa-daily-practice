@@ -8117,3 +8117,36 @@ public:
     return cnt;
   }
 };
+
+class Solution
+{
+public:
+  int countPalindromicSubsequence(string s)
+  {
+    int n = s.size();
+    map<char, vector<int>> mpp;
+    map<string, int> final;
+    for (int i = 0; i < n; i++)
+    {
+      mpp[s[i]].push_back(i);
+    }
+    for (int i = 0; i < 26; i++)
+    {
+      if (mpp[i + 'a'].size() <= 1)
+      {
+        continue;
+      }
+      int st = mpp[i + 'a'][0];
+      int en = mpp[i + 'a'].back();
+      for (int j = st + 1; j < en; j++)
+      {
+        string ans = "";
+        ans.push_back((char)(i + 'a'));
+        ans.push_back(s[j]);
+        ans.push_back((char)(i + 'a'));
+        final[ans]++;
+      }
+    }
+    return final.size();
+  }
+};
